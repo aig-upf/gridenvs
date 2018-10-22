@@ -23,8 +23,8 @@ def key_door_env(init_map, key_reward, kwargs):
 
     return KeyDoorEnv(**kwargs)
 
-def key_door_walls(walls = 2, key_reward = False, **kwargs):
-    assert walls in range(4)
+def key_door_walls(level = 2, key_reward = False, **kwargs):
+    assert level in range(5)
     init_map = ["WWWWWWWWWW",
                 "WD......KW",
                 "W........W",
@@ -37,12 +37,15 @@ def key_door_walls(walls = 2, key_reward = False, **kwargs):
                 "WWWWWWWWWW"]
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
-    if walls >= 1:
+    if level >= 1:
         init_map[6, 3:7] = 'W'
-    if walls >= 2:
+    if level >= 2:
         init_map[3, 6:] = 'W'
-    if walls >= 3:
+    if level >= 3:
         init_map[:4, 3] = 'W'
+    if level >= 4:
+        init_map[3, 3:] = 'W' #close entrance
+        init_map[3, 6] = '.' #open 1 square in the middle
         
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, kwargs)

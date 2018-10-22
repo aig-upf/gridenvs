@@ -19,10 +19,10 @@ register(id='GE_Montezuma-v0',
 # =============================================================================
 # MAZE KEY-DOOR
 # =============================================================================
-for i in range(4):
+for i in range(5):
     register(id='GE_MazeKeyDoor-v%i' % i,
              entry_point='gridenvs.examples.maze_key_door:key_door_walls',
-             kwargs={"obs_type": "image", "walls": i, "key_reward": False, 'max_moves': 200},
+             kwargs={"obs_type": "image", "level": i, "key_reward": False, 'max_moves': 200},
              nondeterministic=False)
 
 for entrance in ('R', 'L'):
