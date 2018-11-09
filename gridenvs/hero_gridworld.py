@@ -5,6 +5,7 @@ from gridenvs.gridworld import GridworldEnv
 from gridenvs.gridworld_map import GridworldMap, GameObject
 from gridenvs.utils import Direction, Point
 import numpy as np
+from copy import deepcopy
 
 class HeroGridEnv(GridworldEnv):
     """
@@ -120,11 +121,17 @@ class StrMapHeroGridEnv(HeroGridEnv):
         HeroGridEnv.__init__(self, max_moves=max_moves, obs_type=obs_type)
 
     def reset_world(self):
+        self.world = deepcopy(self.fresh_world)
+        res = self.world.get_objects_by_names(self.MAP_DESC['HERO_MARK'])
+        assert len(res) == 1 is not None, "Hero not found in world objects (or more than one found?!)."
+        return res[0]
+
+    def create_world(self):
         assert self.MAP is not None
         self.world = GridworldMap((len(self.MAP[0]), len(self.MAP)))
 
         hero_mark = self.MAP_DESC['HERO_MARK']
-        self.hero = None
+        hero = None
         for y, string in enumerate(self.MAP):
             for x, point in enumerate(string):
                 if point == '.':
@@ -138,12 +145,9 @@ class StrMapHeroGridEnv(HeroGridEnv):
                     o = GameObject(name=point, pos=(x, y), rgb=color)
                     if point == hero_mark:
                         o.render_preference = 1
-                        self.hero = o
+                        hero = o
                     self.world.add_object(o)
 
-        assert self.hero is not None, "Hero could not be loaded."
-        return self.hero
-
-    def create_world(self):
-        self.game_state['hero'] = self.reset_world()
+        assert hero is not None, "Hero could not be loaded."
+        self.fresh_world = deepcopy(self.world)
         return self.world
