@@ -156,11 +156,13 @@ class GridworldMap:
             res[obj.pos].append(obj)
         return dict(res)
 
-    def get_objects_by_names(name_or_names, objects):
+    def get_objects_by_names(self, name_or_names, objects=None):
         """
         :param names: Single name or list / tuple
         :return:
         """
+        if objects is None:
+            objects = self.objects
         if type(name_or_names) is str:
             name_or_names = (name_or_names,)
         return [o for o in objects if o.name in name_or_names]
