@@ -66,7 +66,7 @@ class HeroGridEnv(GridworldEnv):
                 action = self.ACTION_MAP[action]
         else:
             if action not in self.ACTION_MAP:
-                raise Exception("Action %s not in ACTION_MAP." % action)
+                raise Exception("Action %s not in ACTION_MAP. ACTION_MAP: %s" % (action, str(self.ACTION_MAP)))
 
         self.move_hero(action)
         self.game_state['moves'] += 1
