@@ -94,6 +94,10 @@ class Direction(Enum):
     @staticmethod
     def all():
         return list(Direction)
+    
+    @staticmethod
+    def left_right():
+        return [Direction.E, Direction.W]
 
     def opposite(self):
         return Direction(-self.value)
