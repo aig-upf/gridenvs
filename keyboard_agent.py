@@ -11,12 +11,11 @@ def run_env(env_name, controls={**Controls.Arrows, **Controls.KeyPad}, frameskip
         raise Exception('Keyboard agent only supports discrete action spaces')
 
     controller = KeyboardController(env, controls=controls, frameskip=frameskip, obs_fn=obs_fn)
-    try:
-        controller.run()
-    finally:
-        env.close()
+    controller.run()
+    env.close()
 
 if __name__ == "__main__":
+
     import sys
     import gridenvs.examples  # load example gridworld environments
 

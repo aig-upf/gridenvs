@@ -66,8 +66,10 @@ class KeyboardController:
         self.frameskip = frameskip  # Use previous control decision for these many steps
 
     def key_press(self, key, mod):
-        if key==Key.esc: self.human_wants_restart = True
-        if key in self.controls.keys():
+        # unused input mod.
+        if key==Key.esc:
+            self.human_wants_restart = True
+        elif key in self.controls.keys():
             self.human_agent_action = self.controls[key]
         else:
             raise Exception("Key %d not in controls map %s"%(key, str(self.controls)))
@@ -76,26 +78,22 @@ class KeyboardController:
         pass
 
     def run(self):
-        while True:
-            self.human_wants_restart = False
+        while not(self.human_wants_restart):
             done = False
-            self.env.reset()
-            while True:
-                if self.human_wants_restart: break
-                if self.human_agent_action != -1:
-                    #print("taking action {}".format(self.human_agent_action))
-                    r = 0
-                    for _ in range(self.frameskip):
-                        obs, reward, done, info = self.env.step(self.human_agent_action)
-                        r += reward
-                        if done:
-                            break
-                    self.human_agent_action = -1
-
-                    self.obs_fn(obs)
-                    print("r =", r)
+            if self.human_agent_action != -1:
+                #print("taking action {}".format(self.human_agent_action))
+                r = 0
+                for _ in range(self.frameskip):
+                    obs, reward, done, info = self.env.step(self.human_agent_action)
+                    r += reward
                     if done:
-                        print("End of episode", flush=True)
                         break
+                self.human_agent_action = -1
 
-                self.env.render_scaled()
+                self.obs_fn(obs)
+                print("r =", r)
+                if done:
+                    print("End of episode", flush=True)
+                    break
+
+            self.env.render_scaled()
