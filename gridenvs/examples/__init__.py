@@ -55,3 +55,11 @@ for i in range(9):
              entry_point='gridenvs.examples.beacon1D:beacon_1D',
              kwargs={"obs_type": "image", "level": i, 'max_moves': 200},
              nondeterministic=False)
+# =============================================================================
+# MAZE OPTIONS
+# =============================================================================
+
+register(id='GE_MazeOptions-v0',
+             entry_point='gridenvs.examples.maze_options:key_door_walls',
+             kwargs={"obs_type": "image", "key_reward": False, 'max_moves': 200},
+             nondeterministic=False)

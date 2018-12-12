@@ -66,7 +66,7 @@ class KeyboardController:
         self.frameskip = frameskip  # Use previous control decision for these many steps
 
     def key_press(self, key, mod):
-        # unused input mod.
+        # unused input : mod
         if key==Key.esc:
             self.human_wants_restart = True
         elif key in self.controls.keys():
@@ -78,18 +78,15 @@ class KeyboardController:
         pass
 
     def run(self):
-        while not(self.human_wants_restart):
-            done = False
+        done = False
+        while not(self.human_wants_restart) or not(done):
             if self.human_agent_action != -1:
                 #print("taking action {}".format(self.human_agent_action))
                 r = 0
                 for _ in range(self.frameskip):
                     obs, reward, done, info = self.env.step(self.human_agent_action)
                     r += reward
-                    if done:
-                        break
                 self.human_agent_action = -1
-
                 self.obs_fn(obs)
                 print("r =", r)
                 if done:

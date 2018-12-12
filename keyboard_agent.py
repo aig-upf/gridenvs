@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+
+# DEPRECATED CLASS
 from gridenvs.keyboard_controller import Controls, KeyboardController
 
 def run_env(env_name, controls={**Controls.Arrows, **Controls.KeyPad}, frameskip=1, obs_fn = lambda x:None):

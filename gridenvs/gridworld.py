@@ -66,14 +66,14 @@ class GridworldEnv(gym.Env):
         To be overriden by child classes.
         """
         return self.world
-    
+
     def _restore(self, internal_state):
         """
         To be overriden by child classes.
         """
         assert self.world.grid_size == internal_state.grid_size
         self.world = internal_state
-        
+
     def _reset(self):
         raise Exception ("Child class should implement this.")
 
