@@ -34,6 +34,9 @@ class HeroGridEnv(GridworldEnv):
         self.game_state['state_id'] = 0
         self.game_state['moves'] = 0
         self.game_state['done'] = False
+        # The zone is a region of the state space. For the moment we take squares of size zone_size.
+        # The location of the zones are given by a Point, which contains its coordinates.
+        self.game_state['zone'] = Point(x = 0, y = 0)
         return self.generate_observation(self.world)
 
     def move(self, obj, direction):
@@ -89,10 +92,17 @@ class HeroGridEnv(GridworldEnv):
 
         if self.max_moves is not None and self.game_state['moves'] >= self.max_moves:
             end_episode = True
+        self.update_zone(self.game_state['hero'].pos)
         info = {
-            'state_id': self.game_state['state_id']
+            'state_id': self.game_state['state_id'], 'zone' : self.game_state['zone']
         }
         return reward, end_episode, info
+
+    def update_zone(self, position):
+        """
+        gives the current zone for the position
+        """
+        self.game_state['zone'] =  Point(position.x  // self.zone_size['zone_size_x'], position.y // self.zone_size['zone_size_y'])
 
     def create_world(self):
         """

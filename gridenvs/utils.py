@@ -56,6 +56,7 @@ class Point:
     def __repr__(self):
         return "".join(["Point(", str(self.x), ",", str(self.y), ")"])
 
+
 class Direction(Enum):
     #axis at top left, y is inverted
     N = Point(0,-1)

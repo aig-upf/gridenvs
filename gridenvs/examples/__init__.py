@@ -63,3 +63,8 @@ register(id='GE_MazeOptions-v0',
              entry_point='gridenvs.examples.maze_options:key_door_walls',
              kwargs={"obs_type": "image", "key_reward": False, 'max_moves': 200},
              nondeterministic=False)
+
+register(id='GE_MazeOptions-v1',
+             entry_point='gridenvs.examples.maze_options:key_door_walls',
+             kwargs={"obs_type": "image", "key_reward": False, 'max_moves': float('inf')},
+             nondeterministic=False)
