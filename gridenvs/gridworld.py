@@ -53,12 +53,13 @@ class GridworldEnv(gym.Env):
     def render_env_low_quality(self, size, grid_state):
         """
         here we are making an average of the colors in the grid
-        TODO : test this function 
+        TODO : test this function
         """
         # a is a matrix which each entry is an array of 3 integers (RGB)
         a = grid_state.render()
-        a = self.average_colors(a)
-        a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
+#        a = self.average_colors(a)
+        a = cv2.resize(a, (3,3), interpolation=cv2.INTER_AREA)
+        a = cv2.resize(a, (512,512), interpolation=cv2.INTER_NEAREST)
         return a
 
     def update_environment(self, action):
@@ -112,7 +113,8 @@ class GridworldEnv(gym.Env):
 
     def render_scaled(self, size=(512, 512), mode='human', close=False, blurred = False):
         if blurred:
-            img = self.render_env_low_quality(size, self.world)
+            size_divide_by_two = (size[0] // 2, size[1] // 2)
+            img = self.render_env_low_quality(size_divide_by_two, self.world)
         else:
             img = self.render_env(size, self.world)
         self.render_gym(img, mode, close)
@@ -160,16 +162,15 @@ class GridworldEnv(gym.Env):
         """
         call average_colors_zone in every zone of the matrix
         """
-        m = np.array(matrix,object)
+        m = np.array(matrix, object)
         if not((len(m) % self.zone_size['y'] == 0) and (len(m[0]) % self.zone_size['x'] == 0)):
             raise Exception ("The map can not be divided with these zones")
         else:
             for j in range(0, len(m[0]), self.zone_size['x']):
                 for i in range(0, len(m), self.zone_size['y']):
                     i_min = i
-                    i_max = i_min + self.zone_size['y']
+                    i_max = i + self.zone_size['y']
                     j_min = j
-                    j_max = j_min + self.zone_size['x']
+                    j_max = j + self.zone_size['x']
                     m[i_min:i_max, j_min:j_max]  = self.average_colors_zone(m[i_min:i_max, j_min:j_max])
-            
             return m.tolist()

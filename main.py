@@ -15,7 +15,7 @@ if not hasattr(env.action_space, 'n'):
 
 # Second, choose your agent among the type_agent_list
 type_agent_list = ["keyboard_controller","agent_option"]
-agent_chosen = type_agent_list[1]
+agent_chosen = type_agent_list[0]
 
 if agent_chosen == type_agent_list[0]:
     from gridenvs.keyboard_controller import Controls
