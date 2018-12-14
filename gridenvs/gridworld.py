@@ -34,9 +34,10 @@ class GridworldEnv(gym.Env):
 
         self.action_space = Discrete(n_actions)
         self.observation_space = Box(0, 255, shape=self.pixel_size+(3,))
+        #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
         # The grid is cut into several zones of size zone_size_x X zone_size_y
-        self.zone_size = {'zone_size_x' : 3, 'zone_size_y' : 3}
+        self.zone_size = {'x' : zone_size_x, 'y' : zone_size_y}
 
     def create_world(self):
         raise NotImplementedError()
@@ -46,6 +47,17 @@ class GridworldEnv(gym.Env):
 
     def render_env(self, size, grid_state):
         a = grid_state.render()
+        a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
+        return a
+
+    def render_env_low_quality(self, size, grid_state):
+        """
+        here we are making an average of the colors in the grid
+        TODO : test this function 
+        """
+        # a is a matrix which each entry is an array of 3 integers (RGB)
+        a = grid_state.render()
+        a = self.average_colors(a)
         a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
         return a
 
@@ -98,11 +110,66 @@ class GridworldEnv(gym.Env):
         img = self.generate_observation(self.world)
         self.render_gym(img, mode, close)
 
-    def render_scaled(self, size=(512, 512), mode='human', close=False):
-        img = self.render_env(size, self.world)
+    def render_scaled(self, size=(512, 512), mode='human', close=False, blurred = False):
+        if blurred:
+            img = self.render_env_low_quality(size, self.world)
+        else:
+            img = self.render_env(size, self.world)
         self.render_gym(img, mode, close)
 
     def _seed(self, seed):
         np.random.seed(seed)
         return seed
 
+    @staticmethod
+    def average_colors_zone(matrix):
+        """
+        input : a list of list object
+        output : a np.matrix objec
+
+        matrix's entries are arrays of 3 integers.
+        """
+        number_rows = len(matrix)
+        number_columns = len(matrix[0])
+        matrix_average = np.zeros((number_rows, number_columns), dtype = object)
+        number_elements = number_rows * number_columns
+        has_same_number_elements = True
+        has_three_elements = True
+        for i in range(0,number_rows):
+             has_same_number_elements *= (number_columns == len(matrix[i]))
+             for j in matrix[i]:
+                 has_three_elements *= (len(j) == 3)
+        if not(has_same_number_elements):
+            raise Exception ("The matrix rows have not all the same number of elements !")
+        elif not(has_three_elements):
+            raise Exception ("The matrix entries are not lists of 3 elements")
+        else:
+            r, g, b = 0, 0, 0
+            for i in range(number_rows):
+                for RGB in matrix[i]:
+                    r += RGB[0]
+                    g += RGB[1]
+                    b += RGB[2]
+            r /= number_elements
+            g /= number_elements
+            b /= number_elements
+        matrix_average.fill([r, g, b])
+        return matrix_average
+
+    def average_colors(self, matrix):
+        """
+        call average_colors_zone in every zone of the matrix
+        """
+        m = np.array(matrix,object)
+        if not((len(m) % self.zone_size['y'] == 0) and (len(m[0]) % self.zone_size['x'] == 0)):
+            raise Exception ("The map can not be divided with these zones")
+        else:
+            for j in range(0, len(m[0]), self.zone_size['x']):
+                for i in range(0, len(m), self.zone_size['y']):
+                    i_min = i
+                    i_max = i_min + self.zone_size['y']
+                    j_min = j
+                    j_max = j_min + self.zone_size['x']
+                    m[i_min:i_max, j_min:j_max]  = self.average_colors_zone(m[i_min:i_max, j_min:j_max])
+            
+            return m.tolist()

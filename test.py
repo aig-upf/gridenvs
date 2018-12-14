@@ -6,7 +6,9 @@ import numpy as np
 from gridenvs.hero_gridworld import StrMapHeroGridEnv
 
 class TestStringMethods(unittest.TestCase):
-
+    """
+        The following methods test the function average_colors_zone in gridworld.py
+    """
     def _test_average_colors_zone(self, matrix, average_rgb):
         """
         A private method used to create tests
@@ -43,5 +45,23 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(Exception):
             m_average = StrMapHeroGridEnv.average_colors_zone(matrix)
 
+    """
+        The following methods test the function average_colors in gridworld.py
+    def _test_average_colors(self, matrix, averaged_matrix, zone_size_x, zone_size_y):
+
+        #A private method used to create tests
+
+        smaphero = StrMapHeroGridEnv()
+        matrix = smaphero.average_colors(matrix, zone_size_x, zone_size_y)
+        self.assertTrue((matrix==averaged_matrix).all())
+
+    def test_average_colors_good_matrix(self):
+        matrix = np.zeros((10,10), dtype = object)
+        matrix.fill([1, 1, 1])
+        average_rgb = [1 / 3, 1 / 3, 1 / 3]
+        averaged_matrix = np.ones((10,10), dtype = object)
+        averaged_matrix.fill(1 / 3)
+        self._test_average_colors(matrix, averaged_matrix, 2, 2)
+    """
 if __name__ == "__main__":
     unittest.main()

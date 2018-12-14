@@ -39,4 +39,3 @@ def key_door_walls(key_reward = False, **kwargs):
 
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, kwargs)
-

@@ -2,8 +2,10 @@ import sys, time
 import gridenvs.examples  # load example gridworld environments
 import gym
 import numpy as np
+import time
 from agent.keyboard_agent import KeyboardAgent
 from agent.agent_option import AgentOption
+
 
 # First choose your environment
 env_name = 'GE_MazeOptions-v1' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line
@@ -29,7 +31,7 @@ env.reset()
 while(not(done) and not(agent.human_wants_shut_down)):
     obs = 0
     #TODO TOFIX obs = 0
-    env.render_scaled()
+    env.render_scaled(blurred = True)
     action = agent.act(obs)
     if action != None:
         obs, reward, done, info = env.step(action)

@@ -102,7 +102,7 @@ class HeroGridEnv(GridworldEnv):
         """
         gives the current zone for the position
         """
-        self.game_state['zone'] =  Point(position.x  // self.zone_size['zone_size_x'], position.y // self.zone_size['zone_size_y'])
+        self.game_state['zone'] =  Point(position.x  // self.zone_size['x'], position.y // self.zone_size['y'])
 
     def create_world(self):
         """

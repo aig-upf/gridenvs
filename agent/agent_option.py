@@ -3,14 +3,9 @@ from gridenvs.utils import Direction
 from gridenvs.keyboard_controller import Controls, Key
 import numpy as np
 import time
+from agent.agent import Agent
 
-class AgentOption(object):
-    def __init__(self, env):
-        self.human_wants_shut_down = False
-        self.env = env
-        self.env.render_scaled()
-        env.unwrapped.viewer.window.on_key_press = self.key_press
-        env.unwrapped.viewer.window.on_key_release = self.key_release
+class AgentOption(Agent):
 
     def key_press(self, key, mod):
         self.human_wants_shut_down = key==Key.esc
