@@ -7,12 +7,12 @@ from agent.keyboard_agent import KeyboardAgent
 from agent.agent_option import AgentOption
 
 """
+Maybe : instead of doing zone_size, let's do : number of zones x and y
 TODO : duplicate of blurred and not blurred environment.
-TODO : instead of doing zone_size, let's do : number of zones x and y
 TODO : problem with escape
 """
 # First choose your environment
-env_name = 'GE_MazeKeyDoor-v1' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
+env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
 env_blurred = gym.make(env_name)
 env_blurred.blurred = True
 env_not_blurred = gym.make(env_name)
@@ -38,7 +38,7 @@ done = False
 total_reward = 0
 env_blurred.reset()
 env_not_blurred.reset()
-while(not(done) and not(agent_blurred.human_wants_shut_down)):
+while(not(done) and not(agent_blurred.human_wants_shut_down) and not(agent_not_blurred.human_wants_shut_down)):
     obs = 0
     #TODO TOFIX obs = 0
     env_blurred.render_scaled()

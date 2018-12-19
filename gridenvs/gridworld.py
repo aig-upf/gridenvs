@@ -22,7 +22,7 @@ class GridworldEnv(gym.Env):
     GAME_NAME = "Gridworld environment"
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 3, zone_size_y = 3, blurred = False):
+    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 1, zone_size_y = 1, blurred = False):
         self.pixel_size = pixel_size
         self.viewer = None
 

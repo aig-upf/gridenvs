@@ -14,6 +14,7 @@ class Agent(object):
     def key_press(self, key, mod):
         if key==Key.esc:
             self.human_wants_shut_down = True
+            self.env.close()
 
     def key_release(self, key, mod):
         pass

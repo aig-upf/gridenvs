@@ -50,9 +50,8 @@ class TestStringMethods(unittest.TestCase):
             col = []
             for b in range(3):
                 colors = []
-                colors.append(round(sum([grid_colors[i+3*a][j+3*b][0] for i in range(3) for j in range(3)]) / 9))
-                colors.append(round(sum([grid_colors[i+3*a][j+3*b][1] for i in range(3) for j in range(3)]) / 9))
-                colors.append(round(sum([grid_colors[i+3*a][j+3*b][2] for i in range(3) for j in range(3)]) / 9))
+                for c in range(3):
+                    colors.append(round(sum([grid_colors[i+3*a][j+3*b][c] for i in range(3) for j in range(3)]) / 9))
                 col.append(colors)
             moy.append(col)
         image_blurred =  cv2.resize(np.array(grid_colors, dtype = np.uint8), (len(grid_colors[0]) // 3, len(grid_colors) // 3), interpolation=cv2.INTER_AREA)
