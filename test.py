@@ -2,66 +2,90 @@
 Here is the zone where we test all the functions
 """
 import unittest
+import cv2
 import numpy as np
-from gridenvs.hero_gridworld import StrMapHeroGridEnv
-
 class TestStringMethods(unittest.TestCase):
     """
-        The following methods test the function average_colors_zone in gridworld.py
+        The following methods are examples to implement tests. It is possible
+    to make a function which is not a test but which can be used for the test.
+    To do that, just make the function private by adding the character '_' at
+    the begining at the name of the function.
+    More info her: https://docs.python.org/3/library/unittest.html
     """
-    def _test_average_colors_zone(self, matrix, average_rgb):
+    def _example_function_which_is_not_a_test_function(a):
+        return a+1
+
+    def test_upper(self):
+        self.assertEqual('foo'.upper(), 'FOO')
+
+    def test_isupper(self):
+        self.assertTrue('FOO'.isupper())
+        self.assertFalse('Foo'.isupper())
+
+    def test_split(self):
+        s = 'hello world'
+        self.assertEqual(s.split(), ['hello', 'world'])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError):
+            s.split(2)
+
+    def test_blurred_image(self):
         """
-        A private method used to create tests
+        A test to check if cv2.resize(...,interpolation=cv2.INTER_AREA) make an average of the colors of the cells
         """
-        m_average = StrMapHeroGridEnv.average_colors_zone(matrix)
-        matrix_average_rgb = np.zeros((len(m_average), len(m_average[0])), dtype = object)
-        matrix_average_rgb.fill(average_rgb)
-        self.assertTrue((m_average==matrix_average_rgb).all())
+        n = 9
+        grid_colors = []
+        #        grid_colors = np.zeros([self.grid_size.y, self.grid_size.x, 3], dtype=np.uint8)
+        for _ in range(n):
+            column = []
+            for _ in range(n):
+                colors = []
+                for k in range(3):
+                    colors.append(np.random.randint(256))
+                column.append(colors)
+            grid_colors.append(column)
 
-    def test_average_colors_zone_good_matrix(self):
-        matrix = [[ [1,2,3], [0,0,0], [1,1,1] ],
-                  [ [1,2,3], [0,2,0], [1,3,1] ],
-                  [ [1,2,3], [0,0,3], [3,2,1] ]
-                  ]
-        average_rgb = [8 / 9, 14 / 9, 15 / 9]
-        self._test_average_colors_zone(matrix, average_rgb)
+        moy = []
+        for a in range(3):
+            col = []
+            for b in range(3):
+                colors = []
+                colors.append(round(sum([grid_colors[i+3*a][j+3*b][0] for i in range(3) for j in range(3)]) / 9))
+                colors.append(round(sum([grid_colors[i+3*a][j+3*b][1] for i in range(3) for j in range(3)]) / 9))
+                colors.append(round(sum([grid_colors[i+3*a][j+3*b][2] for i in range(3) for j in range(3)]) / 9))
+                col.append(colors)
+            moy.append(col)
+        image_blurred =  cv2.resize(np.array(grid_colors, dtype = np.uint8), (len(grid_colors[0]) // 3, len(grid_colors) // 3), interpolation=cv2.INTER_AREA)
+        self.assertListEqual(image_blurred.tolist(), moy)
 
-
-    def test_average_colors_zone_bad_shape_matrix(self):
-        matrix = [[ [1,2,3], [0,0,0], [1,1,1] ],
-                  [ [1,2,3], [0,2,0], [1,3,1] ],
-                  [ [1,2,3], [0,0,3], [3,2,1], [0,0,0] ],
-                  ]
-        average_rgb = [8 / 9, 14 / 9, 15 / 9]
-        with self.assertRaises(Exception):
-            m_average = StrMapHeroGridEnv.average_colors_zone(matrix)
-
-    def test_average_colors_zone_bad_shape_matrix_rgb(self):
-        matrix = [[ [1,2,3], [0,0,0], [1,1,1, 0] ],
-                  [ [1,2,3], [0,2,0], [1,3,1] ],
-                  [ [1,2,3], [0,0,3], [3,2,1] ],
-                  ]
-        average_rgb = [8 / 9, 14 / 9, 15 / 9]
-        with self.assertRaises(Exception):
-            m_average = StrMapHeroGridEnv.average_colors_zone(matrix)
-
-    """
-        The following methods test the function average_colors in gridworld.py
-    def _test_average_colors(self, matrix, averaged_matrix, zone_size_x, zone_size_y):
-
-        #A private method used to create tests
-
-        smaphero = StrMapHeroGridEnv()
-        matrix = smaphero.average_colors(matrix, zone_size_x, zone_size_y)
-        self.assertTrue((matrix==averaged_matrix).all())
-
-    def test_average_colors_good_matrix(self):
-        matrix = np.zeros((10,10), dtype = object)
-        matrix.fill([1, 1, 1])
-        average_rgb = [1 / 3, 1 / 3, 1 / 3]
-        averaged_matrix = np.ones((10,10), dtype = object)
-        averaged_matrix.fill(1 / 3)
-        self._test_average_colors(matrix, averaged_matrix, 2, 2)
-    """
 if __name__ == "__main__":
     unittest.main()
+
+
+import numpy as np
+import cv2
+n = 9
+grid_colors = []
+for _ in range(n):
+    column = []
+    for _ in range(n):
+        colors = []
+        for k in range(3):
+            colors.append(np.random.randint(256))
+        column.append(colors)
+    grid_colors.append(column)
+
+moy = []
+for a in range(3):
+    col = []
+    for b in range(3):
+        colors = []
+        colors.append(round(sum([grid_colors[i+3*a][j+3*b][0] for i in range(3) for j in range(3)]) / 9))
+        colors.append(round(sum([grid_colors[i+3*a][j+3*b][1] for i in range(3) for j in range(3)]) / 9))
+        colors.append(round(sum([grid_colors[i+3*a][j+3*b][2] for i in range(3) for j in range(3)]) / 9))
+        col.append(colors)
+    moy.append(col)
+
+image_blurred =  cv2.resize(np.array(grid_colors, dtype = np.uint8), (len(grid_colors[0]) // 3, len(grid_colors) // 3), interpolation=cv2.INTER_AREA)
+print(image_blurred)
+print(grid_colors)
