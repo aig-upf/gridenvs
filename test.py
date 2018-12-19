@@ -60,32 +60,3 @@ class TestStringMethods(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-import numpy as np
-import cv2
-n = 9
-grid_colors = []
-for _ in range(n):
-    column = []
-    for _ in range(n):
-        colors = []
-        for k in range(3):
-            colors.append(np.random.randint(256))
-        column.append(colors)
-    grid_colors.append(column)
-
-moy = []
-for a in range(3):
-    col = []
-    for b in range(3):
-        colors = []
-        colors.append(round(sum([grid_colors[i+3*a][j+3*b][0] for i in range(3) for j in range(3)]) / 9))
-        colors.append(round(sum([grid_colors[i+3*a][j+3*b][1] for i in range(3) for j in range(3)]) / 9))
-        colors.append(round(sum([grid_colors[i+3*a][j+3*b][2] for i in range(3) for j in range(3)]) / 9))
-        col.append(colors)
-    moy.append(col)
-
-image_blurred =  cv2.resize(np.array(grid_colors, dtype = np.uint8), (len(grid_colors[0]) // 3, len(grid_colors) // 3), interpolation=cv2.INTER_AREA)
-print(image_blurred)
-print(grid_colors)
