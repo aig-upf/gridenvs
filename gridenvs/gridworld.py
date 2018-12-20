@@ -22,7 +22,7 @@ class GridworldEnv(gym.Env):
     GAME_NAME = "Gridworld environment"
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 1, zone_size_y = 1, blurred = False):
+    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 2, zone_size_y = 2, blurred = False):
         self.pixel_size = pixel_size
         self.viewer = None
 
@@ -56,6 +56,8 @@ class GridworldEnv(gym.Env):
     def render_env_low_quality(self, size, grid_state):
         """
         here we are making an average of the colors in the grid
+        TODO size argument ?
+        TODO gray_scale bool in argument
         """
         # a is a matrix which each entry is an array of 3 integers (RGB)
         # it is just the translation in terms of color of the grid writen in examples.
@@ -65,6 +67,31 @@ class GridworldEnv(gym.Env):
             size_x_image_blurred = int(len(grid_colors[0]) // self.zone_size['x'])
             size_y_image_blurred = int(len(grid_colors) // self.zone_size['y'])
             image_blurred = cv2.resize(grid_colors, (size_x_image_blurred, size_y_image_blurred), interpolation=cv2.INTER_AREA)
+            gray_scale = True
+            # gray scale ?
+            if gray_scale:
+
+                black_rgb = [0, 0, 0]
+                black = 90 * 3
+                gray_1_rgb = [80, 80, 80]
+                gray_1 = 120 * 3
+                gray_2_rgb = [160, 160, 160]
+                gray_2 = 150 * 3
+                white_rgb = [255, 255, 255]
+                for i in range(size_x_image_blurred):
+                    for j in range(size_y_image_blurred):
+                        rgb = image_blurred[i][j]
+                        sum_rgb = sum(rgb)
+                        if sum_rgb<black:
+                            image_blurred[i][j] = black_rgb
+                        elif sum_rgb<gray_1:
+                            image_blurred[i][j] = gray_1_rgb
+                        elif sum_rgb<gray_2:
+                            image_blurred[i][j] = gray_2_rgb
+                        else:
+                            image_blurred[i][j] = white_rgb
+
+
             image_blurred_resized = cv2.resize(image_blurred, (512,512), interpolation=cv2.INTER_NEAREST)
             return image_blurred_resized
         else:

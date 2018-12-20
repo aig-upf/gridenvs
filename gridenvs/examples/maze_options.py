@@ -26,30 +26,31 @@ def key_door_env(init_map, key_reward, kwargs):
     return KeyDoorEnv(**kwargs)
 
 def key_door_walls(key_reward = False, **kwargs):
+    init_map = ["WWWWWWWW",
+                "WD....KW",
+                "W.W....W",
+                "W.W..WWW",
+                "W.W....W",
+                "W.WWW..W",
+                "WH.....W",
+                "WWWWWWWW"]
     """
-    init_map = ["WWWWWWWWW",
-                "WD.....KW",
-                "W.W.....W",
-                "W.W.....W",
-                "W.W..WWWW",
-                "W.W.....W",
-                "W.WWWW..W",
-                "WH......W",
-                "WWWWWWWWW"]
+    init_map = ["WWWWWWWWWWWWWWW",
+                "W.....WW.....KW",
+                "W.....WW......W",
+                "W..H..........W",
+                "W.....WW......W",
+                "W.....WW......W",
+                "W.....WW......W",
+                "WW.WWWWW......W",
+                "WW.WWWWWWW.WWWW",
+                "W.....WWWW.WWWW",
+                "W.....WW......W",
+                "W.....WW......W",
+                "W.............W",
+                "WD....WW......W",
+                "WWWWWWWWWWWWWWW"]
     """
-    init_map = ["WWWWWWWWWWWWW",
-                "W.....W....KW",
-                "W.....W.....W",
-                "W..H........W",
-                "W.....W.....W",
-                "W.....W.....W",
-                "WW.WWWW.....W",
-                "W.....WWW.WWW",
-                "W.....W.....W",
-                "W.....W.....W",
-                "W...........W",
-                "WD....W.....W",
-                "WWWWWWWWWWWWW"]
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
     init_map=["".join(row) for row in init_map]
