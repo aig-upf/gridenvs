@@ -22,7 +22,7 @@ class GridworldEnv(gym.Env):
     GAME_NAME = "Gridworld environment"
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 2, zone_size_y = 2, blurred = False):
+    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 3, zone_size_y = 3, blurred = False):
         self.pixel_size = pixel_size
         self.viewer = None
 
@@ -53,10 +53,9 @@ class GridworldEnv(gym.Env):
         a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
         return a
 
-    def render_env_low_quality(self, size, grid_state):
+    def render_env_low_quality(self, size, grid_state, gray_scale = False):
         """
         here we are making an average of the colors in the grid
-        TODO size argument ?
         TODO gray_scale bool in argument
         """
         # a is a matrix which each entry is an array of 3 integers (RGB)
@@ -67,32 +66,15 @@ class GridworldEnv(gym.Env):
             size_x_image_blurred = int(len(grid_colors[0]) // self.zone_size['x'])
             size_y_image_blurred = int(len(grid_colors) // self.zone_size['y'])
             image_blurred = cv2.resize(grid_colors, (size_x_image_blurred, size_y_image_blurred), interpolation=cv2.INTER_AREA)
-            gray_scale = True
             # gray scale ?
             if gray_scale:
-
-                black_rgb = [0, 0, 0]
-                black = 90 * 3
-                gray_1_rgb = [80, 80, 80]
-                gray_1 = 120 * 3
-                gray_2_rgb = [160, 160, 160]
-                gray_2 = 150 * 3
-                white_rgb = [255, 255, 255]
-                for i in range(size_x_image_blurred):
-                    for j in range(size_y_image_blurred):
+                for j in range(size_x_image_blurred):
+                    for i in range(size_y_image_blurred):
                         rgb = image_blurred[i][j]
-                        sum_rgb = sum(rgb)
-                        if sum_rgb<black:
-                            image_blurred[i][j] = black_rgb
-                        elif sum_rgb<gray_1:
-                            image_blurred[i][j] = gray_1_rgb
-                        elif sum_rgb<gray_2:
-                            image_blurred[i][j] = gray_2_rgb
-                        else:
-                            image_blurred[i][j] = white_rgb
+                        sum_rgb = sum(rgb) // 3 // 10
+                        image_blurred[i][j] = [sum_rgb * 10]*3
 
-
-            image_blurred_resized = cv2.resize(image_blurred, (512,512), interpolation=cv2.INTER_NEAREST)
+            image_blurred_resized = cv2.resize(image_blurred, size, interpolation=cv2.INTER_NEAREST)
             return image_blurred_resized
         else:
             raise Exception("The gridworld can not be fragmented into zones")
@@ -148,7 +130,7 @@ class GridworldEnv(gym.Env):
 
     def render_scaled(self, size=(512, 512), mode='human', close=False):
         if self.blurred:
-            img = self.render_env_low_quality(size, self.world)
+            img = self.render_env_low_quality(size, self.world, gray_scale = True)
         else:
             img = self.render_env(size, self.world)
         self.render_gym(img, mode, close)

@@ -9,7 +9,10 @@ from agent.agent_option import AgentOption
 """
 Maybe : instead of doing zone_size, let's do : number of zones x and y
 TODO : duplicate of blurred and not blurred environment.
-TODO : problem with escape
+TODO : problem with escape, problem with close() actually.
+(Look at the stashed version :
+stash@{0}: WIP on branch_options: 3f712e7 some small changes
+to change the agent files in order to delete environment in their list of attributes.)
 """
 # First choose your environment
 env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'

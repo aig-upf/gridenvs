@@ -26,6 +26,7 @@ def key_door_env(init_map, key_reward, kwargs):
     return KeyDoorEnv(**kwargs)
 
 def key_door_walls(key_reward = False, **kwargs):
+    """
     init_map = ["WWWWWWWW",
                 "WD....KW",
                 "W.W....W",
@@ -50,7 +51,6 @@ def key_door_walls(key_reward = False, **kwargs):
                 "W.............W",
                 "WD....WW......W",
                 "WWWWWWWWWWWWWWW"]
-    """
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
     init_map=["".join(row) for row in init_map]
