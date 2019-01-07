@@ -16,7 +16,7 @@ to change the agent files in order to delete environment in their list of attrib
 """
 # First choose your environment
 
-def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = 100):
+def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = 1):
     env = gym.make(env_name)
     env.blurred = blurred_bool
     env.number_gray_colors = number_gray_colors
