@@ -22,7 +22,7 @@ class GridworldEnv(gym.Env):
     GAME_NAME = "Gridworld environment"
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 3, zone_size_y = 3, blurred = False):
+    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 3, zone_size_y = 3, blurred = False, number_gray_colors = 0):
         self.pixel_size = pixel_size
         self.viewer = None
 
@@ -41,6 +41,7 @@ class GridworldEnv(gym.Env):
         self.zone_size = {'x' : zone_size_x, 'y' : zone_size_y}
         # Is the world blurred ?
         self.blurred = blurred
+        self.number_gray_colors = number_gray_colors
 
     def create_world(self):
         raise NotImplementedError()
@@ -53,10 +54,9 @@ class GridworldEnv(gym.Env):
         a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
         return a
 
-    def render_env_low_quality(self, size, grid_state, gray_scale = False):
+    def render_env_low_quality(self, size, grid_state):
         """
         here we are making an average of the colors in the grid
-        TODO gray_scale bool in argument
         """
         # a is a matrix which each entry is an array of 3 integers (RGB)
         # it is just the translation in terms of color of the grid writen in examples.
@@ -67,12 +67,13 @@ class GridworldEnv(gym.Env):
             size_y_image_blurred = int(len(grid_colors) // self.zone_size['y'])
             image_blurred = cv2.resize(grid_colors, (size_x_image_blurred, size_y_image_blurred), interpolation=cv2.INTER_AREA)
             # gray scale ?
-            if gray_scale:
+            if self.number_gray_colors:
                 for j in range(size_x_image_blurred):
                     for i in range(size_y_image_blurred):
                         rgb = image_blurred[i][j]
-                        sum_rgb = sum(rgb) // 3 // 10
-                        image_blurred[i][j] = [sum_rgb * 10]*3
+                        gray_level = (255 * 3) // self.number_gray_colors
+                        sum_rgb = (sum(rgb) // gray_level) * gray_level 
+                        image_blurred[i][j] = [sum_rgb]*3
 
             image_blurred_resized = cv2.resize(image_blurred, size, interpolation=cv2.INTER_NEAREST)
             return image_blurred_resized
@@ -130,7 +131,7 @@ class GridworldEnv(gym.Env):
 
     def render_scaled(self, size=(512, 512), mode='human', close=False):
         if self.blurred:
-            img = self.render_env_low_quality(size, self.world, gray_scale = True)
+            img = self.render_env_low_quality(size, self.world)
         else:
             img = self.render_env(size, self.world)
         self.render_gym(img, mode, close)
