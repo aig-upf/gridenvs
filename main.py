@@ -12,17 +12,16 @@ TODO : problem with escape for closing the environment, problem with close().
 stash@{0}: WIP on branch_options: 3f712e7 some small changes
 to change the agent files in order to delete environment in their list of attributes.)
 """
-# First choose your environment
 
-def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = 10, zone_size_x = 8, zone_size_y = 8):
+def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = 10, zone_size_x = 4, zone_size_y = 4):
     env = gym.make(env_name)
+    env.reset()
     env.blurred = blurred_bool
     env.number_gray_colors = number_gray_colors
     env.set_zone_size(zone_size_x, zone_size_y)
     if not hasattr(env.action_space, 'n'):
         raise Exception('Keyboard agent only supports discrete action spaces')
 
-    # Second, choose your agent among ["keyboard_controller","agent_option"]
     if type_agent == "keyboard_controller":
         from gridenvs.keyboard_controller import Controls
         agent = KeyboardAgent(env, controls={**Controls.Arrows, **Controls.KeyPad})
@@ -34,27 +33,38 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
         raise Exception("agent name does not exist")
     return env, agent
 
-env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
-env_blurred, agent_blurred = make_environment_agent(env_name, blurred_bool = True)
-env_not_blurred, agent_not_blurred = make_environment_agent(env_name, blurred_bool = False)
-done = False
-total_reward = 0
-env_blurred.reset()
-env_not_blurred.reset()
-while(not(done) and not(agent_blurred.human_wants_shut_down) and not(agent_not_blurred.human_wants_shut_down)):
-    obs = 0
-    #TODO TOFIX obs = 0
-    env_blurred.render_scaled()
-    env_not_blurred.render_scaled()
-    action = agent_not_blurred.act(obs)
-    if action != None:
-        obs, reward, done, info = env_not_blurred.step(action)
-        obs, reward, done, info = env_blurred.step(action)
-        total_reward += reward
-        print('zone = ' + repr(info['zone']))
 
-print('End of the episode')
-print('reward = ' + str(total_reward))
-print('zone = ' + repr(info['zone']))
-env_blurred.close()
-env_not_blurred.close()
+def play(env_name, type_agent):
+    env_blurred, agent_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = True)
+    env_not_blurred, agent_not_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = False)
+
+    done = False
+    total_reward = 0
+    # env_blurred.reset()
+    # env_not_blurred.reset()
+
+    while(not(done) and not(agent_blurred.human_wants_shut_down) and not(agent_not_blurred.human_wants_shut_down)):
+        obs = 0
+        #TODO TOFIX obs = 0
+        env_blurred.render_scaled()
+        env_not_blurred.render_scaled()
+        action = agent_not_blurred.act(obs)
+        if action != None:
+            obs, reward, done, info = env_not_blurred.step(action)
+            obs, reward, done, info = env_blurred.step(action)
+            total_reward += reward
+    print('End of the episode')
+    #print('reward = ' + str(total_reward))
+    #print('zone = ' + repr(info['zone']))
+    env_blurred.close()
+    env_not_blurred.close()
+
+            #        print('zone = ' + repr(info['zone']))
+#        if done:
+#            env_not_blurred.reset()
+#            env_blurred.reset()
+
+
+type_agent_list = ["keyboard_controller","agent_option"]
+env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
+play(env_name, type_agent_list[1])

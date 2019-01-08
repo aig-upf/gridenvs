@@ -38,7 +38,7 @@ class GridworldEnv(gym.Env):
         #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
         # The grid is cut into several zones of size zone_size_x X zone_size_y
-        self.zone_size = self.set_zone_size(zone_size_x, zone_size_y)
+        self.set_zone_size(zone_size_x, zone_size_y)
         # Is the world blurred ?
         self.blurred = blurred
         self.number_gray_colors = number_gray_colors
