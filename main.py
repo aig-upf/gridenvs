@@ -7,19 +7,18 @@ from agent.keyboard_agent import KeyboardAgent
 from agent.agent_option import AgentOption
 
 """
-Maybe : instead of doing zone_size, let's do : number of zones x and y
-TODO : duplicate of blurred and not blurred environment.
-TODO : problem with escape, problem with close() actually.
+TODO : problem with escape for closing the environment, problem with close().
 (Look at the stashed version :
 stash@{0}: WIP on branch_options: 3f712e7 some small changes
 to change the agent files in order to delete environment in their list of attributes.)
 """
 # First choose your environment
 
-def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = 1):
+def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = 10, zone_size_x = 8, zone_size_y = 8):
     env = gym.make(env_name)
     env.blurred = blurred_bool
     env.number_gray_colors = number_gray_colors
+    env.set_zone_size(zone_size_x, zone_size_y)
     if not hasattr(env.action_space, 'n'):
         raise Exception('Keyboard agent only supports discrete action spaces')
 

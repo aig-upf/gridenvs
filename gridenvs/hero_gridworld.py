@@ -36,7 +36,7 @@ class HeroGridEnv(GridworldEnv):
         self.game_state['done'] = False
         # The zone is a region of the state space. For the moment we take squares of size zone_size.
         # The location of the zones are given by a Point, which contains its coordinates.
-        self.game_state['zone'] = Point(x = 0, y = 0)
+        self.update_zone(self.game_state['hero'].pos)
         return self.generate_observation(self.world)
 
     def move(self, obj, direction):
@@ -60,6 +60,12 @@ class HeroGridEnv(GridworldEnv):
 
     def move_hero(self, direction):
         return self.move(self.game_state['hero'], direction)
+
+    def get_hero_position(self):
+        return self.game_state['hero'].pos
+
+    def get_hero_zone(self):
+        return self.game_state['zone']
 
     def update_environment(self, action):
         assert not self.game_state['done'], "The environment needs to be reset."

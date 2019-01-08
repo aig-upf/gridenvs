@@ -21,4 +21,3 @@ class Agent(object):
 
     def act(self, obs):
         raise NotImplementedError()
-
