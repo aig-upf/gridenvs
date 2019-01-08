@@ -10,23 +10,59 @@ import numpy as np
 class Option(object):
 
     """
-    TODO
+    This is the general option which allows the agent to go to zone to zone.
+    It can be activate in the initial_zone and it ends in the terminal_zone.
     """
-    def __init__(self, env, terminal_zone = None, go_explore = False, get_key = False):
-        # terminal_zone is None when go_explore is True. Any zone different from initial_zone is a terminal zone
-
+    def __init__(self, env, initial_zone = None, terminal_zone = None):
         self.env = env
-        self.go_explore = go_explore
-        self.get_key = get_key
         self.terminal_zone = terminal_zone
+        self.intial_zone = initial_zone
         self.q_function = {}
+        self.reward = 0
         self.set_initial_position()
         
     def set_initial_position(self):
         self.initial_zone = self.env.get_hero_zone()
         self.current_state = self.env.get_hero_position()
+    
+    def act(self, terminal_state = None):
+        self.set_initial_position()
+        #TODO
+ 
+        
 
-    def explore(self):
+
+        # direction_number = np.random.randint(4)
+        # cardinal = Direction.cardinal()
+        # return cardinal[direction_number]
+
+
+class OptionKey(Option):
+    """
+    This is a special option to get the key
+    """
+    def act(self):
+        """ 
+        TODO this is not good at all
+        """
+        self.set_initial_position()
+        for k in range(1000):
+            direction_number = np.random.randint(4)
+            cardinal = Direction.cardinal()
+            obs, r, done, info = self.env.step(cardinal[direction_number])
+            if info["state_id"]:
+                print('I have the key, here is my position ' + str(self.env.get_hero_position()))
+                self.env.reset()
+            if done:
+                self.env.reset()
+                
+
+class OptionExplore(Option):
+    """
+    This is a special option to explore
+    """
+    def act(self):
+        self.set_initial_position()
         # TODO.
         # For the moment we do a stupid thing (go random)
         k = 0
@@ -34,8 +70,8 @@ class Option(object):
         while k < 150 and len(new_zone) < 4:
             k += 1
             done = False
-            self.env.reset()
             while not(done):
+                self.env.reset()
                 hero_current_zone = self.env.get_hero_zone()
                 if hero_current_zone != self.initial_zone:
                     #just look around THE CLOSEST zones
@@ -48,25 +84,3 @@ class Option(object):
                 _, _, done, _ = self.env.step(cardinal[direction_number])
         return new_zone
 
-    def get_key(self):
-        obs, r, done, info = env.step()
-        if info["state_id"]:
-            # I have the key
-    
-    def act(self):
-        self.set_initial_position()
-        # explore option is a special option to discover new zones
-        # it is activated with the bool go_explore
-        if self.go_explore:
-            return self.explore()
-        if self.get_key:
-            self.get_key()
-        
-
-        
-        
-
-
-        # direction_number = np.random.randint(4)
-        # cardinal = Direction.cardinal()
-        # return cardinal[direction_number]

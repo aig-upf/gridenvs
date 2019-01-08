@@ -4,15 +4,15 @@ from gridenvs.keyboard_controller import Controls, Key
 import numpy as np
 import time
 from agent.agent import Agent
-from option.option import Option
+from option.option import Option, OptionExplore, OptionKey
 
 class AgentOption(Agent):
 
     def __init__(self, env):
         super().__init__(env)
-        self.option_explore = Option(env = env, go_explore = True)
-        self.option_get_key = Option(env = env, get_key = True)
-        self.option_set = []
+        self.option_explore = OptionExplore(env = env)
+        self.option_get_key = OptionKey(env = env)
+        self.q_function_options = {}
 
     def key_press(self, key, mod):
         self.human_wants_shut_down = key==Key.esc
@@ -21,8 +21,10 @@ class AgentOption(Agent):
         pass
 
     def act(self, obs):
+        pass
         # Explore option is the first option in the option_set
-        new_zone = self.option_explore.act()
+        #self.option_get_key.act()
         # Then, make new options
-        for zone in new_zone:
-            self.option_set.append(Option(env = self.env, terminal_zone = zone, go_explore = False))
+#        new_zone = self.option_explore.act()
+#        for zone in new_zone:
+#            self.option_set.append(Option(env = self.env, terminal_zone = zone, go_explore = False))

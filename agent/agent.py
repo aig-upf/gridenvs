@@ -21,3 +21,5 @@ class Agent(object):
 
     def act(self, obs):
         raise NotImplementedError()
+
+    #TODO : find max action
