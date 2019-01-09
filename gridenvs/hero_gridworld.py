@@ -100,7 +100,7 @@ class HeroGridEnv(GridworldEnv):
             end_episode = True
         self.update_zone(self.game_state['hero'].pos)
         info = {
-            'state_id': self.game_state['state_id'], 'zone' : self.game_state['zone']
+            'state_id': self.game_state['state_id'], 'zone' : self.game_state['zone'], 'position' : self.game_state['hero'].pos
         }
         return reward, end_episode, info
 

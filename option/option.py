@@ -13,29 +13,33 @@ class Option(object):
     This is the general option which allows the agent to go to zone to zone.
     It can be activate in the initial_zone and it ends in the terminal_zone.
     """
-    def __init__(self, initial_zone = None, terminal_zone = None):
+    def __init__(self, position = None, zone = None, terminal_zone = None):
+        self.position = position
+        self.zone = zone
         self.terminal_zone = terminal_zone
-        self.intial_zone = initial_zone
         self.q_function = {}
-        self.reward = 0
-#        self.set_initial_position()
+        self.reward_of_option = 0
+        """        
+        #        self.set_initial_position()
         
-#    def set_initial_position(self):
-#        self.initial_zone = self.env.get_hero_zone()
-#        self.current_state = self.env.get_hero_position()
-    
-    def act(self, terminal_state = None):
-        pass
- #       self.set_initial_position()
+        #    def set_initial_position(self):
+        #        self.initial_zone = self.env.get_hero_zone()
+        #        self.current_state = self.env.get_hero_position()
+        """
+        
+    def act(self, current_zone, current_position):
+        """ 
+        First returns a bool saying if the action is complete or not
+        Second, if not, returns the action
+        
+        #       pass
+        #       self.set_initial_position()
         #TODO
- 
-        
-
-
-        # direction_number = np.random.randint(4)
-        # cardinal = Direction.cardinal()
-        # return cardinal[direction_number]
-
+        """
+        if current_zone == self.terminal_zone:
+            return True, None
+        else:
+            pass
 
 class OptionKey(Option):
     """
@@ -64,7 +68,7 @@ class OptionExplore(Option):
     This is a special option to explore
     """
     def act(self):
-        # For the moment we do a stupid thing (go random)
+        # For the moment we do a stupid thing: go random, until it finds a new zone
         direction_number = np.random.randint(4)
         cardinal = Direction.cardinal()
         return cardinal[direction_number]
