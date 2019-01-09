@@ -27,7 +27,7 @@ class Option(object):
         #        self.current_state = self.env.get_hero_position()
         """
         
-    def act(self, current_zone, current_position):
+    def check_end_option(self):
         """ 
         First returns a bool saying if the action is complete or not
         Second, if not, returns the action
@@ -36,10 +36,7 @@ class Option(object):
         #       self.set_initial_position()
         #TODO
         """
-        if current_zone == self.terminal_zone:
-            return True, None
-        else:
-            pass
+        return zone == self.terminal_zone:
 
 class OptionKey(Option):
     """
@@ -71,5 +68,5 @@ class OptionExplore(Option):
         # For the moment we do a stupid thing: go random, until it finds a new zone
         direction_number = np.random.randint(4)
         cardinal = Direction.cardinal()
-        return cardinal[direction_number]
+        return self.check_end_option(), cardinal[direction_number]
 

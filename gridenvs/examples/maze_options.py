@@ -11,7 +11,7 @@ def key_door_env(init_map, key_reward, kwargs):
     for s in [0,1]: #possible states
         state_dict[(s, 'W')] = (0, -1.0, True, None)
 
-    state_dict[0,'K'] = (1, 0, False, lambda w,c: w.remove_object(c))
+    state_dict[0,'K'] = (1, 0, True, lambda w,c: w.remove_object(c))
 
     from gridenvs.utils import Color
     # A CLASS IN A FUNCTION ?!

@@ -35,15 +35,11 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
         raise Exception("agent name does not exist")
     return env, agent
 
-type_agent_list = ["keyboard_controller","agent_option"]
-env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
-env, agent = make_environment_agent(env_name, type_agent = type_agent_list[0], blurred_bool = False)
-
 def learn(env, agent):
 
     # The agent learns a good policy
     print("Learning phase...")
-    iteration_learning = 20
+    iteration_learning = 1
     for t in tqdm(range(1, iteration_learning + 1)):
         current_position = env.get_hero_position()
         done = False
@@ -51,43 +47,37 @@ def learn(env, agent):
             # Only one task for the moment
             action = agent.act()
             reward, done, info = env.update_environment(action)
-            agent.environment_update(info)
-            #agent.task.updateQ(current_position, action, new_position, reward, t)
+            agent.environment_feedback(info) # The agent precisely learns here
             #current_position = new_position
             #
         env.reset()
 
-
-learn(env, agent)
-
-def play(env_name, type_agent):
+def play(env, agent):
     # Play the strategy with respect to the learned q_function.
     
     #env_blurred, agent_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = True)
-    env_not_blurred, agent_not_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = False)
-
     done = False
     total_reward = 0
     shut_down = False
         
     while(not(done) and not(shut_down)):
-        if type_agent ==  "keyboard_controller":
-            shut_down = agent_blurred.human_wants_shut_down or agent_not_blurred.human_wants_shut_down
+        if type(agent).__name__ ==  "keyboardController":
+            shut_down = agent.human_wants_shut_down or agent_not_blurred.human_wants_shut_down
         #env_blurred.render_scaled()
-        env_not_blurred.render_scaled()
-        action = agent_not_blurred.act()
+        env.render_scaled()
+        action = agent.act()
         if action != None:
             # TOFIX : I change the info in the env render.
             # UGLY : info contains observations for the moment : zone and position of the agent
-            obs, reward, done, info = env_not_blurred.step(action)
-            agent_not_blurred.environment_update(info)
+            obs, reward, done, info = env.step(action)
+            agent.environment_update(info)
             #obs, reward, done, info = env_blurred.step(action)
             total_reward += reward
     print('End of the episode')
     #print('reward = ' + str(total_reward))
     #print('zone = ' + repr(info['zone']))
     #env_blurred.close()
-    env_not_blurred.close()
+    env.close()
 
             #        print('zone = ' + repr(info['zone']))
 #        if done:
@@ -95,5 +85,10 @@ def play(env_name, type_agent):
 #            env_blurred.reset()
 
 
+type_agent_list = ["keyboard_controller", "agent_option"]
+env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
+type_agent = type_agent_list[1]
+env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 
-#play(env_name, type_agent_list[1])
+learn(env, agent)
+#play(env, agent)

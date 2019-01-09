@@ -1,4 +1,9 @@
 """ This is an abstract class for agents"""
+""" TODO : je pense que dans la variable self.executing_option il faut mettre l'option en question en train d'être exécutée.
+La chaine d'action est la suivante : 
+action -> environnment -> environment_feedback.
+Dans cette dernière étape, on doit mettre à None la variable executing_option si besoin.
+ """
 
 from gridenvs.keyboard_controller import Controls, Key
 from gridenvs.utils import Direction
@@ -24,6 +29,12 @@ class Agent(object):
 class AgentOption(Agent):
 
     def __init__(self, position, zone):
+        """
+        Structure of the q_function_option variable
+        q_function_options = {initial_zone : {terminal_zone : [reward_of_the_option, Option]},...}
+        So the agent wants to go to initial_zone_A to terminal_zone_A he executes:
+        q_function_options[initial_zone_A][terminal_zone_A][1]
+        """
         self.game_state_id = 0
         self.zone = zone
         self.position = position
@@ -32,24 +43,23 @@ class AgentOption(Agent):
         self.q_function_options = {str(self.zone) : {}}
         self.executing_option = None # the terminal zone of the option
 
-    def environment_update(self, info):
+    def environment_feedback(self, info):
         self.game_state_id = info['state_id']
         self.position = info['position']
         if self.zone != info['zone']:
-            # first update the current zone : The new zone is a connected zone
-            # we create here the terminal state of a new option
-            self.q_function_options[str(self.zone)].update
-            ({
-                str(info['zone']) :
-                Option(zone = self.zone, terminal_zone = info['zone'])
-            })
-            # then add a new zone in the dictionary (we create its initial state)
+            # first update the current zone : The new zone (info['zone']) is connected to self.zone
+            # we create here the terminal dictionary corresponding to the new option
+            # the key is the terminal zone.
+            # the value is : the reward of the Option and the Option itself
+            dict_terminal_zone = {str(info['zone']) : [0, Option(zone = self.zone, terminal_zone = info['zone'])]}
+            self.q_function_options[str(self.zone)].update(dict_terminal_zone)
+            # then add a new zone in the dictionary (we create the initial state of a future option)
             if str(info['zone']) not in self.q_function_options:
                 self.q_function_options.update({str(info['zone']) : {}})
         # Finally update the current zone of the agent
         self.zone = info['zone']
 
-    def learn(self):
+    def act(self):
         """
            This functions does:
         0. If an option is being executed, then continue
@@ -57,13 +67,20 @@ class AgentOption(Agent):
         2. Explore and find a new zone if your q_function is empty for this zone.
         3. Learn the best option to change the zone
         """
+        time.sleep(0.3)
+        print(self.q_function_options)
         if self.executing_option != None:
+            print('I continue to execute the current option')
             self.execute_option(self.q_function_options[str(self.zone)][str(self.executing_option)])
         # go explore
         elif self.q_function_options[str(self.zone)] == {}:
+            print('I go to explore')
             return self.option_explore.act()
         else:
             # take the best option
+            print('I execute an option :')
+            print('Initial zone : ' + str(self.zone))
+            print('Terminal zone : ' + str(self.executing_option))
             best_terminal_zone = self.find_best_terminal_zone(self.q_function_options[str(self.zone)])
             self.executing_option = best_terminal_zone
             self.execute_option(self.q_function_options[str(self.zone)][str(best_terminal_zone)])
@@ -94,11 +111,11 @@ class AgentOption(Agent):
                 best_zone = zone
         return best_zone
         
-    def act(self):
+    def TODO(self):
         """
         Here act means: select the best option
         """
-        time.sleep(0.3)
+
         # go explore
 #        if self.q_function_options[str(self.zone)] == {}:
 #            return self.option_explore.act()
