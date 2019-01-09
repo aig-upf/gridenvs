@@ -3,8 +3,7 @@ import gridenvs.examples  # load example gridworld environments
 import gym
 import numpy as np
 import time
-from agent.keyboard_agent import KeyboardAgent
-from agent.agent_option import AgentOption
+from agent.agent import KeyboardAgent, AgentOption
 
 """
 TODO : problem with escape for closing the environment, problem with close().
@@ -27,12 +26,27 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
         agent = KeyboardAgent(env, controls={**Controls.Arrows, **Controls.KeyPad})
 
     elif type_agent == "agent_option":
-        from agent.agent_option import AgentOption
-        agent = AgentOption(env)
+        agent = AgentOption()
     else:
         raise Exception("agent name does not exist")
     return env, agent
 
+
+def learn(env, agent):
+    # The agent learns a good policy
+    print("Learning phase...")
+    iteration_learning = 200
+    for t in tqdm(range(1, iteration_learning + 1)):
+        current_position = env.get_hero_position()
+        done = False
+        while not(done):
+            # Only one task for the moment
+            action = agent.act()
+            reward, done, info = env.update(action)
+            #agent.task.updateQ(current_position, action, new_position, reward, t)
+            #current_position = new_position
+            #end_episode ??
+        env.reset()
 
 def play(env_name, type_agent):
     env_blurred, agent_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = True)
@@ -40,10 +54,12 @@ def play(env_name, type_agent):
 
     done = False
     total_reward = 0
-    # env_blurred.reset()
-    # env_not_blurred.reset()
-
-    while(not(done) and not(agent_blurred.human_wants_shut_down) and not(agent_not_blurred.human_wants_shut_down)):
+    shut_down = False
+        
+    while(not(done) and not(shut_down)):
+        if type_agent ==  "keyboard_controller":
+            shut_down = agent_blurred.human_wants_shut_down or agent_not_blurred.human_wants_shut_down
+    
         obs = 0
         #TODO TOFIX obs = 0
         env_blurred.render_scaled()
@@ -67,4 +83,4 @@ def play(env_name, type_agent):
 
 type_agent_list = ["keyboard_controller","agent_option"]
 env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
-play(env_name, type_agent_list[1])
+play(env_name, type_agent_list[0])
