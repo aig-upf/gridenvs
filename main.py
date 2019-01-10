@@ -44,45 +44,38 @@ def learn(env, agent):
             env.render_scaled()
             option = agent.choose_option() # The agent chooses an option
             action = option.act() # The option makes the action
+            # TOFIX : I change the info in the env render.
+            # UGLY : info contains observations for the moment : zone and position of the agent
             # TOFIX at next iteration : use step when the observation is the pixels
-            reward, done, info = env.update_environment(action) # The environment gives the feedback
+            _, reward, done, info = env.step(action) # The environment gives the feedback
             ends, locations = option.update(reward, done, info, action, t) # We update the option's parameters.
             agent.option_update(ends, locations) # The agent update his info about the option
         env.reset()
     env.close()
 
-def play(env, agent):
-    # Play the strategy with respect to the learned q_function.
+def play_keyboard(env, agent):
+    """
+    play with the Keyboard agent
+    """
     
     #env_blurred, agent_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = True)
     done = False
     total_reward = 0
-    shut_down = False
+    shut_down = agent.human_wants_shut_down
         
     while(not(done) and not(shut_down)):
-        if type(agent).__name__ ==  "keyboardController":
-            shut_down = agent.human_wants_shut_down or agent_not_blurred.human_wants_shut_down
+        shut_down = agent.human_wants_shut_down
         #env_blurred.render_scaled()
         env.render_scaled()
         action = agent.act()
         if action != None:
-            # TOFIX : I change the info in the env render.
-            # UGLY : info contains observations for the moment : zone and position of the agent
-            obs, reward, done, info = env.step(action)
-            agent.environment_update(info)
-            #obs, reward, done, info = env_blurred.step(action)
+            _, reward, done, info = env.step(action) # pb ici
             total_reward += reward
-    print('End of the episode')
-    #print('reward = ' + str(total_reward))
-    #print('zone = ' + repr(info['zone']))
-    #env_blurred.close()
+            print('zone = ' + repr(info['zone']))
+            #env_blurred.close()
     env.close()
-
-            #        print('zone = ' + repr(info['zone']))
-#        if done:
-#            env_not_blurred.reset()
-#            env_blurred.reset()
-
+    print('End of the episode')
+    print('reward = ' + str(total_reward))
 
 type_agent_list = ["keyboard_controller", "agent_option"]
 env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
@@ -90,4 +83,4 @@ type_agent = type_agent_list[1]
 env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 
 learn(env, agent)
-#play(env, agent)
+#play_keyboard(env, agent)

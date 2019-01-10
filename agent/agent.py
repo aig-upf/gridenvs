@@ -11,27 +11,7 @@ import numpy as np
 import time
 from option.option import Option, OptionExplore, OptionKey
 
-
-class Agent(object):
-    """
-    This abstract class Agent is just made to be able to run the execution of keyboard agent
-    It may be removed later
-    """
-    def __init__(self):
-        pass
-    
-    def act(self):
-        raise NotImplementedError()
-
-    def environment_update(self, info):
-        pass
-    def  choose_option(self):
-        pass
-    def option_update(self, feedback_from_option):
-        pass
-
-
-class AgentOption(Agent):
+class AgentOption():
 
     def __init__(self, position, zone):
         """
@@ -82,9 +62,8 @@ class AgentOption(Agent):
             # if a new zone is discovered, create a new option and give it a reward_end_option
             # if not, done
             # if the state has a new id, we just got the key and so on
-            
 
-class KeyboardAgent(Agent):
+class KeyboardAgent():
     def __init__(self, env, controls={**Controls.Arrows, **Controls.KeyPad}):
         self.env = env
         self.env.render_scaled()
