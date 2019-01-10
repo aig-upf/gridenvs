@@ -76,7 +76,6 @@ class AgentOption():
 
     def option_update(self, end_option, new_position, new_zone, new_state_id, done):
         """
-        
         """
         reward = -1
         if self.state_id != new_state_id: # I have got the key !
