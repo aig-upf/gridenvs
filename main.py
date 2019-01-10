@@ -36,21 +36,20 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
     return env, agent
 
 def learn(env, agent):
-
-    # The agent learns a good policy
-    print("Learning phase...")
-    iteration_learning = 1
+    iteration_learning = 5
     for t in tqdm(range(1, iteration_learning + 1)):
         current_position = env.get_hero_position()
         done = False
         while not(done):
-            # Only one task for the moment
-            action = agent.act()
-            reward, done, info = env.update_environment(action)
-            agent.environment_feedback(info) # The agent precisely learns here
-            #current_position = new_position
-            #
+            env.render_scaled()
+            option = agent.choose_option() # The agent chooses an option
+            action = option.act() # The option makes the action
+            # TOFIX at next iteration : use step when the observation is the pixels
+            reward, done, info = env.update_environment(action) # The environment gives the feedback
+            ends, locations = option.update(reward, done, info, action, t) # We update the option's parameters.
+            agent.option_update(ends, locations) # The agent update his info about the option
         env.reset()
+    env.close()
 
 def play(env, agent):
     # Play the strategy with respect to the learned q_function.

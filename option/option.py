@@ -8,36 +8,123 @@ import time
 import numpy as np
 
 class Option(object):
-
     """
     This is the general option which allows the agent to go to zone to zone.
     It can be activate in the initial_zone and it ends in the terminal_zone.
     """
-    def __init__(self, position = None, zone = None, terminal_zone = None):
+    def __init__(self, reward_end_option, position = None, zone = None, terminal_state = None):
         self.position = position
         self.zone = zone
-        self.terminal_zone = terminal_zone
+        self.terminal_state = terminal_state
         self.q_function = {}
-        self.reward_of_option = 0
-        """        
-        #        self.set_initial_position()
-        
-        #    def set_initial_position(self):
-        #        self.initial_zone = self.env.get_hero_zone()
-        #        self.current_state = self.env.get_hero_position()
-        """
-        
-    def check_end_option(self):
-        """ 
-        First returns a bool saying if the action is complete or not
-        Second, if not, returns the action
-        
-        #       pass
-        #       self.set_initial_position()
-        #TODO
-        """
-        return zone == self.terminal_zone:
+        self.reward_end_option = reward_end_option
 
+    def __repr__(self):
+        if terminal_state != None:
+            return "terminal zone: " + str(self.terminal_state)
+    
+    def first_visit_q(self, position):
+        known_state_action = True
+        # If q_function(current_position,action) does not exist, initialize.
+        try:
+            self.q_function[str(position)]
+        except:
+            self.q_function.update({str(position) : {str(Direction.N) : 0, str(Direction.E) : 0, str(Direction.S) : 0, str(Direction.W) : 0}})
+            known_state_action = False
+        return known_state_action
+
+                
+    def update_q_function(self, action, new_position, reward, learning_rate):
+        """
+        Q learning procedure : 
+        Q_{t+1}(current_position, action) = 
+        (1- learning_rate) * Q_t(current_position, action)
+        + learning_rate * [reward + max_{actions} Q_(new_position, action)
+        """
+        q_knows_current_position = self.first_visit_q()
+        q_knows_new_position =  self.first_visit_q(new_position)
+        
+        if q_knows_current_position:
+            learning_rate = 1 / t
+            # TOFIX
+            if q_knows_new_position:
+                dict_actions_reward = self.q_function[str(new_position)]
+                max_action = self.find_max_action(dict_actions_reward)
+                max_value_action = dict_actions_reward[str(max_action)]
+            else:
+                max_value_action = 0
+            # update the Q function with Q Learning algorithme
+            self.q_function[str(current_position)][str(action)] *= (1 - learning_rate)
+            self.q_function[str(current_position)][str(action)] += learning_rate * (reward + max_value_action)
+    
+        
+    def update(self, reward, done, info, action, t):
+        """
+        TODO
+        returns [e, E], [P, Z] where:
+        e is True if the option is done
+        E is True if episode is done
+        P is the new position
+        Z is the new zone
+        """
+        end_option = self.check_end_option(info['zone'])
+        self.position = info['position']
+        self.zone = info['zone']
+        if end_option:
+            total_reward = reward + self.reward_end_option
+        else:
+            total_reward = reward
+        # update the q_function
+        self.update_q_function(action, info['position'], total_reward, t)
+        return [end_option, done], [self.position, self.zone]
+
+    def act(self):
+        cardinal = Direction.cardinal()
+        return cardinal[find_max_action(self.q_function)]
+
+    def find_max_action(self, dict_actions_reward):
+        """
+        Take the maximum over all dictionnary's actions dict_actions.
+        return argmax_{action} dict_actions
+        """
+        best_reward = -float('inf')
+        best_action = None
+        for action in dict_actions_reward:
+            reward = dict_actions_reward[action]
+            if reward > best_reward:
+                best_action = action
+                best_reward = dict_actions_reward[action]
+        return int(action)
+
+    def check_end_option(self, new_zone):
+        return self.zone == self.terminal_state
+        
+class OptionExplore(Option):
+    """
+    This is a special option to explore
+    """
+    def act(self):
+        # For the moment we do a stupid thing: go random, until it finds a new zone
+        direction_number = np.random.randint(4)
+        cardinal = Direction.cardinal()
+        return cardinal[direction_number]
+    
+    def check_end_option(self, new_zone):
+        return new_zone != self.zone
+
+    def update_q_function(self, action, position, reward, learning_rate):
+        pass
+
+
+
+
+
+
+
+
+
+
+    
 class OptionKey(Option):
     """
     This is a special option to get the key
@@ -60,13 +147,7 @@ class OptionKey(Option):
                 self.env.reset()
     """     
 
-class OptionExplore(Option):
-    """
-    This is a special option to explore
-    """
-    def act(self):
-        # For the moment we do a stupid thing: go random, until it finds a new zone
-        direction_number = np.random.randint(4)
-        cardinal = Direction.cardinal()
-        return self.check_end_option(), cardinal[direction_number]
-
+    def check_end_option(self):
+        """TODO"""
+        pass
+    
