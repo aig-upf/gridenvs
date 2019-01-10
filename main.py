@@ -36,21 +36,26 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
     return env, agent
 
 def learn(env, agent):
-    iteration_learning = 5
+    initial_agent_position = agent.position
+    initial_agent_zone = agent.zone
+    iteration_learning = 500
     for t in tqdm(range(1, iteration_learning + 1)):
         current_position = env.get_hero_position()
         done = False
+        print("starting new episode")
         while not(done):
             env.render_scaled()
-            option = agent.choose_option() # The agent chooses an option
+#            time.sleep(1)
+            option = agent.choose_option() # The agent chooses an option and set its parameter
             action = option.act() # The option makes the action
             # TOFIX : I change the info in the env render.
             # UGLY : info contains observations for the moment : zone and position of the agent
-            # TOFIX at next iteration : use step when the observation is the pixels
             _, reward, done, info = env.step(action) # The environment gives the feedback
-            ends, locations = option.update(reward, done, info, action, t) # We update the option's parameters.
-            agent.option_update(ends, locations) # The agent update his info about the option
+            end_option, new_position, new_zone = option.update(reward, done, info, action, t) # We update the option's parameters.
+            agent.option_update(end_option, new_position, new_zone, info['state_id'], done) # The agent update his info about the option
+        
         env.reset()
+        agent.reset(initial_agent_position, initial_agent_zone)
     env.close()
 
 def play_keyboard(env, agent):
@@ -69,7 +74,7 @@ def play_keyboard(env, agent):
         env.render_scaled()
         action = agent.act()
         if action != None:
-            _, reward, done, info = env.step(action) # pb ici
+            _, reward, done, info = env.step(action)
             total_reward += reward
             print('zone = ' + repr(info['zone']))
             #env_blurred.close()
