@@ -29,15 +29,13 @@ class AgentOption():
         self.key_option = OptionKey(position = self.position, zone = self.zone) #todo : put state_id = 1 as a terminal state
         # the agent's q_function for the abstract state space
         self.q_function_options = {str(self.zone) : {}}
-        self.executing_option = None # the option currently being executed.
 
     def reset(self, initial_agent_position, initial_agent_zone):
         self.position = initial_agent_position
         self.zone = initial_agent_zone
         self.t = 0
         self.state_id = 0
-        self.executing_option = None
-        
+
     def choose_option(self):
         """
         TODO : find_key option
@@ -47,23 +45,21 @@ class AgentOption():
         Take the best option otherwise.
         """
         print(self.q_function_options)
-        if self.executing_option != None: # One option execution is ongoing
-            print('agent : continue')
-        elif self.q_function_options[str(self.zone)] == {}: # No option available : explore
+        if self.q_function_options[str(self.zone)] == {}: # No option available : explore
             print('agent : explore')
-            self.executing_option = self.explore_option
+            new_option = self.explore_option
         else: # options are available : find the best and execute or explore
             if np.random.rand() < 0.1: # in this case go explore
-                self.executing_option = self.explore_option
+                new_option = self.explore_option
             else: # in this case find the best option
                 print('agent : take a proper option')
-                _, best_option = self.find_best_option(self.q_function_options[str(self.zone)])
-                self.executing_option = best_option
+                print('current position' + str(self.position))
+                _, new_option = self.find_best_option(self.q_function_options[str(self.zone)])
 
-        self.executing_option.position = self.position
-        self.executing_option.zone = self.zone
-        return self.executing_option
-    
+        new_option.position = self.position
+        new_option.zone = self.zone
+        return new_option
+
     def find_best_option(self, dict_zone_optionReward):
         best_option = None
         best_reward = - float('inf')
@@ -74,31 +70,32 @@ class AgentOption():
                 best_option = dict_zone_optionReward[terminal_state][0]
         return best_reward, best_option
 
-    def option_update(self, end_option, new_position, new_zone, new_state_id, done):
+    def option_update(self, new_position, new_zone, new_state_id):
         """
         """
         reward = -1
-        if self.state_id != new_state_id: # I have got the key !
-            reward += 1    
-        if end_option: # we only update when the option is done
-            self.t += 1
-            if str(new_zone) not in self.q_function_options[str(self.zone)].keys(): #exploration found a new zone
-                print("exploration found new zone :" + str(new_zone))
-                self.q_function_options[str(self.zone)].update({str(new_zone) : [Option(position = self.position, zone = self.zone, terminal_state = new_zone), 0]}) # we have created a new option starting ending in new_zone
-                if str(new_zone) not in self.q_function_options.keys():
-                    self.q_function_options.update({str(new_zone) : {}})# we create also a new option starting from self.zone
-            else:
-                self.update_q_function_options(new_zone, reward, self.t)
-            self.zone = new_zone
-            self.executing_option = None
-            # if the state has a new id, we just got the key and so on
-            
+        if self.state_id != new_state_id:
+            reward += 1
+            self.state_id = new_state_id
+
+        self.t += 1
+        if str(new_zone) not in self.q_function_options[str(self.zone)].keys(): #exploration found a new zone
+            print("exploration found new zone :" + str(new_zone))
+            self.q_function_options[str(self.zone)].update({str(new_zone) : [Option(position = self.position, zone = self.zone, terminal_state = new_zone), 0]}) # we have created a new option starting ending in new_zone
+            if str(new_zone) not in self.q_function_options.keys():
+                self.q_function_options.update({str(new_zone) : {}})# we create also a new option starting from self.zone
+        else:
+            self.update_q_function_options(new_zone, reward, self.t)
+
+        self.zone = new_zone
+        self.position = new_position
+            # if the state has a new id, we just got the key
     def update_q_function_options(self, new_zone, reward, t):
         learning_rate = 1 / t
         max_value_option, _ = self.find_best_option(self.q_function_options[str(self.zone)])
         self.q_function_options[str(self.zone)][str(new_zone)][1] *= (1 - learning_rate)
-        self.q_function_options[str(self.zone)][str(new_zone)][1] += learning_rate * (reward + max_value_option)      
-        
+        self.q_function_options[str(self.zone)][str(new_zone)][1] += learning_rate * (reward + max_value_option)
+
 class KeyboardAgent():
     def __init__(self, env, controls={**Controls.Arrows, **Controls.KeyPad}):
         self.env = env

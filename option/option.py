@@ -24,7 +24,7 @@ class Option(object):
         return "option"
     #    if terminal_state != None:
     #        return "terminal zone: " + str(self.terminal_state)
-    
+
     def first_visit_q(self, position):
         known_state_action = True
         # If q_function(current_position,action) does not exist, initialize.
@@ -35,17 +35,16 @@ class Option(object):
             known_state_action = False
         return known_state_action
 
-                
+
     def update_q_function(self, action, new_position, reward, t):
         """
-        Q learning procedure : 
-        Q_{t+1}(current_position, action) = 
+        Q learning procedure :
+        Q_{t+1}(current_position, action) =
         (1- learning_rate) * Q_t(current_position, action)
         + learning_rate * [reward + max_{actions} Q_(new_position, action)
         """
         q_knows_current_position = self.first_visit_q(self.position)
         q_knows_new_position =  self.first_visit_q(new_position)
-        
         if q_knows_current_position:
             learning_rate = 1 / t
             # TOFIX
@@ -59,7 +58,7 @@ class Option(object):
             self.q_function[str(self.position)][str(action)] *= (1 - learning_rate)
             self.q_function[str(self.position)][str(action)] += learning_rate * (reward + max_value_action)
     
-    def update(self, reward, done, info, action, t):
+    def update(self, reward, new_position, new_zone, action, t):
         """
         TODO
         returns e, E, P, Z where:
@@ -69,21 +68,21 @@ class Option(object):
         Z is the new zone
         """
         total_reward = reward
-        end_option = self.check_end_option(info['zone'])
+        end_option = self.check_end_option(new_zone)
         if end_option:
             total_reward = reward + self.reward_end_option
-        print(self.q_function)
-        # update the q_function
-        self.update_q_function(action, info['position'], total_reward, t)
-        self.position = info['position']
-        self.zone = info['zone']
-        return end_option, self.position, self.zone
+
+        self.update_q_function(action, new_position, total_reward, t)
+        self.position = new_position
+        self.zone = new_zone
+        return end_option
 
     def act(self):
         if np.random.rand() < 0.1:
             cardinal = Direction.cardinal()
             return cardinal[np.random.randint(4)]
         else:
+            print("q function : " + str(self.q_function))
             dict_actions_reward = self.q_function[str(self.position)]
             max_action = self.find_max_action(dict_actions_reward)
             return max_action

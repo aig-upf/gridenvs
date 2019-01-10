@@ -39,21 +39,25 @@ def learn(env, agent):
     initial_agent_position = agent.position
     initial_agent_zone = agent.zone
     iteration_learning = 500
+
     for t in tqdm(range(1, iteration_learning + 1)):
         current_position = env.get_hero_position()
         done = False
+        end_option = False
+        option = agent.choose_option()
         print("starting new episode")
         while not(done):
             env.render_scaled()
-#            time.sleep(1)
-            option = agent.choose_option() # The agent chooses an option and set its parameter
             action = option.act() # The option makes the action
             # TOFIX : I change the info in the env render.
             # UGLY : info contains observations for the moment : zone and position of the agent
             _, reward, done, info = env.step(action) # The environment gives the feedback
-            end_option, new_position, new_zone = option.update(reward, done, info, action, t) # We update the option's parameters.
-            agent.option_update(end_option, new_position, new_zone, info['state_id'], done) # The agent update his info about the option
-        
+            new_position = info['position']
+            new_zone = info['zone']
+            end_option = option.update(reward, new_position, new_zone, action, t) # We update the option's parameters.
+            if end_option: # the option is done
+                agent.option_update(new_position, new_zone, info['state_id']) # The agent update his info about the option
+                option = agent.choose_option() # The agent chooses an option and set its parameter
         env.reset()
         agent.reset(initial_agent_position, initial_agent_zone)
     env.close()
