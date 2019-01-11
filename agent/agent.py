@@ -6,31 +6,28 @@ Dans cette dernière étape, on doit mettre à None la variable executing_option
  """
 
 from gridenvs.keyboard_controller import Controls, Key
-from gridenvs.utils import Direction
+from gridenvs.utils import Direction, Point
 import numpy as np
 import time
-from option.option import Option, OptionExplore, OptionKey
+from option.option import Option, OptionExplore
 
-class AgentOption():
+class AgentOption(): 
 
     def __init__(self, position, zone):
         """
-        Structure of the q_function_option variable
-        q_function_options = {initial_zone_1 : {terminal_zone_1 : [option_1, reward_1], terminal_zone_2 : [option_2, reward_2]}, initial_zone_2 : {terminal_zone_3 : [option_3, reward_3]}}
         TODO make a list of q_function_options when the agent has to pick up the key to enter the door
         """
-        # self.game_state_id = 0
+        self.q = Q(zone)
         self.state_id = 0
         self.t = 0
         self.zone = zone
         self.position = position
-        # two special options
-        self.explore_option = OptionExplore(position = self.position, zone = self.zone)
-        self.key_option = OptionKey(position = self.position, zone = self.zone) #todo : put state_id = 1 as a terminal state
-        # the agent's q_function for the abstract state space
-        self.q_function_options = {str(self.zone) : {}}
+        self.explore_option = OptionExplore(position = self.position, zone = self.zone) # special options
 
     def reset(self, initial_agent_position, initial_agent_zone):
+        """
+        Same as __init__ but the q function is preserved 
+        """
         self.position = initial_agent_position
         self.zone = initial_agent_zone
         self.t = 0
@@ -38,58 +35,44 @@ class AgentOption():
 
     def choose_option(self):
         """
-        TODO : find_key option
-        0. If an option is ongoing, continue
-        1.1 If there is no option around, go explore.
-        2 If there is an option, go explore with probability epsilon.
-        Take the best option otherwise.
+        if no option : explore
+        else flip a coin, then take the best or explore
         """
-        print(self.q_function_options)
         if self.q_function_options[str(self.zone)] == {}: # No option available : explore
-            print('agent : explore')
-            new_option = self.explore_option
-        else: # options are available : find the best and execute or explore
+            return self.explore_option
+        else: # action are available : find the best and execute or explore
             if np.random.rand() < 0.1: # in this case go explore
-                new_option = self.explore_option
+                return self.explore_option
             else: # in this case find the best option
-                print('agent : take a proper option')
-                print('current position' + str(self.position))
-                _, new_option = self.find_best_option(self.q_function_options[str(self.zone)])
+                _, best_option = self.q.q_dict.find_best_action(self.zone)
 
-        new_option.position = self.position
-        new_option.zone = self.zone
-        return new_option
-
-    def find_best_option(self, dict_zone_optionReward):
-        best_option = None
-        best_reward = - float('inf')
-        for terminal_state in dict_zone_optionReward:
-            reward = dict_zone_optionReward[terminal_state][1]
-            if reward > best_reward:
-                best_reward = reward
-                best_option = dict_zone_optionReward[terminal_state][0]
-        return best_reward, best_option
+        best_option.set_position_zone(self.position, self.zone)        
+        return best_option
 
     def option_update(self, new_position, new_zone, new_state_id):
         """
+        key
         """
         reward = -1
-        if self.state_id != new_state_id:
+        if self.id != new_state_id: # we get an item of the world
             reward += 1
             self.state_id = new_state_id
-
         self.t += 1
-        if str(new_zone) not in self.q_function_options[str(self.zone)].keys(): #exploration found a new zone
-            print("exploration found new zone :" + str(new_zone))
-            self.q_function_options[str(self.zone)].update({str(new_zone) : [Option(position = self.position, zone = self.zone, terminal_state = new_zone), 0]}) # we have created a new option starting ending in new_zone
-            if str(new_zone) not in self.q_function_options.keys():
-                self.q_function_options.update({str(new_zone) : {}})# we create also a new option starting from self.zone
-        else:
-            self.update_q_function_options(new_zone, reward, self.t)
+        
+        self.q.q_dict.add_state(new_zone)
+        self.q.q_dict.add_action_to_state(new_zone, Option(zone = self.zone, position = self.position, terminal_state = new_zone))
+
+
+        if str(new_zone) != str(self.zone):
+            if str(new_zone) not in self.q_function_options[str(self.zone)].keys(): #exploration found a new zone
+                self.q_function_options[str(self.zone)].update({str(new_zone) : [), 0]}) # we have created a new option starting ending in new_zone
+                if str(new_zone) not in self.q_function_options.keys():
+                    self.q_function_options.update({str(new_zone) : {}})# we create also a new option starting from self.zone
+            else:
+                self.update_q_function_options(new_zone, reward, self.t)
 
         self.zone = new_zone
         self.position = new_position
-            # if the state has a new id, we just got the key
     def update_q_function_options(self, new_zone, reward, t):
         learning_rate = 1 / t
         max_value_option, _ = self.find_best_option(self.q_function_options[str(self.zone)])

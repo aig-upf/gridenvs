@@ -36,30 +36,38 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
     return env, agent
 
 def learn(env, agent):
+    """
+    0/ The agent chooses an option
+    1/ The option makes the action
+    TOFIX : I change the info in the env render. Info contains observations for the moment : zone and position of the agent
+    2/ The environment gives the feedback
+    3/ We update the option's parameters and we get end_option which is True if only if the option is done.
+    4/ The agent update his info about the option
+    5/ The agent chooses an option and sets its parameter
+    """
     initial_agent_position = agent.position
     initial_agent_zone = agent.zone
-    iteration_learning = 500
+    iteration_learning = 100
 
     for t in tqdm(range(1, iteration_learning + 1)):
-        current_position = env.get_hero_position()
-        done = False
-        end_option = False
-        option = agent.choose_option()
-        print("starting new episode")
-        while not(done):
-            env.render_scaled()
-            action = option.act() # The option makes the action
-            # TOFIX : I change the info in the env render.
-            # UGLY : info contains observations for the moment : zone and position of the agent
-            _, reward, done, info = env.step(action) # The environment gives the feedback
-            new_position = info['position']
-            new_zone = info['zone']
-            end_option = option.update(reward, new_position, new_zone, action, t) # We update the option's parameters.
-            if end_option: # the option is done
-                agent.option_update(new_position, new_zone, info['state_id']) # The agent update his info about the option
-                option = agent.choose_option() # The agent chooses an option and set its parameter
         env.reset()
         agent.reset(initial_agent_position, initial_agent_zone)
+        done = False
+        running_option = False
+        
+        while not(done):
+            time.sleep(1)
+            env.render_scaled()
+            if not(running_option): # no option acting
+                option = agent.choose_option()
+            action = option.act() 
+            _, reward, done, info = env.step(action)
+            new_position = info['position']
+            new_zone = info['zone']
+            end_option = option.update(reward, new_position, new_zone, action, t)
+            if end_option:
+                running_option = False
+                agent.option_update(new_position, new_zone, info['state_id'])
     env.close()
 
 def play_keyboard(env, agent):

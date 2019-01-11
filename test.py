@@ -1,61 +1,70 @@
-"""
-Here is the zone where we test all the functions
-"""
 import unittest
-import cv2
-import numpy as np
-class TestStringMethods(unittest.TestCase):
+from gridenvs.utils import Point
+from q.q import Q
+from option.option import Option
+
+class QTests(unittest.TestCase):
     """
-        The following methods are examples to implement tests. It is possible
-    to make a function which is not a test but which can be used for the test.
-    To do that, just make the function private by adding the character '_' at
-    the begining at the name of the function.
-    More info her: https://docs.python.org/3/library/unittest.html
+    TODO : test_update_q_dict
+    TODO : redo the tests, replace 'action' by 'Point(x,y)' (add_action_to_state has to evaluate the action)
     """
-    def _example_function_which_is_not_a_test_function(a):
-        return a+1
+    def test_add_state(self):
+        q = Q(Point(0,0))
+        exists_state = q.add_state(Point(0,1))
+        self.assertFalse(exists_state)
+        self.assertEqual(q.q_dict, {'Point(0,0)' : {}, 'Point(0,1)' : {}})
 
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
+    def test_add_action_to_state(self):
+        q = Q(Point(0,0))
+        known_action = q.add_action_to_state(Point(0,0), Point(2,2))
+        self.assertEqual(q.q_dict, {'Point(0,0)' : {'Point(2,2)' : 0}})
+        self.assertFalse(known_action)
 
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
+        with  self.assertRaises(KeyError):
+            known_second_action = q.add_action_to_state(Point(0,3), Point(0,1))
+            
+        known_third_action = q.add_action_to_state(Point(0,0), Point(4,4))
+        self.assertFalse(known_third_action)
+        self.assertEqual(q.q_dict, {'Point(0,0)' : {'Point(2,2)' : 0, 'Point(4,4)' : 0}})
 
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
+    def test_add_action_to_state_with_option(self):
+        position_1 = Point(0,0)
+        zone_1 = Point(0,0)
+        terminal_zone = Point(1,0)
+        option_1 = Option(zone = zone_1, position = position_1, terminal_state = terminal_zone)
+        option_2 = Option(zone = zone_1, position = position_1, terminal_state = terminal_zone)
+        self.assertTrue(option_1 == option_2)
+        
+    def test_find_best_action(self):
+        q = Q(Point(0,0))
+        q.add_action_to_state(Point(0,0), Point(0,0))
+        q.q_dict['Point(0,0)']['Point(0,0)'] = 2
+        q.add_action_to_state(Point(0,0), Point(0,1))
+        q.q_dict['Point(0,0)']['Point(0,1)'] = 4
+        q.add_action_to_state(Point(0,0), Point(0,2))
+        q.q_dict['Point(0,0)']['Point(0,2)'] = 77
+        q.add_action_to_state(Point(0,0), Point(0,3))
+        q.q_dict['Point(0,0)']['Point(0,3)'] = 3
+        q.add_state(Point(10,10))
 
-    def test_blurred_image(self):
+        best_reward, best_action = q.find_best_action(Point(0,0))
+        self.assertEqual(best_reward, 77)
+        self.assertEqual(best_action, Point(0,2))
+        with self.assertRaises(Exception):
+            q.find_best_action(Point(10,10))        
+        with self.assertRaises(Exception):
+            q.find_best_action(Point(4,4))
         """
-        A test to check if cv2.resize(...,interpolation=cv2.INTER_AREA) make an average of the colors of the cells
+    def test_update_q_dict(self):
+        state = 'state' 
+        new_state = 'new_state'
+        action = 'action' 
+        reward = 10
+        t = 5
+        q = Q(state)
+        q.add_action_to_state(state, action)
+        q.update_q_dict(state, new_state, action, reward, t)
+        assertEqual(q.q_dict, {'state' : {}, 'new_state' : {}})
         """
-        n = 9
-        grid_colors = []
-        #        grid_colors = np.zeros([self.grid_size.y, self.grid_size.x, 3], dtype=np.uint8)
-        for _ in range(n):
-            column = []
-            for _ in range(n):
-                colors = []
-                for k in range(3):
-                    colors.append(np.random.randint(256))
-                column.append(colors)
-            grid_colors.append(column)
-
-        moy = []
-        for a in range(3):
-            col = []
-            for b in range(3):
-                colors = []
-                for c in range(3):
-                    colors.append(round(sum([grid_colors[i+3*a][j+3*b][c] for i in range(3) for j in range(3)]) / 9))
-                col.append(colors)
-            moy.append(col)
-        image_blurred =  cv2.resize(np.array(grid_colors, dtype = np.uint8), (len(grid_colors[0]) // 3, len(grid_colors) // 3), interpolation=cv2.INTER_AREA)
-        self.assertListEqual(image_blurred.tolist(), moy)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
