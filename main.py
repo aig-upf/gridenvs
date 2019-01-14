@@ -35,7 +35,7 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
         raise Exception("agent name does not exist")
     return env, agent
 
-def learn(env, agent):
+def learn(env, agent, iteration_learning = 1000):
     """
     0/ The agent chooses an option
     1/ The option makes the action
@@ -47,28 +47,30 @@ def learn(env, agent):
     """
     initial_agent_position = agent.position
     initial_agent_zone = agent.zone
-    iteration_learning = 100
 
     for t in tqdm(range(1, iteration_learning + 1)):
+        t_agent = 0
         env.reset()
         agent.reset(initial_agent_position, initial_agent_zone)
         done = False
         running_option = False
         
         while not(done):
-            time.sleep(1)
             env.render_scaled()
             if not(running_option): # no option acting
                 option = agent.choose_option()
-            action = option.act() 
+                #print("chosen option hash code " + str(option.__hash__()))
+            action = option.act()
             _, reward, done, info = env.step(action)
             new_position = info['position']
             new_zone = info['zone']
             end_option = option.update(reward, new_position, new_zone, action, t)
             if end_option:
                 running_option = False
-                agent.option_update(new_position, new_zone, info['state_id'])
+                t_agent += 1
+                agent.option_update(new_position, new_zone, info['state_id'], option, t_agent)
     env.close()
+    return agent
 
 def play_keyboard(env, agent):
     """
@@ -99,5 +101,34 @@ env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default envi
 type_agent = type_agent_list[1]
 env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 
-learn(env, agent)
+def play(env, agent):
+    """
+    """
+    initial_agent_position = agent.position
+    initial_agent_zone = agent.zone
+    agent.play = True
+    env.reset()
+    agent.reset(initial_agent_position, initial_agent_zone)
+    done = False
+    running_option = False
+    print(agent.q[initial_agent_zone.__hash__()])
+    while not(done):
+        time.sleep(1)
+        env.render_scaled()
+        if not(running_option): # no option acting
+            option = agent.choose_option()
+            #print("chosen option hash code " + str(option.__hash__()))
+        action = option.act()
+        _, reward, done, info = env.step(action)
+        new_position = info['position']
+        new_zone = info['zone']
+        end_option = option.update(reward, new_position, new_zone, action)
+        if end_option:
+            running_option = False
+            agent.option_update(new_position, new_zone, info['state_id'], option)
+    env.close()
+
+agent_learned = learn(env, agent, iteration_learning = 50)
+play(env, agent_learned)
+
 #play_keyboard(env, agent)
