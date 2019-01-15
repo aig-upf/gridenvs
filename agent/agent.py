@@ -11,6 +11,7 @@ import numpy as np
 import time
 from option.option import Option, OptionExplore
 from q.q import Q
+from variables import *
 
 class AgentOption(): 
 
@@ -23,8 +24,12 @@ class AgentOption():
         self.state_id = 0
         self.zone = zone
         self.position = position
-        self.explore_option = OptionExplore(position = position, zone = zone) # special options
+        self.explore_option = OptionExplore(initial_state = zone) # special options
 
+    def reset_and_return_explore_option(self):
+        self.explore_option.initial_state = self.zone
+        return self.explore_option
+    
     def reset(self, initial_agent_position, initial_agent_zone):
         """
         Same as __init__ but the q function is preserved 
@@ -32,6 +37,7 @@ class AgentOption():
         self.position = initial_agent_position
         self.zone = initial_agent_zone
         self.state_id = 0
+        self.reset_and_return_explore_option()
 
     def choose_option(self):
         """
@@ -41,19 +47,24 @@ class AgentOption():
         if self.play: # in this case we do not learn anymore
             _, best_option = self.q.find_best_action(self.zone)
             best_option.play = True
+            best_option.set_position(self.position)
+            return best_option
+        
         else:
             if not(self.q.is_actions(self.zone)): # No option available : explore
-                return self.explore_option
+                print('empty_explore')
+                return self.reset_and_return_explore_option()
             else: # action are available : find the best and execute or explore
-                if np.random.rand() < 0.5: # in this case go explore
-                    return self.explore_option
+                if np.random.rand() < 0.05: # in this case go explore
+                    print('rand_explore')
+                    return self.reset_and_return_explore_option()
                 else: # in this case find the best option
                     _, best_option = self.q.find_best_action(self.zone)
+                    best_option.set_position(self.position)
+                    return best_option
+                        
 
-        best_option.set_position(self.position)
-        return best_option
-
-    def option_update(self, new_position, new_zone, new_state_id, option, t = None):
+    def update_agent(self, new_position, new_zone, new_state_id, option, t = None):
         """
         """
         if self.play:
@@ -62,19 +73,22 @@ class AgentOption():
         else:
             reward = -1
             if self.state_id != new_state_id: # we get an item of the world
-                reward += 10 # extra reward for having the key !
+                print("************************************************new state ID !")
+                reward += REWARD_KEY # extra reward for having the key !
                 self.state_id = new_state_id
         
             self.update_q_function_options(self.position, self.zone, new_position, new_zone, option, reward, t)
-
+            
             self.zone = new_zone
             self.position = new_position
-        
+            
     def update_q_function_options(self, position, zone, new_position, new_zone, option, reward, t):
         if self.explore_option == option:
             self.q.add_state(new_zone)
-            self.q.add_action_to_state(zone, Option(zone = zone, position = position, terminal_state = new_zone))
+            new_opt = Option(position = position, initial_state = zone, terminal_state = new_zone)
         elif self.q.is_actions(zone):
+            print("\n")
+            print('update q : reward = ' + str(reward) + ', q function' + str(self.q))
             self.q.update_q_dict(zone, new_zone, option, reward, t)
 
 

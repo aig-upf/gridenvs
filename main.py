@@ -5,7 +5,7 @@ import numpy as np
 import time
 from tqdm import tqdm
 from agent.agent import KeyboardAgent, AgentOption
-
+from variables import * 
 """
 TODO : problem with escape for closing the environment, problem with close().
 (Look at the stashed version :
@@ -13,7 +13,7 @@ stash@{0}: WIP on branch_options: 3f712e7 some small changes
 to change the agent files in order to delete environment in their list of attributes.)
 """
 
-def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = 10, zone_size_x = 4, zone_size_y = 4):
+def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboard_controller", number_gray_colors = NUMBER_GRAY_COLORS, zone_size_x = ZONE_SIZE_X, zone_size_y = ZONE_SIZE_Y):
     env = gym.make(env_name)
     env.reset()
     env.blurred = blurred_bool
@@ -35,7 +35,7 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
         raise Exception("agent name does not exist")
     return env, agent
 
-def learn(env, agent, iteration_learning = 1000):
+def learn(env, agent, iteration_learning = ITERATION_LEARNING):
     """
     0/ The agent chooses an option
     1/ The option makes the action
@@ -49,26 +49,27 @@ def learn(env, agent, iteration_learning = 1000):
     initial_agent_zone = agent.zone
 
     for t in tqdm(range(1, iteration_learning + 1)):
-        t_agent = 0
+        # reset the parameters
         env.reset()
         agent.reset(initial_agent_position, initial_agent_zone)
         done = False
         running_option = False
-        
+        #start the loop
         while not(done):
             env.render_scaled()
-            if not(running_option): # no option acting
+            # if no option acting, choose an option
+            if not(running_option): 
                 option = agent.choose_option()
-                #print("chosen option hash code " + str(option.__hash__()))
+                running_option = True
+            # else, let the current option act
             action = option.act()
             _, reward, done, info = env.step(action)
-            new_position = info['position']
-            new_zone = info['zone']
-            end_option = option.update(reward, new_position, new_zone, action, t)
-            if end_option:
+            new_position, new_zone, new_state_id = info['position'], info['zone'], info['state_id']
+            end_option = option.update_option(reward, new_position, new_zone, action)
+            # if the option ended then update the agent's data
+            if end_option and not(done):
                 running_option = False
-                t_agent += 1
-                agent.option_update(new_position, new_zone, info['state_id'], option, t_agent)
+                agent.update_agent(new_position, new_zone, new_state_id, option)
     env.close()
     return agent
 
@@ -103,32 +104,43 @@ env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent =
 
 def play(env, agent):
     """
+    0/ The agent chooses an option
+    1/ The option makes the action
+    TOFIX : I change the info in the env render. Info contains observations for the moment : zone and position of the agent
+    2/ The environment gives the feedback
+    3/ We update the option's parameters and we get end_option which is True if only if the option is done.
+    4/ The agent update his info about the option
+    5/ The agent chooses an option and sets its parameter
     """
     initial_agent_position = agent.position
     initial_agent_zone = agent.zone
     agent.play = True
+    # reset the parameters
     env.reset()
     agent.reset(initial_agent_position, initial_agent_zone)
     done = False
     running_option = False
-    print(agent.q)
+    #start the loop
     while not(done):
         env.render_scaled()
         time.sleep(1)
-        if not(running_option): # no option acting
+        # if no option acting, choose an option
+        if not(running_option): 
             option = agent.choose_option()
-            #print("chosen option hash code " + str(option.__hash__()))
+            running_option = True
+        # now let the current option act
         action = option.act()
         _, reward, done, info = env.step(action)
-        new_position = info['position']
-        new_zone = info['zone']
-        end_option = option.update(reward, new_position, new_zone, action)
-        if end_option:
+        new_position, new_zone, new_state_id = info['position'], info['zone'], info['state_id']
+        end_option = option.update_option(reward, new_position, new_zone, action)
+        # if the option ended then update the agent's data
+        if end_option and not(done):
             running_option = False
-            agent.option_update(new_position, new_zone, info['state_id'], option)
+            agent.update_agent(new_position, new_zone, new_state_id, option)
     env.close()
 
-agent_learned = learn(env, agent, iteration_learning = 150)
+
+agent_learned = learn(env, agent, iteration_learning = ITERATION_LEARNING)
 play(env, agent_learned)
 
 #play_keyboard(env, agent)

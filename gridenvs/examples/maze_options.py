@@ -7,11 +7,11 @@ import numpy as np
 def key_door_env(init_map, key_reward, kwargs):
     # a dictionary of the states.
     # {(state, collision): (new_state, reward, end,?)}
-    state_dict = {(1, 'D'): (1, 1.0, True, None)}
+    state_dict = {(1, 'D'): (1, 10.0, True, None)}
     for s in [0,1]: #possible states
-        state_dict[(s, 'W')] = (0, -1.0, True, None)
+        state_dict[(s, 'W')] = (0, - float('inf'), True, None)
 
-    state_dict[0,'K'] = (1, 1.0, False, lambda w,c: w.remove_object(c))
+    state_dict[0,'K'] = (1, 10.0, False, lambda w,c: w.remove_object(c))
 
 
     from gridenvs.utils import Color

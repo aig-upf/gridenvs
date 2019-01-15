@@ -7,28 +7,36 @@ from gridenvs.utils import Direction
 from q.q import Q
 import time
 import numpy as np
+from variables import *
 
 class Option(object):
     """
     This is the general option which allows the agent to go to zone to zone.
-    It can be activate in the initial_zone and it ends in the terminal_zone.
+    It can be activate in the initial_zone and it ends in the terminal_state.
     """
-    def __init__(self, zone, position, reward_end_option = 0.2, terminal_state = None, play = False):
+    def __init__(self, initial_state, terminal_state = None, position = None, play = False):
         self.play = play
         self.q = Q(position)
-        self.zone = zone
+        self.initial_state = initial_state
         self.set_position(position)
         self.terminal_state = terminal_state
-        self.reward_end_option = reward_end_option
+        self.reward_end_option = REWARD_END_OPTION
+
+    def __repr__(self):
+        return "".join(["Option(", str(self.initial_state), ",", str(self.terminal_state), ")"])
     
     def __str__(self):
-        return "option from " + str(self.zone) + " to " + str(self.terminal_state)
-
-    def __hash__(self):
-        return hash((self.zone, self.terminal_state))
+        return "option from " + str(self.initial_state) + " to " + str(self.terminal_state)
 
     def __eq__(self, other_option):
-        return (self.zone == other_option.zone) and (self.terminal_state == other_option.terminal_state)
+        return (self.initial_state == other_option.initial_state) and (self.terminal_state == other_option.terminal_state)
+
+    def __hash__(self):
+        return hash((self.initial_state, self.terminal_state))
+
+    def check_end_option(self, new_zone):
+        return new_zone == self.terminal_state
+
     def set_position(self, position):
         self.position = position
         self.add_primitive_actions(position)
@@ -41,7 +49,7 @@ class Option(object):
         for k in range(4):
             self.q.add_action_to_state(position, cardinal[k])
             
-    def update(self, reward, new_position, new_zone, action, t = None):
+    def update_option(self, reward, new_position, new_zone, action):
         """
         option gets an extra reward if it finishes.
         returns True iff the option ends, i.e. if check_end_option returns True
@@ -54,36 +62,33 @@ class Option(object):
             end_option = self.check_end_option(new_zone)
             if end_option:
                 total_reward = reward + self.reward_end_option
-            self.update_q_function(self.position, new_position, action, total_reward, t)
+            self.update_q_function(self.position, new_position, action, total_reward)
             self.position = new_position
             return end_option
 
-    def update_q_function(self, position, new_position, action, total_reward, t):
+    def update_q_function(self, position, new_position, action, total_reward):
         self.add_primitive_actions(new_position)
-        self.q.update_q_dict(position, new_position, action, total_reward, t)
+        self.q.update_q_dict(position, new_position, action, total_reward)
     
     def act(self):
         if self.play:
-            best_reward, best_action = self.q.find_best_action(self.position)
+            _, best_action = self.q.find_best_action(self.position)
             return best_action
         else:
-            if np.random.rand() < 0.01:
+            if np.random.rand() < PROBABILTY_EXPLORE_IN_OPTION:
                 cardinal = Direction.cardinal()
                 return cardinal[np.random.randint(4)]
             else:
                 best_reward, best_action = self.q.find_best_action(self.position)
                 return best_action
 
-    def check_end_option(self, new_zone):
-        return new_zone == self.terminal_state
-        
 class OptionExplore(Option):
     """
     This is a special option to explore. No q_function is needed here.
     """
     
     def __str__(self):
-        return "explore option"
+        return "explore option from " + str(self.initial_state)
 
     def __eq__(self, other):
         return type(other).__name__ == "OptionExplore"
@@ -101,9 +106,9 @@ class OptionExplore(Option):
         """
         option ends iff it has found a new zone
         """
-        return new_zone != self.zone
+        return new_zone != self.initial_state
 
-    def update_q_function(self, position, new_position, action, reward, t):
+    def update_q_function(self, position, new_position, action, reward):
         """
         There is no q_function for this special option
         """
