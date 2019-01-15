@@ -111,10 +111,10 @@ def play(env, agent):
     agent.reset(initial_agent_position, initial_agent_zone)
     done = False
     running_option = False
-    print(agent.q[initial_agent_zone.__hash__()])
+    print(agent.q)
     while not(done):
-        time.sleep(1)
         env.render_scaled()
+        time.sleep(1)
         if not(running_option): # no option acting
             option = agent.choose_option()
             #print("chosen option hash code " + str(option.__hash__()))
@@ -128,7 +128,7 @@ def play(env, agent):
             agent.option_update(new_position, new_zone, info['state_id'], option)
     env.close()
 
-agent_learned = learn(env, agent, iteration_learning = 50)
+agent_learned = learn(env, agent, iteration_learning = 150)
 play(env, agent_learned)
 
 #play_keyboard(env, agent)

@@ -11,9 +11,11 @@ class Q(object):
         self.hash_action = {}
 
     def __str__(self):
+        message = ""
         for state in self.q_dict:
-            for action in q_dict[state]:
-                print(action + "value : " + str(q_dict[state][action]))
+            for action in self.q_dict[state]:
+                message += str(self.hash_action[action]) + " value : " + str(self.q_dict[state][action]) + "\n"
+        return message
         
     def add_state(self, state):
         """
