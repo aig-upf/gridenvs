@@ -28,6 +28,11 @@ class Q(object):
 
             
     def add_action_to_state(self, state, action):
+        """
+        does not add anything if 
+        for action in q[option.terminal_state]:
+           action.terminal_state = option.initial_state
+        """
         try:
             self.q_dict[state]
         except:

@@ -62,18 +62,24 @@ class AgentOption():
                     self.reset_explore_option()
                     return self.explore_option
                 else: # in this case find the best option
-                    _, best_option = self.q.find_best_action(self.zone)
-                    print("best option chosen : " + str(best_option) +" \n")
-                    best_option.set_position_update_q(self.position)
-                    return best_option
+                    best_reward, best_option = self.q.find_best_action(self.zone)
+                    if best_reward == 0:
+                        print("best option chosen : " + str(best_option) +" \n")
+                        best_option = np.random.choice(list(self.q.q_dict[self.zone].keys()))
+                        best_option.set_position_update_q(self.position)
+                        return best_option
+                    else:
+                        print("best option chosen : " + str(best_option) +" \n")
+                        best_option.set_position_update_q(self.position)
+                        return best_option
                         
 
-    def update_agent(self, reward, new_position, new_zone, option, new_state_id):
+    def update_agent(self, new_position, new_zone, option, new_state_id, t_agent):
         if self.play:
             self.zone = new_zone
             self.position = new_position
         else:
-            total_reward = -1 + reward
+            total_reward = t_agent
             if self.state_id != new_state_id: # we get an item of the world
                 total_reward += REWARD_KEY # extra reward for having the key !
                 self.state_id = new_state_id
@@ -83,11 +89,23 @@ class AgentOption():
             self.position = new_position
             
     def update_q_function_options(self, position, zone, new_position, new_zone, option, reward):
+
         if self.explore_option == option:
+            """
+            does not add anything if 
+            for action in q[option.terminal_state]:
+            action.terminal_state = option.initial_state
+            """
+            self.q.add_state(new_zone)
+            if self.q.is_actions(new_zone):
+                for action in self.q.q_dict[new_zone]:
+                    if action.terminal_state == zone:
+                        print("initial zone " + str(zone) + " terminal zone " + str(new_zone) + "\n")
+                        return
+                    
             new_option = Option(position = position, initial_state = zone, terminal_state = new_zone)
             self.q.add_action_to_state(zone, new_option)
             
-            self.q.add_state(new_zone)
         else:
             print('update q : reward = ' + str(reward) + '\n' + str(self.q) + "\n")
             self.q.update_q_dict(zone, new_zone, option, reward)

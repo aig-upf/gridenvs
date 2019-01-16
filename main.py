@@ -53,23 +53,26 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
         agent.reset(initial_agent_position, initial_agent_zone)
         done = False
         running_option = False
+        t_agent = 0
         #start the loop
         while not(done):
             env.render_scaled()
-            time.sleep(1)
             # if no option acting, choose an option
             if not(running_option): 
                 option = agent.choose_option()
                 running_option = True
+                if option != agent.explore_option:
+                    t_agent += 1
             # else, let the current option act
             action = option.act()
             _, reward, done, info = env.step(action)
             new_position, new_zone, new_state_id = info['position'], info['zone'], info['state_id']
             end_option = option.update_option(reward, new_position, new_zone, action)
             # if the option ended then update the agent's data
-            if end_option:
+            if end_option and not(done):
                 running_option = False
-                agent.update_agent(reward, new_position, new_zone, option, new_state_id)
+                print("found a new zone : " + str(new_zone))
+                agent.update_agent(new_position, new_zone, option, new_state_id, t_agent)
     env.close()
     
     return agent
