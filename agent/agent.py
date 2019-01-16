@@ -74,12 +74,12 @@ class AgentOption():
                         return best_option
                         
 
-    def update_agent(self, new_position, new_zone, option, new_state_id, t_agent):
+    def update_agent(self, new_position, new_zone, option, new_state_id):
         if self.play:
             self.zone = new_zone
             self.position = new_position
         else:
-            total_reward = t_agent
+            total_reward = 0
             if self.state_id != new_state_id: # we get an item of the world
                 total_reward += REWARD_KEY # extra reward for having the key !
                 self.state_id = new_state_id
@@ -91,20 +91,8 @@ class AgentOption():
     def update_q_function_options(self, position, zone, new_position, new_zone, option, reward):
 
         if self.explore_option == option:
-            """
-            does not add anything if 
-            for action in q[option.terminal_state]:
-            action.terminal_state = option.initial_state
-            """
-            self.q.add_state(new_zone)
-            if self.q.is_actions(new_zone):
-                for action in self.q.q_dict[new_zone]:
-                    if action.terminal_state == zone:
-                        print("initial zone " + str(zone) + " terminal zone " + str(new_zone) + "\n")
-                        return
-                    
-            new_option = Option(position = position, initial_state = zone, terminal_state = new_zone)
-            self.q.add_action_to_state(zone, new_option)
+            self.q.add_state(new_zone)                    
+            self.q.add_action_to_state(zone, Option(position = position, initial_state = zone, terminal_state = new_zone))
             
         else:
             print('update q : reward = ' + str(reward) + '\n' + str(self.q) + "\n")

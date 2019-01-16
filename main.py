@@ -53,7 +53,6 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
         agent.reset(initial_agent_position, initial_agent_zone)
         done = False
         running_option = False
-        t_agent = 0
         #start the loop
         while not(done):
             env.render_scaled()
@@ -61,8 +60,6 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
             if not(running_option): 
                 option = agent.choose_option()
                 running_option = True
-                if option != agent.explore_option:
-                    t_agent += 1
             # else, let the current option act
             action = option.act()
             _, reward, done, info = env.step(action)
@@ -72,34 +69,11 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
             if end_option and not(done):
                 running_option = False
                 print("found a new zone : " + str(new_zone))
-                agent.update_agent(new_position, new_zone, option, new_state_id, t_agent)
+                agent.update_agent(new_position, new_zone, option, new_state_id)
     env.close()
     
     return agent
 
-def play_keyboard(env, agent):
-    """
-    play with the Keyboard agent
-    """
-    
-    #env_blurred, agent_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = True)
-    done = False
-    total_reward = 0
-    shut_down = agent.human_wants_shut_down
-        
-    while(not(done) and not(shut_down)):
-        shut_down = agent.human_wants_shut_down
-        #env_blurred.render_scaled()
-        env.render_scaled()
-        action = agent.act()
-        if action != None:
-            _, reward, done, info = env.step(action)
-            total_reward += reward
-            print('zone = ' + repr(info['zone']))
-            #env_blurred.close()
-    env.close()
-    print('End of the episode')
-    print('reward = ' + str(total_reward))
 
 
 def play(env, agent):
@@ -144,6 +118,29 @@ env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default envi
 type_agent = type_agent_list[1]
 env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 agent_learned = learn(env, agent, iteration_learning = ITERATION_LEARNING)
-#play(env, agent_learned)
+play(env, agent_learned)
 
 #play_keyboard(env, agent)
+def play_keyboard(env, agent):
+    """
+    play with the Keyboard agent
+    """
+    
+    #env_blurred, agent_blurred = make_environment_agent(env_name, type_agent = type_agent, blurred_bool = True)
+    done = False
+    total_reward = 0
+    shut_down = agent.human_wants_shut_down
+        
+    while(not(done) and not(shut_down)):
+        shut_down = agent.human_wants_shut_down
+        #env_blurred.render_scaled()
+        env.render_scaled()
+        action = agent.act()
+        if action != None:
+            _, reward, done, info = env.step(action)
+            total_reward += reward
+            print('zone = ' + repr(info['zone']))
+            #env_blurred.close()
+    env.close()
+    print('End of the episode')
+    print('reward = ' + str(total_reward))
