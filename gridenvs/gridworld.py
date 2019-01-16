@@ -45,6 +45,7 @@ class GridworldEnv(gym.Env):
 
     def set_zone_size(self, x,y):
         self.zone_size = {'x' : x, 'y' : y}
+
     def create_world(self):
         raise NotImplementedError()
 

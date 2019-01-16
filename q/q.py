@@ -12,7 +12,7 @@ class Q(object):
         message = ""
         for state in self.q_dict:
             for action in self.q_dict[state]:
-                message += "state " +str(state) + "action " + str(action) + " value : " + str(self.q_dict[state][action]) + "\n"
+                message += "state " +str(state) + " action " + str(action) + " value : " + str(self.q_dict[state][action]) + "\n"
         return message
 
     def add_state(self, state):

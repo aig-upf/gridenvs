@@ -10,20 +10,30 @@ class OptionTest(unittest.TestCase):
     TODO
     """
     def test_eq_option_explore(self):
-        opt_1 = OptionExplore(position = Point(0,0), initial_state = Point(0,0), terminal_state = Point(1,1))
-        opt_2 = OptionExplore(position = Point(0,0), initial_state = Point(0,0), terminal_state = Point(1,1))
+        opt_1 = OptionExplore(Point(0,0))
+        opt_2 = OptionExplore(Point(0,0))
         self.assertEqual(opt_1, opt_2)
 
     def test_act_option_explore(self):
-        opt_1 = OptionExplore(position = Point(0,0), initial_state = Point(0,0), terminal_state = Point(1,1))
+        opt_1 = OptionExplore(Point(0,0))
         action = opt_1.act()
         self.assertTrue(action in Direction.cardinal())
 
     def test_check_end_option_explore(self):
-        opt_1 = OptionExplore(position = Point(0,0), initial_state = Point(0,0), terminal_state = Point(1,1))
+        opt_1 = OptionExplore(Point(0,0))
         self.assertFalse(opt_1.check_end_option(Point(0,0)))
         self.assertTrue(opt_1.check_end_option(Point(10,0)))
 
+    def test_add_primitive_actions(self):
+        option_1 = Option(position = Point(0,0), initial_state = Point(0,0), terminal_state = Point(1,1))
+        option_1.add_primitive_actions(Point(0,0))
+        cardinal = Direction.cardinal()
+        self.assertEqual(option_1.q.q_dict, {Point(0,0) : {cardinal[0] : 0, cardinal[1] : 0, cardinal[2] : 0, cardinal[3] : 0}})
+
+        with  self.assertRaises(Exception):
+            option_1.add_primitive_actions(Point(1,1))
+
+                                    
 class QTests(unittest.TestCase):
     def test_add_state(self):
         q = Q(Point(0,0))
@@ -68,7 +78,7 @@ class QTests(unittest.TestCase):
         q = Q(Point(0,0))
         zone_1 = Point(0,0)
         terminal_zone_1 = Point(1,0)
-        option =  OptionExplore(position = zone_1, initial_state = zone_1)
+        option =  OptionExplore(initial_state = zone_1)
         
         q.add_action_to_state(Point(0,0), Point(0,0))
         q.q_dict[Point(0,0)][Point(0,0)] = 2

@@ -47,7 +47,6 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
     """
     initial_agent_position = agent.position
     initial_agent_zone = agent.zone
-
     for t in tqdm(range(1, iteration_learning + 1)):
         # reset the parameters
         env.reset()
@@ -57,6 +56,7 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
         #start the loop
         while not(done):
             env.render_scaled()
+            time.sleep(1)
             # if no option acting, choose an option
             if not(running_option): 
                 option = agent.choose_option()
@@ -67,10 +67,11 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
             new_position, new_zone, new_state_id = info['position'], info['zone'], info['state_id']
             end_option = option.update_option(reward, new_position, new_zone, action)
             # if the option ended then update the agent's data
-            if end_option and not(done):
+            if end_option:
                 running_option = False
-                agent.update_agent(new_position, new_zone, new_state_id, option)
+                agent.update_agent(reward, new_position, new_zone, option, new_state_id)
     env.close()
+    
     return agent
 
 def play_keyboard(env, agent):
@@ -97,10 +98,6 @@ def play_keyboard(env, agent):
     print('End of the episode')
     print('reward = ' + str(total_reward))
 
-type_agent_list = ["keyboard_controller", "agent_option"]
-env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
-type_agent = type_agent_list[1]
-env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 
 def play(env, agent):
     """
@@ -139,8 +136,11 @@ def play(env, agent):
             agent.update_agent(new_position, new_zone, new_state_id, option)
     env.close()
 
-
+type_agent_list = ["keyboard_controller", "agent_option"]
+env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
+type_agent = type_agent_list[1]
+env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 agent_learned = learn(env, agent, iteration_learning = ITERATION_LEARNING)
-play(env, agent_learned)
+#play(env, agent_learned)
 
 #play_keyboard(env, agent)

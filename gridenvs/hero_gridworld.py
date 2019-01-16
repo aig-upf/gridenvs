@@ -65,6 +65,7 @@ class HeroGridEnv(GridworldEnv):
         return self.game_state['hero'].pos
 
     def get_hero_zone(self):
+        self.update_zone(self.get_hero_position())
         return self.game_state['zone']
 
     def update_environment(self, action):

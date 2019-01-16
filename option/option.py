@@ -14,13 +14,12 @@ class Option(object):
     This is the general option which allows the agent to go to zone to zone.
     It can be activate in the initial_zone and it ends in the terminal_state.
     """
-    def __init__(self, initial_state, terminal_state = None, position = None, play = False):
+    def __init__(self, initial_state, terminal_state, position, play = False):
         self.play = play
         self.q = Q(position)
         self.initial_state = initial_state
-        self.set_position(position)
+        self.set_position_update_q(position)
         self.terminal_state = terminal_state
-        self.reward_end_option = REWARD_END_OPTION
 
     def __repr__(self):
         return "".join(["Option(", str(self.initial_state), ",", str(self.terminal_state), ")"])
@@ -29,7 +28,10 @@ class Option(object):
         return "option from " + str(self.initial_state) + " to " + str(self.terminal_state)
 
     def __eq__(self, other_option):
-        return (self.initial_state == other_option.initial_state) and (self.terminal_state == other_option.terminal_state)
+        if type(other_option).__name__ == "Option":
+            return (self.initial_state == other_option.initial_state) and (self.terminal_state == other_option.terminal_state)
+        else:
+            return False
 
     def __hash__(self):
         return hash((self.initial_state, self.terminal_state))
@@ -37,17 +39,27 @@ class Option(object):
     def check_end_option(self, new_zone):
         return new_zone == self.terminal_state
 
-    def set_position(self, position):
+    def set_position_update_q(self, position):
+        """
+        Everytime the option updates its position, it adds in his q_function this position and the corresponding actions (N, S, E, W)
+        """
         self.position = position
+        self.q.add_state(position)
         self.add_primitive_actions(position)
 
     def add_primitive_actions(self, position):
         """
         add the actions N, S, E, W at this position
         """
-        cardinal = Direction.cardinal()
-        for k in range(4):
-            self.q.add_action_to_state(position, cardinal[k])
+        try:
+            self.q.q_dict[position]
+        except:
+            raise Exception("cannot add primitive actions because position does not exist")
+
+        if not(self.q.is_actions(position)):
+            cardinal = Direction.cardinal()
+            for k in range(4):
+               self.q.add_action_to_state(position, cardinal[k])
             
     def update_option(self, reward, new_position, new_zone, action):
         """
@@ -58,18 +70,16 @@ class Option(object):
             self.position = new_position
             return self.check_end_option(new_zone)
         else:
-            total_reward = reward
+            total_reward = reward - 1
             end_option = self.check_end_option(new_zone)
             if end_option:
-                total_reward = reward + self.reward_end_option
-            self.update_q_function(self.position, new_position, action, total_reward)
-            self.position = new_position
+                total_reward += REWARD_END_OPTION
+                print("got a reward for ending option")
+
+            self.q.update_q_dict(self.position, new_position, action, total_reward)    
+            self.set_position_update_q(new_position)
             return end_option
 
-    def update_q_function(self, position, new_position, action, total_reward):
-        self.add_primitive_actions(new_position)
-        self.q.update_q_dict(position, new_position, action, total_reward)
-    
     def act(self):
         if self.play:
             _, best_action = self.q.find_best_action(self.position)
@@ -82,11 +92,13 @@ class Option(object):
                 best_reward, best_action = self.q.find_best_action(self.position)
                 return best_action
 
-class OptionExplore(Option):
+class OptionExplore(object):
     """
     This is a special option to explore. No q_function is needed here.
     """
-    
+    def __init__(self, initial_state):
+        self.initial_state = initial_state
+
     def __str__(self):
         return "explore option from " + str(self.initial_state)
 
@@ -108,8 +120,5 @@ class OptionExplore(Option):
         """
         return new_zone != self.initial_state
 
-    def update_q_function(self, position, new_position, action, reward):
-        """
-        There is no q_function for this special option
-        """
-        pass
+    def update_option(self, reward, new_position, new_zone, action):
+        return self.check_end_option(new_zone)
