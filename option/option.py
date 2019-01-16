@@ -37,7 +37,7 @@ class Option(object):
         return hash((self.initial_state, self.terminal_state))
 
     def check_end_option(self, new_zone):
-        return new_zone == self.terminal_state
+        return new_zone != self.initial_state
 
     def set_position_update_q(self, position):
         """
@@ -73,9 +73,13 @@ class Option(object):
             total_reward = reward - 1
             end_option = self.check_end_option(new_zone)
             if end_option:
-                total_reward += REWARD_END_OPTION
-                print("got a reward for ending option")
-
+                if new_zone == self.terminal_state:
+                    total_reward += REWARD_END_OPTION
+                    print("got a reward for ending option in a correct manner")
+                else:
+                    total_reward -= REWARD_END_OPTION
+                    print("got a penalty for ending option in a wrong manner")
+                    
             self.q.update_q_dict(self.position, new_position, action, total_reward)    
             self.set_position_update_q(new_position)
             return end_option
