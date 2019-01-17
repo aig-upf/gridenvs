@@ -36,8 +36,8 @@ class Option(object):
     def __hash__(self):
         return hash((self.initial_state, self.terminal_state))
 
-    def check_end_option(self, new_zone):
-        return new_zone != self.initial_state
+    def check_end_option(self, new_state):
+        return new_state != self.initial_state
 
     def set_position_update_q(self, position):
         """
@@ -61,19 +61,19 @@ class Option(object):
             for k in range(4):
                self.q.add_action_to_state(position, cardinal[k])
             
-    def update_option(self, reward, new_position, new_zone, action):
+    def update_option(self, reward, new_position, new_state, action):
         """
         option gets an extra reward if it finishes.
         returns True iff the option ends, i.e. if check_end_option returns True
         """
         if self.play:
             self.position = new_position
-            return self.check_end_option(new_zone)
+            return self.check_end_option(new_state)
         else:
             total_reward = reward - 1
-            end_option = self.check_end_option(new_zone)
+            end_option = self.check_end_option(new_state)
             if end_option:
-                if new_zone == self.terminal_state:
+                if new_state == self.terminal_state:
                     total_reward += REWARD_END_OPTION
                     print("got a reward for ending option in a correct manner")
                 else:
@@ -102,6 +102,7 @@ class OptionExplore(object):
     """
     def __init__(self, initial_state):
         self.initial_state = initial_state
+        self.count_explore = {initial_state : 0}
 
     def __str__(self):
         return "explore option from " + str(self.initial_state)
@@ -112,17 +113,30 @@ class OptionExplore(object):
     def __hash__(self):
         return hash("explore")
 
+    def number_explore(self, state):
+        if state in self.count_explore:
+            return self.count_explore[state]
+        else:
+            self.count_explore.update({state : 0})
+            return 0
+
     def act(self):
+        if self.initial_state in self.count_explore:
+            self.count_explore[self.initial_state] += 1
+        else:
+            self.count_explore.update({self.initial_state : 1})
+        print('state : ' + str(self.initial_state) + ' number of explorations : ' + str(self.count_explore[self.initial_state]))
         # For the moment we do a stupid thing: go random, until it finds a new zone
         direction_number = np.random.randint(4)
         cardinal = Direction.cardinal()
         return cardinal[direction_number]
     
-    def check_end_option(self, new_zone):
+    def check_end_option(self, new_state):
         """
         option ends iff it has found a new zone
         """
-        return new_zone != self.initial_state
+        return new_state != self.initial_state
 
-    def update_option(self, reward, new_position, new_zone, action):
-        return self.check_end_option(new_zone)
+    #pb ici dans les arguments
+    def update_option(self, reward, new_position, new_state, action):
+        return self.check_end_option(new_state)

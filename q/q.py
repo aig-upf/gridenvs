@@ -48,9 +48,9 @@ class Q(object):
         try:
             self.q_dict[state]
         except:
-            raise Exception('cannot find best action since there is no state')
+            raise Exception('cannot find best action since there is no state : ' + str(state))
         if not(self.is_actions(state)):
-            raise Exception('cannot find best action since there is no action in state')
+            raise Exception('cannot find best action since there is no action in state ' + str(state))
         
         best_action = None
         best_reward = - float('inf')
@@ -62,8 +62,11 @@ class Q(object):
                 best_action = action
         return best_reward, best_action
 
-    def is_actions(self, zone):
-        return self.q_dict[zone] != {}
+    def is_actions(self, state):
+        return self.q_dict[state] != {}
+    
+    def is_state(self, state):
+        return state in self.q_dict
 
     def update_q_dict(self, state, new_state, action, reward):
         """

@@ -42,16 +42,16 @@ def key_door_walls(key_reward = False, **kwargs):
                 "WW.....W......WW",
                 "WW.....W......WW",
                 "WW..H.........WW",
+                "WW..D.........WW",
+                "WW.....W......WW",
+                "WW.....W......WW",
+                "WWW..WWWWW..WWWW",
                 "WW.....W......WW",
                 "WW.....W......WW",
                 "WW.....W......WW",
-                "WWW.WWWWWWW.WWWW",
+                "WW.........K..WW",
+                "WW............WW",
                 "WW.....W......WW",
-                "WW.....W......WW",
-                "WW.....W......WW",
-                "WW.....W......WW",
-                "WW..........K.WW",
-                "WWD....W......WW",
                 "WWWWWWWWWWWWWWWW"]
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 

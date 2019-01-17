@@ -1,9 +1,4 @@
 """ This is an abstract class for agents"""
-""" TODO : je pense que dans la variable self.executing_option il faut mettre l'option en question en train d'être exécutée.
-La chaine d'action est la suivante : 
-action -> environnment -> environment_feedback.
-Dans cette dernière étape, on doit mettre à None la variable executing_option si besoin.
- """
 
 from gridenvs.keyboard_controller import Controls, Key
 from gridenvs.utils import Direction, Point
@@ -15,28 +10,26 @@ from variables import *
 
 class AgentOption(): 
 
-    def __init__(self, position, zone, play = False):
+    def __init__(self, position, state, play = False):
         """
-        TODO make a list of q_function_options when the agent has to pick up the key to enter the door
+        TODO : replace state by a dictionary : self.state = {'zone' : zone, 'state_id' = 0}
         """
         self.play = play
-        self.q = Q(zone)
-        self.state_id = 0
-        self.zone = zone
+        self.state = state
+        self.q = Q(self.state)
         self.position = position
         if not(play):
-            self.explore_option = OptionExplore(initial_state = zone) # special options
+            self.explore_option = OptionExplore(initial_state = self.state) # special options
 
     def reset_explore_option(self):
-        self.explore_option.initial_state = self.zone
-    
-    def reset(self, initial_agent_position, initial_agent_zone):
+        self.explore_option.initial_state = self.state
+        
+    def reset(self, initial_agent_position, initial_agent_state):
         """
         Same as __init__ but the q function is preserved 
         """
         self.position = initial_agent_position
-        self.zone = initial_agent_zone
-        self.state_id = 0
+        self.state = initial_agent_state
         self.reset_explore_option()
 
     def choose_option(self):
@@ -45,27 +38,27 @@ class AgentOption():
         else flip a coin, then take the best or explore
         """
         if self.play: # in this case we do not learn anymore
-            _, best_option = self.q.find_best_action(self.zone)
+            _, best_option = self.q.find_best_action(self.state)
             best_option.play = True
             best_option.set_position_update_q(self.position)
             return best_option
         
         else:
-            if not(self.q.is_actions(self.zone)): # No option available : explore
+            if not(self.q.is_actions(self.state)): # No option available : explore
                 print('empty_explore')
                 self.reset_explore_option()
                 return self.explore_option
             
             else: # action are available : find the best and execute or explore
-                if np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
+                if self.explore_option.number_explore(self.state) < MAXIMUM_EXPLORATION and np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
                     print('rand_explore')
                     self.reset_explore_option()
                     return self.explore_option
                 else: # in this case find the best option
-                    best_reward, best_option = self.q.find_best_action(self.zone)
+                    best_reward, best_option = self.q.find_best_action(self.state)
                     if best_reward == 0:
                         print("best option chosen : " + str(best_option) +" \n")
-                        best_option = np.random.choice(list(self.q.q_dict[self.zone].keys()))
+                        best_option = np.random.choice(list(self.q.q_dict[self.state].keys()))
                         best_option.set_position_update_q(self.position)
                         return best_option
                     else:
@@ -73,30 +66,35 @@ class AgentOption():
                         best_option.set_position_update_q(self.position)
                         return best_option
                         
-
-    def update_agent(self, new_position, new_zone, option, new_state_id):
+    def compute_total_reward(self, new_state_id):
+        total_reward = 0
+        if self.state[1] < new_state_id: # we get an item of the world
+            total_reward += REWARD_KEY # extra reward for having the key !
+        # if new_zone not in self.q.q_dict:
+        #     total_reward += 1
+        #     time.sleep(4)
+        return total_reward
+        
+    def update_agent(self, new_position, new_state, option):
         if self.play:
-            self.zone = new_zone
+            self.state = new_state
             self.position = new_position
         else:
-            total_reward = 0
-            if self.state_id != new_state_id: # we get an item of the world
-                total_reward += REWARD_KEY # extra reward for having the key !
-                self.state_id = new_state_id
-
-            self.update_q_function_options(self.position, self.zone, new_position, new_zone, option, total_reward)
-            self.zone = new_zone
+            total_reward = self.compute_total_reward(new_state[1])
+            self.update_q_function_options(new_state, option, total_reward)
+            
+            self.state = new_state
             self.position = new_position
             
-    def update_q_function_options(self, position, zone, new_position, new_zone, option, reward):
-
-        if self.explore_option == option:
-            self.q.add_state(new_zone)                    
-            self.q.add_action_to_state(zone, Option(position = position, initial_state = zone, terminal_state = new_zone))
-            
+    def update_q_function_options(self, new_state, option, reward):
+        if self.q.is_state(new_state):
+            if option != self.explore_option:
+                print('update q : reward = ' + str(reward) + '\n' + str(self.q) + "\n")
+                self.q.update_q_dict(self.state, new_state, option, reward)
         else:
-            print('update q : reward = ' + str(reward) + '\n' + str(self.q) + "\n")
-            self.q.update_q_dict(zone, new_zone, option, reward)
+            self.q.add_state(new_state)
+            self.q.add_action_to_state(self.state, Option(position = self.position, initial_state = self.state, terminal_state = new_state))
+            
 
 class KeyboardAgent():
     def __init__(self, env, controls={**Controls.Arrows, **Controls.KeyPad}):

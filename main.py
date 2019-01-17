@@ -20,7 +20,7 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
     env.number_gray_colors = number_gray_colors
     env.set_zone_size(zone_size_x, zone_size_y)
     agent_position = env.get_hero_position()
-    agent_zone = env.get_hero_zone()
+    agent_state = (env.get_hero_zone(), 0)
     
     if not hasattr(env.action_space, 'n'):
         raise Exception('Keyboard agent only supports discrete action spaces')
@@ -30,12 +30,12 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "keyboar
         agent = KeyboardAgent(env, controls={**Controls.Arrows, **Controls.KeyPad})
 
     elif type_agent == "agent_option":
-        agent = AgentOption(agent_position, agent_zone)
+        agent = AgentOption(agent_position, agent_state)
     else:
         raise Exception("agent name does not exist")
     return env, agent
 
-def learn(env, agent, iteration_learning = ITERATION_LEARNING):
+def learn_or_play(env, agent, play, iteration = ITERATION_LEARNING):
     """
     0/ The agent chooses an option
     1/ The option makes the action
@@ -45,17 +45,23 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
     4/ The agent update his info about the option
     5/ The agent chooses an option and sets its parameter
     """
-    initial_agent_position = agent.position
-    initial_agent_zone = agent.zone
-    for t in tqdm(range(1, iteration_learning + 1)):
+    initial_agent_position = INITIAL_AGENT_POSITION
+    initial_agent_state = INITIAL_AGENT_STATE
+    agent.play = play
+    if play:
+        iteration = 1
+        
+    for t in tqdm(range(1, iteration + 1)):
         # reset the parameters
         env.reset()
-        agent.reset(initial_agent_position, initial_agent_zone)
+        agent.reset(initial_agent_position, initial_agent_state)
         done = False
         running_option = False
         #start the loop
         while not(done):
-            env.render_scaled()
+            if play:
+                time.sleep(1)
+                env.render_scaled()
             # if no option acting, choose an option
             if not(running_option): 
                 option = agent.choose_option()
@@ -63,62 +69,24 @@ def learn(env, agent, iteration_learning = ITERATION_LEARNING):
             # else, let the current option act
             action = option.act()
             _, reward, done, info = env.step(action)
-            new_position, new_zone, new_state_id = info['position'], info['zone'], info['state_id']
-            end_option = option.update_option(reward, new_position, new_zone, action)
+            new_position, new_state = info['position'], (info['zone'], info['state_id'])
+            end_option = option.update_option(reward, new_position, new_state, action)
             # if the option ended then update the agent's data
-            if end_option and not(done):
+            if end_option:
                 running_option = False
-                print("found a new zone : " + str(new_zone))
-                agent.update_agent(new_position, new_zone, option, new_state_id)
+                agent.update_agent(new_position, new_state, option)
     env.close()
-    
-    return agent
-
-
-
-def play(env, agent):
-    """
-    0/ The agent chooses an option
-    1/ The option makes the action
-    TOFIX : I change the info in the env render. Info contains observations for the moment : zone and position of the agent
-    2/ The environment gives the feedback
-    3/ We update the option's parameters and we get end_option which is True if only if the option is done.
-    4/ The agent update his info about the option
-    5/ The agent chooses an option and sets its parameter
-    """
-    initial_agent_position = agent.position
-    initial_agent_zone = agent.zone
-    agent.play = True
-    # reset the parameters
-    env.reset()
-    agent.reset(initial_agent_position, initial_agent_zone)
-    done = False
-    running_option = False
-    #start the loop
-    while not(done):
-        env.render_scaled()
-        time.sleep(1)
-        # if no option acting, choose an option
-        if not(running_option): 
-            option = agent.choose_option()
-            running_option = True
-        # now let the current option act
-        action = option.act()
-        _, reward, done, info = env.step(action)
-        new_position, new_zone, new_state_id = info['position'], info['zone'], info['state_id']
-        end_option = option.update_option(reward, new_position, new_zone, action)
-        # if the option ended then update the agent's data
-        if end_option and not(done):
-            running_option = False
-            agent.update_agent(new_position, new_zone, new_state_id, option)
-    env.close()
+    if not(play):
+        return agent
 
 type_agent_list = ["keyboard_controller", "agent_option"]
 env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
 type_agent = type_agent_list[1]
 env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
-agent_learned = learn(env, agent, iteration_learning = ITERATION_LEARNING)
-play(env, agent_learned)
+INITIAL_AGENT_POSITION = agent.position
+INITIAL_AGENT_STATE = agent.state
+agent_learned = learn_or_play(env, agent, iteration = ITERATION_LEARNING, play = False)
+learn_or_play(env, agent_learned, play = True)
 
 #play_keyboard(env, agent)
 def play_keyboard(env, agent):
