@@ -77,7 +77,7 @@ class Option(object):
                     total_reward += REWARD_END_OPTION
                     print("got a reward for ending option in a correct manner")
                 else:
-                    total_reward -= 2*REWARD_END_OPTION
+                    total_reward -= PENALTY_END_OPTION
                     print("got a penalty for ending option in a wrong manner")
                     
             self.q.update_q_dict(self.position, new_position, action, total_reward)    

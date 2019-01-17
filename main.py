@@ -60,7 +60,7 @@ def learn_or_play(env, agent, play, iteration = ITERATION_LEARNING):
         #start the loop
         while not(done):
             if play:
-                time.sleep(1)
+                time.sleep(.2)
                 env.render_scaled()
             # if no option acting, choose an option
             if not(running_option): 
