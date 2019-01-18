@@ -120,11 +120,20 @@ class OptionExplore(object):
             self.count_explore.update({state : 0})
             return 0
 
-    def act(self):
+    def reset_number_explore(self):
+        if self.initial_state in self.count_explore:
+            self.count_explore[self.initial_state] = 0
+        else:
+            self.count_explore.update({self.initial_state : 0})
+            return 0
+        
+    def add_number_explore(self):
         if self.initial_state in self.count_explore:
             self.count_explore[self.initial_state] += 1
         else:
             self.count_explore.update({self.initial_state : 1})
+            
+    def act(self):
         print('state : ' + str(self.initial_state) + ' number of explorations : ' + str(self.count_explore[self.initial_state]))
         # For the moment we do a stupid thing: go random, until it finds a new zone
         direction_number = np.random.randint(4)
@@ -137,6 +146,5 @@ class OptionExplore(object):
         """
         return new_state != self.initial_state
 
-    #pb ici dans les arguments
     def update_option(self, reward, new_position, new_state, action):
         return self.check_end_option(new_state)

@@ -50,7 +50,9 @@ def learn_or_play(env, agent, play, iteration = ITERATION_LEARNING):
     agent.play = play
     if play:
         iteration = 1
-        
+        env.reset()
+        env.render_scaled()
+        wait = input("PRESS ENTER TO PLAY.")
     for t in tqdm(range(1, iteration + 1)):
         # reset the parameters
         env.reset()

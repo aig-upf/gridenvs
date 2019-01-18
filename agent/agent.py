@@ -44,15 +44,17 @@ class AgentOption():
             return best_option
         
         else:
-            if not(self.q.is_actions(self.state)): # No option available : explore
+            if not(self.q.is_actions(self.state)): # No option available : explore, and do not count the number of explorations
                 print('empty_explore')
                 self.reset_explore_option()
+                self.explore_option.reset_number_explore()
                 return self.explore_option
             
             else: # action are available : find the best and execute or explore
                 if self.explore_option.number_explore(self.state) < MAXIMUM_EXPLORATION and np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
                     print('rand_explore')
                     self.reset_explore_option()
+                    self.explore_option.add_number_explore()
                     return self.explore_option
                 else: # in this case find the best option
                     best_reward, best_option = self.q.find_best_action(self.state)
