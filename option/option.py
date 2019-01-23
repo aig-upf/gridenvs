@@ -30,6 +30,7 @@ class Option(object):
     def __eq__(self, other_option):
         if type(other_option).__name__ == "Option":
             return (self.initial_state == other_option.initial_state) and (self.terminal_state == other_option.terminal_state)
+        
         else:
             return False
 
@@ -53,6 +54,7 @@ class Option(object):
         """
         try:
             self.q.q_dict[position]
+            
         except:
             raise Exception("cannot add primitive actions because position does not exist")
 
@@ -69,6 +71,7 @@ class Option(object):
         if self.play:
             self.position = new_position
             return self.check_end_option(new_state)
+        
         else:
             total_reward = reward - 1
             end_option = self.check_end_option(new_state)
@@ -76,6 +79,7 @@ class Option(object):
                 if new_state == self.terminal_state:
                     total_reward += REWARD_END_OPTION
                     print("got a reward for ending option in a correct manner")
+                    
                 else:
                     total_reward -= PENALTY_END_OPTION
                     print("got a penalty for ending option in a wrong manner")
@@ -88,10 +92,12 @@ class Option(object):
         if self.play:
             _, best_action = self.q.find_best_action(self.position)
             return best_action
+        
         else:
             if np.random.rand() < PROBABILTY_EXPLORE_IN_OPTION:
                 cardinal = Direction.cardinal()
                 return cardinal[np.random.randint(4)]
+            
             else:
                 best_reward, best_action = self.q.find_best_action(self.position)
                 return best_action
@@ -116,6 +122,7 @@ class OptionExplore(object):
     def number_explore(self, state):
         if state in self.count_explore:
             return self.count_explore[state]
+        
         else:
             self.count_explore.update({state : 0})
             return 0
@@ -123,6 +130,7 @@ class OptionExplore(object):
     def reset_number_explore(self):
         if self.initial_state in self.count_explore:
             self.count_explore[self.initial_state] = 0
+            
         else:
             self.count_explore.update({self.initial_state : 0})
             return 0
@@ -130,6 +138,7 @@ class OptionExplore(object):
     def add_number_explore(self):
         if self.initial_state in self.count_explore:
             self.count_explore[self.initial_state] += 1
+            
         else:
             self.count_explore.update({self.initial_state : 1})
             
