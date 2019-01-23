@@ -5,6 +5,7 @@ import numpy as np
 import time
 from tqdm import tqdm
 from agent.agent import KeyboardAgent, AgentOption, QAgent
+from gridenvs.utils import Point
 from variables import * 
 """
 TODO : problem with escape for closing the environment, problem with close().
@@ -12,7 +13,7 @@ TODO : problem with escape for closing the environment, problem with close().
 stash@{0}: WIP on branch_options: 3f712e7 some small changes
 to change the agent files in order to delete environment in their list of attributes.)
 """
-
+verb = True
 def make_environment_agent(env_name, blurred_bool = False, type_agent = "KeyboardAgent", number_gray_colors = NUMBER_GRAY_COLORS, zone_size_x = ZONE_SIZE_X, zone_size_y = ZONE_SIZE_Y):
     env = gym.make(env_name)
     env.reset()
@@ -31,10 +32,11 @@ def make_environment_agent(env_name, blurred_bool = False, type_agent = "Keyboar
         agent = KeyboardAgent(env, controls={**Controls.Arrows, **Controls.KeyPad})
 
     elif type_agent == "AgentOption":
-        agent = AgentOption(agent_position, agent_state)
+        grid_size_option = Point(zone_size_x, zone_size_y)
+        agent = AgentOption(agent_position, agent_state, False, grid_size_option)
 
     elif type_agent == "QAgent":
-        agent = QAgent(agent_position, grid_size)
+        agent = QAgent(agent_position, grid_size, False)
         
     else:
         raise Exception("agent name does not exist")
@@ -49,8 +51,8 @@ def learn_or_play_options(env, agent, play, iteration = ITERATION_LEARNING):
     2/ The environment gives the feedback
     3/ We update the option's parameters and we get end_option which is True if only if the option is done.
     4/ The agent update his info about the option
-    5/ The agent chooses an option and sets its parameter
     """
+    np.random.seed(0)
     initial_agent_position = INITIAL_AGENT_POSITION
     initial_agent_state = INITIAL_AGENT_STATE
     agent.play = play
@@ -69,24 +71,40 @@ def learn_or_play_options(env, agent, play, iteration = ITERATION_LEARNING):
         #start the loop
         while not(done):
             if play:
-                time.sleep(.1)
+                time.sleep(.3)
                 env.render_scaled()
                 
             # if no option acting, choose an option
-            if not(running_option): 
+            if not(running_option):
+                if verb:
+                    a = print("no option is running agent's q function " + str(agent.q.q_dict))
                 option = agent.choose_option()
                 running_option = True
-                
+                if verb:
+                    a = print("agent chose option " + str(option))
+            
             # else, let the current option act
+            if type(option).__name__ != "OptionExplore":
+                if verb:
+                    a = print("current point " + str(option.position))
+                    a = print("option q function \n" + str(option.q))
             action = option.act()
+            if verb:
+                a = print("option chose action " + str(action))
             _, reward, done, info = env.step(action)
+            if verb:
+                a = print("reward : " + str(reward))
             new_position, new_state = info['position'], (info['zone'], info['state_id'])
             end_option = option.update_option(reward, new_position, new_state, action)
-            
             # if the option ended then update the agent's data
             if end_option:
                 running_option = False
+                if verb:
+                    a = print("END option. Zone = " + str(new_state[0]))
                 agent.update_agent(new_position, new_state, option)
+    if play:
+        env.render_scaled()
+        time.sleep(1)
     env.close()
     if not(play):
         return agent
@@ -96,6 +114,7 @@ def learn_or_play(env, agent, play, iteration = ITERATION_LEARNING):
     """
     play Q learning
     """
+    np.random.seed(0)
     initial_agent_position = INITIAL_AGENT_POSITION
     agent.play = play
     if play:
@@ -112,15 +131,20 @@ def learn_or_play(env, agent, play, iteration = ITERATION_LEARNING):
         #start the loop
         while not(done):
             if play:
-                time.sleep(.1)
-            env.render_scaled()
+                time.sleep(.2)
+                env.render_scaled()
                 
             action = agent.act()
-            print(action)
             _, reward, done, info = env.step(action)
             new_position = info['position']
-            agent.update(reward, new_position, action)
-            
+            new_state_id = info['state_id']
+            agent.update(reward, new_position, action, new_state_id)
+            print("reward : " + str(reward))
+
+    if play:
+        env.render_scaled()
+        time.sleep(1)
+        
     env.close()
     if not(play):
         return agent
@@ -153,14 +177,20 @@ def play_keyboard(env, agent):
 
 type_agent_list = ["KeyboardAgent", "AgentOption", "QAgent"]
 env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
-type_agent = type_agent_list[2]
+type_agent = type_agent_list[1]
 
 env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 INITIAL_AGENT_POSITION = agent.position
 
-if type_agent == type_agent_list[1]:
+if type_agent == type_agent_list[0]:
+    play_keyboard(env, agent)
+
+elif type_agent == type_agent_list[1]:
     INITIAL_AGENT_STATE = agent.state
+    agent_learned = learn_or_play_options(env, agent, iteration = ITERATION_LEARNING, play = False)
+    learn_or_play_options(env, agent_learned, play = True)
 
-agent_learned = learn_or_play(env, agent, iteration = ITERATION_LEARNING, play = False)
-
-learn_or_play(env, agent_learned, play = True)
+elif type_agent == type_agent_list[2]:
+    agent_learned = learn_or_play(env, agent, iteration = ITERATION_LEARNING, play = False)
+    learn_or_play(env, agent_learned, play = True)
+ 

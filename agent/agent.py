@@ -10,11 +10,12 @@ from variables import *
 
 class AgentOption(): 
 
-    def __init__(self, position, state, play = False):
+    def __init__(self, position, state, play, grid_size_option):
         """
         TODO : replace state by a dictionary : self.state = {'zone' : zone, 'state_id' = 0}
         """
         self.play = play
+        self.grid_size_option = grid_size_option
         self.state = state
         self.q = Q(self.state)
         self.position = position
@@ -40,19 +41,17 @@ class AgentOption():
         if self.play: # in this case we do not learn anymore
             _, best_option = self.q.find_best_action(self.state)
             best_option.play = True
-            best_option.set_position_update_q(self.position)
+            best_option.set_position_update_q((self.position, self.state[1]))
             return best_option
 
         # No option available : explore, and do not count the number of explorations
         elif not(self.q.is_actions(self.state)): 
-            print('empty_explore')
             self.reset_explore_option()
             self.explore_option.reset_number_explore()
             return self.explore_option
             
         # action are available : find the best and execute or explore
         elif self.explore_option.number_explore(self.state) < MAXIMUM_EXPLORATION and np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
-            print('rand_explore')
             self.reset_explore_option()
             self.explore_option.add_number_explore()
             return self.explore_option
@@ -61,14 +60,12 @@ class AgentOption():
         else:
             best_reward, best_option = self.q.find_best_action(self.state)
             if best_reward == 0:
-                print("best option chosen : " + str(best_option) +" \n")
                 best_option = np.random.choice(list(self.q.q_dict[self.state].keys()))
-                best_option.set_position_update_q(self.position)
+                best_option.set_position_update_q((self.position, self.state[1]))
                 return best_option
             
             else:
-                print("best option chosen : " + str(best_option) +" \n")
-                best_option.set_position_update_q(self.position)
+                best_option.set_position_update_q((self.position, self.state[1]))
                 return best_option
                         
     def compute_total_reward(self, new_state_id):
@@ -92,11 +89,10 @@ class AgentOption():
     def update_q_function_options(self, new_state, option, reward):
         if self.q.is_state(new_state):
             if option != self.explore_option:
-                print('update q : reward = ' + str(reward) + '\n' + str(self.q) + "\n")
                 self.q.update_q_dict(self.state, new_state, option, reward)
         else:
             self.q.add_state(new_state)
-            self.q.add_action_to_state(self.state, Option(position = self.position, initial_state = self.state, terminal_state = new_state))
+            self.q.add_action_to_state(self.state, Option(self.position, self.state, new_state, self.grid_size_option, self.play))
             
 
 class KeyboardAgent(object):
@@ -129,19 +125,24 @@ class KeyboardAgent(object):
 
 
 class QAgent(object):
-    def __init__(self, position, grid_size):
+    def __init__(self, position, grid_size, play):
+        self.play = play
         self.grid_size = grid_size
-        self.position = self.encode_point(position)
-        self.number_state = self.grid_size.x * self.grid_size.y
+        self.number_state = 2 * grid_size.x * grid_size.y + 1
         self.number_actions = len(Direction.cardinal())
         self.q = np.zeros((self.number_state, self.number_actions))
         self.cardinal = Direction.cardinal()
+        self.state_id = 0
+        self.position = self.encode_position(position)
 
-    def encode_point(self, point):
+    def encode_position(self, point):
         """
         this function encodes the state from a point to a number
         """
-        return point.x + self.grid_size.x * point.y
+        if self.state_id < 2:
+            return point.x + self.grid_size.x * point.y + self.grid_size.x * self.grid_size.y * self.state_id
+        else:
+            return self.number_state - 1
 
     def encode_direction(self, direction):
         """
@@ -149,24 +150,29 @@ class QAgent(object):
         """
         return self.cardinal.index(direction)
         
-        
     def reset(self, initial_position):
         self.position = initial_position
 
-    def update(self, reward, new_position, action):
-        max_value_action = np.max(self.q[self.encode_point(new_position)])
+    def update(self, reward, new_position, action, new_state_id):
         encoded_action = self.encode_direction(action)
+        encoded_position = self.encode_position(new_position)
+        max_value_action = np.max(self.q[encoded_position])
         total_reward = reward - 1
         self.q[self.position, encoded_action] *= (1 - LEARNING_RATE)
         self.q[self.position, encoded_action] += LEARNING_RATE * (total_reward + max_value_action)
-        print(self.q[self.position])
+        self.position = encoded_position
+        self.state_id = new_state_id
         
     def act(self):
-        if np.random.rand() < PROBABILTY_EXPLORE:
-            best_action = np.random.randint(self.number_actions)
-            
-        else:
+        if self.play:
             best_action = np.argmax(self.q[self.position])
+
+        else:
+            if np.random.rand() < PROBABILTY_EXPLORE:
+                best_action = np.random.randint(self.number_actions)
+            
+            else:
+                best_action = np.argmax(self.q[self.position])
             
         return self.cardinal[best_action]
         
