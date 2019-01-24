@@ -41,7 +41,7 @@ class AgentOption():
         if self.play: # in this case we do not learn anymore
             _, best_option = self.q.find_best_action(self.state)
             best_option.play = True
-            best_option.set_position((self.position, self.state[1]))
+            best_option.position = best_option.get_position((self.position, self.state[1]))
             return best_option
 
         else:
@@ -60,15 +60,15 @@ class AgentOption():
                 best_reward, best_option = self.q.find_best_action(self.state)
                 if best_reward == 0:
                     best_option = np.random.choice(list(self.q.q_dict[self.state].keys()))
-                    best_option.set_position((self.position, self.state[1]))
+                    best_option.position = best_option.get_position((self.position, self.state[1]))
                     return best_option
             
                 else:
-                    best_option.set_position((self.position, self.state[1]))
+                    best_option.position = best_option.get_position((self.position, self.state[1]))
                     return best_option
                         
     def compute_total_reward(self, new_state_id):
-        total_reward = REWARD_AGENT
+        total_reward = REWARD_AGENT_ACTION
         if self.state[1] < new_state_id: # we get an item from the world
             total_reward += REWARD_KEY # extra reward for having the key !
         return total_reward
@@ -84,14 +84,14 @@ class AgentOption():
             self.state = new_state
             self.position = new_position
             
-    def update_q_function_options(self, new_state, option, reward):
-        if self.q.is_state(new_state):
-            if option != self.explore_option:
-                self.q.update_q_dict(self.state, new_state, option, reward)
-        else:
-            self.q.add_state(new_state)
-            self.q.add_action_to_state(self.state, Option(self.position, self.state, new_state, self.grid_size_option, self.play))
-            
+    def update_q_function_options(self, new_state, option, reward):            
+
+        # if the state or the action already exists, those 2 command will do nothing
+        self.q.add_state(new_state)
+        self.q.add_action_to_state(self.state, Option(self.position, self.state, new_state, self.grid_size_option, self.play))
+        
+        if option != self.explore_option:
+            self.q.update_q_dict(self.state, new_state, option, reward)
 
 class KeyboardAgent(object):
     def __init__(self, env, controls={**Controls.Arrows, **Controls.KeyPad}):
@@ -155,7 +155,7 @@ class QAgent(object):
         encoded_action = self.encode_direction(action)
         encoded_position = self.encode_position(new_position)
         max_value_action = np.max(self.q[encoded_position])
-        total_reward = reward - 1
+        total_reward = reward - REWARD_ACTION
         self.q[self.position, encoded_action] *= (1 - LEARNING_RATE)
         self.q[self.position, encoded_action] += LEARNING_RATE * (total_reward + max_value_action)
         self.position = encoded_position

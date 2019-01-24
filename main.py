@@ -68,37 +68,32 @@ def learn_or_play_options(env, agent, play, iteration = ITERATION_LEARNING):
         running_option = False
         #start the loop
         while not(done):
+            print("agent position " + str(agent.position))
             if play:
                 time.sleep(.3)
                 env.render_scaled()
-                
+
             # if no option acting, choose an option
             if not(running_option):
-                if verb:
-                    a = print("no option is running agent's q function " + str(agent.q.q_dict))
                 option = agent.choose_option()
                 running_option = True
-                if verb:
-                    a = print("agent chose option " + str(option))
+                print("change option " + str(option))
             
             # else, let the current option act
-            if type(option).__name__ != "OptionExplore":
-                if verb:
-                    a = print("current point " + str(option.position))
-                    a = print("option q function \n" + str(option.q))
             action = option.act()
-            if verb:
-                a = print("option chose action " + str(action))
+            print("action " + str(action))
             _, reward, done, info = env.step(action)
-            if verb:
-                a = print("reward : " + str(reward))
             new_position, new_state = info['position'], (info['zone'], info['state_id'])
+            print("env new position " + str(new_position))
             end_option = option.update_option(reward, new_position, new_state, action)
+            print("new zone " + str(new_state[0]))
             # if the option ended then update the agent's data
-            if end_option:
+            if done:
                 running_option = False
-                if verb:
-                    a = print("END option. Zone = " + str(new_state[0]))
+                print("DONE")
+            if end_option and (not(done) or new_state[1] == 2):
+                running_option = False
+                print("** update agent **")
                 agent.update_agent(new_position, new_state, option)
     if play:
         env.render_scaled()
