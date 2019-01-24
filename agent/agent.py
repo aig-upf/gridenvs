@@ -4,8 +4,8 @@ from gridenvs.keyboard_controller import Controls, Key
 from gridenvs.utils import Direction, Point
 import numpy as np
 import time
-from option.option import Option, OptionExplore
-from q.q import Q
+from agent.option import Option, OptionExplore
+from agent.q import Q
 from variables import *
 
 class AgentOption(): 
@@ -44,35 +44,35 @@ class AgentOption():
             best_option.set_position_update_q((self.position, self.state[1]))
             return best_option
 
-        # No option available : explore, and do not count the number of explorations
-        elif not(self.q.is_actions(self.state)): 
-            self.reset_explore_option()
-            self.explore_option.reset_number_explore()
-            return self.explore_option
-            
-        # action are available : find the best and execute or explore
-        elif self.explore_option.number_explore(self.state) < MAXIMUM_EXPLORATION and np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
-            self.reset_explore_option()
-            self.explore_option.add_number_explore()
-            return self.explore_option
-        
-        # in this case find the best option
         else:
-            best_reward, best_option = self.q.find_best_action(self.state)
-            if best_reward == 0:
-                best_option = np.random.choice(list(self.q.q_dict[self.state].keys()))
-                best_option.set_position_update_q((self.position, self.state[1]))
-                return best_option
-            
+            # No option available : explore, and do not count the number of explorations
+            if not(self.q.is_actions(self.state)): 
+                self.reset_explore_option()
+                self.explore_option.reset_number_explore()
+                return self.explore_option
+    
+            # action are available : find the best and execute or explore
+            elif self.explore_option.number_explore(self.state) < MAXIMUM_EXPLORATION and np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
+                self.reset_explore_option()
+                self.explore_option.add_number_explore()
+                return self.explore_option
+        
+            # in this case find the best option
             else:
-                best_option.set_position_update_q((self.position, self.state[1]))
-                return best_option
+                best_reward, best_option = self.q.find_best_action(self.state)
+                if best_reward == 0:
+                    best_option = np.random.choice(list(self.q.q_dict[self.state].keys()))
+                    best_option.set_position_update_q((self.position, self.state[1]))
+                    return best_option
+            
+                else:
+                    best_option.set_position_update_q((self.position, self.state[1]))
+                    return best_option
                         
     def compute_total_reward(self, new_state_id):
         total_reward = REWARD_AGENT
-        if self.state[1] < new_state_id: # we get an item of the world
+        if self.state[1] < new_state_id: # we get an item from the world
             total_reward += REWARD_KEY # extra reward for having the key !
-            
         return total_reward
         
     def update_agent(self, new_position, new_state, option):

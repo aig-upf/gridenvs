@@ -53,8 +53,6 @@ def learn_or_play_options(env, agent, play, iteration = ITERATION_LEARNING):
     4/ The agent update his info about the option
     """
     np.random.seed(0)
-    initial_agent_position = INITIAL_AGENT_POSITION
-    initial_agent_state = INITIAL_AGENT_STATE
     agent.play = play
     if play:
         iteration = 1
@@ -65,7 +63,7 @@ def learn_or_play_options(env, agent, play, iteration = ITERATION_LEARNING):
     for t in tqdm(range(1, iteration + 1)):
         # reset the parameters
         env.reset()
-        agent.reset(initial_agent_position, initial_agent_state)
+        agent.reset(INITIAL_AGENT_POSITION, INITIAL_AGENT_STATE)
         done = False
         running_option = False
         #start the loop
