@@ -41,20 +41,18 @@ class AgentOption():
         if self.play: # in this case we do not learn anymore
             _, best_option = self.q.find_best_action(self.state)
             best_option.play = True
-            best_option.set_position_update_q((self.position, self.state[1]))
+            best_option.set_position((self.position, self.state[1]))
             return best_option
 
         else:
             # No option available : explore, and do not count the number of explorations
             if not(self.q.is_actions(self.state)): 
                 self.reset_explore_option()
-                self.explore_option.reset_number_explore()
                 return self.explore_option
     
             # action are available : find the best and execute or explore
-            elif self.explore_option.number_explore(self.state) < MAXIMUM_EXPLORATION and np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
+            elif np.random.rand() < PROBABILTY_EXPLORE: # in this case go explore
                 self.reset_explore_option()
-                self.explore_option.add_number_explore()
                 return self.explore_option
         
             # in this case find the best option
@@ -62,11 +60,11 @@ class AgentOption():
                 best_reward, best_option = self.q.find_best_action(self.state)
                 if best_reward == 0:
                     best_option = np.random.choice(list(self.q.q_dict[self.state].keys()))
-                    best_option.set_position_update_q((self.position, self.state[1]))
+                    best_option.set_position((self.position, self.state[1]))
                     return best_option
             
                 else:
-                    best_option.set_position_update_q((self.position, self.state[1]))
+                    best_option.set_position((self.position, self.state[1]))
                     return best_option
                         
     def compute_total_reward(self, new_state_id):
