@@ -27,7 +27,7 @@ class Q(object):
             self.q_dict.update({state : {}})
 
             
-    def add_action_to_state(self, state, action):
+    def add_action_to_state(self, state, action, reward = 0):
         """
         does not add anything if 
         for action in q[option.terminal_state]:
@@ -39,10 +39,10 @@ class Q(object):
             raise Exception("action cannot be added since state does not exist")
         total_actions = self.q_dict[state]
         if total_actions == {}:
-            self.q_dict[state].update({action : 0})
+            self.q_dict[state].update({action : reward})
         else:
             if action not in total_actions:
-                self.q_dict[state].update({action : 0})
+                self.q_dict[state].update({action : reward})
         
     def find_best_action(self, state):
         try:

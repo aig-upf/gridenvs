@@ -41,7 +41,7 @@ class AgentOption():
         if self.play: # in this case we do not learn anymore
             _, best_option = self.q.find_best_action(self.state)
             best_option.play = True
-            best_option.position = best_option.get_position((self.position, self.state[1]))
+            best_option.position = best_option.get_position(self.position)
             return best_option
 
         else:
@@ -60,17 +60,17 @@ class AgentOption():
                 best_reward, best_option = self.q.find_best_action(self.state)
                 if best_reward == 0:
                     best_option = np.random.choice(list(self.q.q_dict[self.state].keys()))
-                    best_option.position = best_option.get_position((self.position, self.state[1]))
+                    best_option.position = best_option.get_position(self.position)
                     return best_option
-            
                 else:
-                    best_option.position = best_option.get_position((self.position, self.state[1]))
+                    best_option.position = best_option.get_position(self.position)
                     return best_option
                         
     def compute_total_reward(self, new_state_id):
-        total_reward = REWARD_AGENT_ACTION
+        total_reward = PENALTY_AGENT_ACTION
         if self.state[1] < new_state_id: # we get an item from the world
             total_reward += REWARD_KEY # extra reward for having the key !
+
         return total_reward
         
     def update_agent(self, new_position, new_state, option):
@@ -85,11 +85,11 @@ class AgentOption():
             self.position = new_position
             
     def update_q_function_options(self, new_state, option, reward):            
-
+    
         # if the state or the action already exists, those 2 command will do nothing
         self.q.add_state(new_state)
-        self.q.add_action_to_state(self.state, Option(self.position, self.state, new_state, self.grid_size_option, self.play))
-        
+        self.q.add_action_to_state(self.state, Option(self.position, self.state, new_state, self.grid_size_option, self.play), reward)
+
         if option != self.explore_option:
             self.q.update_q_dict(self.state, new_state, option, reward)
 

@@ -68,7 +68,6 @@ def learn_or_play_options(env, agent, play, iteration = ITERATION_LEARNING):
         running_option = False
         #start the loop
         while not(done):
-            print("agent position " + str(agent.position))
             if play:
                 time.sleep(.3)
                 env.render_scaled()
@@ -76,24 +75,19 @@ def learn_or_play_options(env, agent, play, iteration = ITERATION_LEARNING):
             # if no option acting, choose an option
             if not(running_option):
                 option = agent.choose_option()
+                #print(agent.q)
                 running_option = True
-                print("change option " + str(option))
             
             # else, let the current option act
             action = option.act()
-            print("action " + str(action))
             _, reward, done, info = env.step(action)
             new_position, new_state = info['position'], (info['zone'], info['state_id'])
-            print("env new position " + str(new_position))
             end_option = option.update_option(reward, new_position, new_state, action)
-            print("new zone " + str(new_state[0]))
             # if the option ended then update the agent's data
             if done:
                 running_option = False
-                print("DONE")
             if end_option and (not(done) or new_state[1] == 2):
                 running_option = False
-                print("** update agent **")
                 agent.update_agent(new_position, new_state, option)
     if play:
         env.render_scaled()
@@ -132,7 +126,6 @@ def learn_or_play(env, agent, play, iteration = ITERATION_LEARNING):
             new_position = info['position']
             new_state_id = info['state_id']
             agent.update(reward, new_position, action, new_state_id)
-            print("reward : " + str(reward))
 
     if play:
         env.render_scaled()
@@ -170,7 +163,7 @@ def play_keyboard(env, agent):
 
 type_agent_list = ["KeyboardAgent", "AgentOption", "QAgent"]
 env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line 'GE_Montezuma-v1'
-type_agent = type_agent_list[1]
+type_agent = type_agent_list[2]
 
 env, agent = make_environment_agent(env_name, blurred_bool = False, type_agent = type_agent)
 INITIAL_AGENT_POSITION = agent.position

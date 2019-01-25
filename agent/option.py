@@ -1,7 +1,6 @@
 """
 This class is for making options
 For the moment we only implement the "exploring option"
-(depth first)
 """
 from gridenvs.utils import Direction, Point
 from agent.q import Q
@@ -18,11 +17,11 @@ class Option(object):
         """
         self.play = play
         self.grid_size_option = grid_size_option
-        self.number_state = 2 * grid_size_option.x * grid_size_option.y + 1 # we add 1 for state 2 (agent got the door)
+        self.number_state = grid_size_option.x * grid_size_option.y
         self.number_actions = len(Direction.cardinal())
         self.q = np.zeros((self.number_state, self.number_actions))
         self.cardinal = Direction.cardinal()
-        self.position = self.get_position((position, 0))
+        self.position = self.get_position(position)
         self.initial_state = initial_state
         self.terminal_state = terminal_state       
 
@@ -45,22 +44,14 @@ class Option(object):
     def check_end_option(self, new_state):
         return new_state != self.initial_state
     
-    def get_position(self, point_state_id):
+    def get_position(self, point):
         """
         this function encodes the state from a point to a number
         point is the current position on the whole grid.
         point is projected into the zone
         """
-        point = point_state_id[0]
-        print("point : " + str(point))
         projected_point = point % self.grid_size_option
-        print("projected point : " + str(projected_point))
-        if point_state_id[1] == 2:
-            return (self.number_state - 1)
-        
-        else:
-            print("resulting position : " + str(projected_point.x + self.grid_size_option.x * projected_point.y + point_state_id[1] * self.grid_size_option.x * self.grid_size_option.y))
-            return projected_point.x + self.grid_size_option.x * projected_point.y + point_state_id[1] * self.grid_size_option.x * self.grid_size_option.y
+        return projected_point.x + self.grid_size_option.x * projected_point.y
         
     def encode_direction(self, direction):
         """
@@ -69,7 +60,7 @@ class Option(object):
         return self.cardinal.index(direction)
         
     def update_option(self, reward, new_position, new_state, action):
-        encoded_new_position = self.get_position((new_position, new_state[1]))
+        encoded_new_position = self.get_position(new_position)
         if self.play:
             self.position = encoded_new_position
             return self.check_end_option(new_state)
@@ -77,22 +68,18 @@ class Option(object):
         else:
             encoded_action = self.encode_direction(action)
             max_value_action = np.max(self.q[encoded_new_position])
-            total_reward = reward - REWARD_OPTION_ACTION
+            total_reward = reward + PENALTY_OPTION_ACTION
             end_option = self.check_end_option(new_state)
             if end_option:
                 if new_state == self.terminal_state:
                     total_reward += REWARD_END_OPTION
                     
                 else:
-                    total_reward -= PENALTY_END_OPTION
-            print("position : " + str(self.position))
-            print("q not updated " + str(self.q[self.position]))
+                    total_reward += PENALTY_END_OPTION
+                    
             self.q[self.position, encoded_action] *= (1 - LEARNING_RATE)
             self.q[self.position, encoded_action] += LEARNING_RATE * (total_reward + max_value_action)
-            print("total_reward " + str(total_reward))
-            print("q updated " + str(self.q[self.position]))
             self.position = encoded_new_position
-            print("new position : " + str(self.position))
             return end_option
         
     def act(self):
