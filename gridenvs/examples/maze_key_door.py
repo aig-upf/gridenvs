@@ -1,27 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-from gridenvs.hero_gridworld import StrMapHeroEnv
+from gridenvs.utils import Color
+from gridenvs.hero_gridworld import hero_env_from_strmap
 import numpy as np
 
-def key_door_env(init_map, key_reward, kwargs):
+def key_door_env(map, key_reward, kwargs):
     state_dict = {(1, 'D'): (1, 1.0, True, None)}
     for s in [0,1]: #possible states
         state_dict[(s, 'W')] = (0, -1.0, True, None)
-    
+
     kr = 1.0 if key_reward else 0.0
     state_dict[0,'K'] = (1, kr, False, lambda w,c: w.remove_object(c))
-        
-    from gridenvs.utils import Color
-    class KeyDoorEnv(StrMapHeroEnv):
-        MAP = init_map
-        STATE_MAP = state_dict
-        MAP_DESC = {
-            'COLORS': {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-        }
-        BLOCKS = {}
 
-    return KeyDoorEnv(**kwargs)
+    colors = {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
+
+    return hero_env_from_strmap(str_map=map,
+                                colors=colors,
+                                hero_mark='H',
+                                state_map=state_dict)(**kwargs)
 
 def key_door_walls(level = 2, key_reward = False, **kwargs):
     assert level in range(5)

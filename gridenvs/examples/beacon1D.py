@@ -3,8 +3,7 @@
 
 from gridenvs.hero_gridworld import HeroEnv
 from gridenvs.gridworld_map import GridWorld, GridObject
-from gridenvs.utils import Color, Direction, Point
-import numpy as np
+from gridenvs.utils import Color, Direction
 
 """
 Implementation of the 1D world in which the agent moves right to the goal.

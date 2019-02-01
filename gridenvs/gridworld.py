@@ -37,10 +37,11 @@ class GridEnv(gym.Env):
         self.world = self.create_world()
 
     def create_world(self):
+        """
+        Child classes should implement this method.
+        :return: A GridWorld object
+        """
         raise NotImplementedError()
-
-    def get_colors(self):
-        return self.world.get_colors()
 
     def render_env(self, size, grid_state):
         a = grid_state.render()

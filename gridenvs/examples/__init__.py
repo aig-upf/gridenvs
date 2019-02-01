@@ -36,7 +36,7 @@ for entrance in ('R', 'L'):
 # =============================================================================
 for i, die in enumerate((False, True)):
     register(id='GE_PathKeyDoor-v%i'%i,
-            entry_point='gridenvs.examples.path_key_door:PathKeyDoorEnv',
+            entry_point='gridenvs.examples.path_key_door:path_key_door_env',
             kwargs={"die": die, "obs_type": "image", 'max_moves': 200},
             nondeterministic=False)
 
