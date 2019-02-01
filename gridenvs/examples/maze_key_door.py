@@ -42,11 +42,11 @@ def key_door_walls(level = 2, key_reward = False, **kwargs):
     if level >= 4:
         init_map[3, 3:] = 'W' #close entrance
         init_map[3, 6] = '.' #open 1 square in the middle
-        
+
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, kwargs)
 
-        
+
 def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
     assert entrance in ('R', 'L')
     init_map = ["WWWWWWWWWW",
@@ -67,6 +67,6 @@ def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
     else:
         init_map[4:6, 6] = 'W'
         init_map[5, 5] = 'K'
-    
+
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, kwargs)

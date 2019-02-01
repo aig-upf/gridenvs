@@ -34,6 +34,7 @@ class GridEnv(gym.Env):
 
         self.action_space = Discrete(n_actions)
         self.observation_space = Box(0, 255, shape=self.pixel_size+(3,))
+        #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
 
     def create_world(self):
@@ -67,14 +68,14 @@ class GridEnv(gym.Env):
         To be overriden by child classes.
         """
         return self.world
-    
+
     def _restore(self, internal_state):
         """
         To be overriden by child classes.
         """
         assert self.world.grid_size == internal_state.grid_size
         self.world = internal_state
-        
+
     def _reset(self):
         raise Exception ("Child class should implement this.")
 
@@ -104,4 +105,3 @@ class GridEnv(gym.Env):
     def _seed(self, seed):
         np.random.seed(seed)
         return seed
-
