@@ -16,7 +16,7 @@ def key_door_env(init_map, key_reward, kwargs):
 
     from gridenvs.utils import Color
     # A CLASS IN A FUNCTION ?!
-    class KeyDoorEnv(StrMapHeroGridEnv):
+    class KeyDoorEnv(ZonesEnv):
         MAP = init_map
         STATE_MAP = state_dict
         MAP_DESC = {

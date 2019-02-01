@@ -17,12 +17,11 @@ class GridworldEnv(gym.Env):
     """
         This class should not be instantiated
         Models a game based on colored squares/rectangles in a 2D space
-    TODO : for the moment we leave 'blurred' as a special attribute... TOREMOVE
     """
     GAME_NAME = "Gridworld environment"
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image", zone_size_x = 3, zone_size_y = 3, blurred = False, number_gray_colors = 0):
+    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image"):
         self.pixel_size = pixel_size
         self.viewer = None
 
@@ -37,14 +36,6 @@ class GridworldEnv(gym.Env):
         self.observation_space = Box(0, 255, shape=self.pixel_size+(3,))
         #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
-        # The grid is cut into several zones of size zone_size_x X zone_size_y
-        self.set_zone_size(zone_size_x, zone_size_y)
-        # Is the world blurred ?
-        self.blurred = blurred
-        self.number_gray_colors = number_gray_colors
-
-    def set_zone_size(self, x,y):
-        self.zone_size = {'x' : x, 'y' : y}
 
     def create_world(self):
         raise NotImplementedError()
@@ -56,32 +47,6 @@ class GridworldEnv(gym.Env):
         a = grid_state.render()
         a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
         return a
-
-    def render_env_low_quality(self, size, grid_state):
-        """
-        here we are making an average of the colors in the grid
-        """
-        # a is a matrix which each entry is an array of 3 integers (RGB)
-        # it is just the translation in terms of color of the grid writen in examples.
-        grid_colors = grid_state.render()
-        # a = self.average_colors(a)
-        if (len(grid_colors[0]) % self.zone_size['x'] == 0) and (len(grid_colors) % self.zone_size['y'] == 0):
-            size_x_image_blurred = int(len(grid_colors[0]) // self.zone_size['x'])
-            size_y_image_blurred = int(len(grid_colors) // self.zone_size['y'])
-            image_blurred = cv2.resize(grid_colors, (size_x_image_blurred, size_y_image_blurred), interpolation=cv2.INTER_AREA)
-            # gray scale ?
-            if self.number_gray_colors:
-                for j in range(size_x_image_blurred):
-                    for i in range(size_y_image_blurred):
-                        rgb = image_blurred[i][j]
-                        gray_level = (255 * 3) // self.number_gray_colors
-                        sum_rgb = (sum(rgb) // gray_level) * gray_level 
-                        image_blurred[i][j] = [sum_rgb]*3
-
-            image_blurred_resized = cv2.resize(image_blurred, size, interpolation=cv2.INTER_NEAREST)
-            return image_blurred_resized
-        else:
-            raise Exception("The gridworld can not be fragmented into zones")
 
     def update_environment(self, action):
         raise NotImplementedError()
@@ -133,10 +98,7 @@ class GridworldEnv(gym.Env):
         self.render_gym(img, mode, close)
 
     def render_scaled(self, size=(512, 512), mode='human', close=False):
-        if self.blurred:
-            img = self.render_env_low_quality(size, self.world)
-        else:
-            img = self.render_env(size, self.world)
+        img = self.render_env(size, self.world)
         self.render_gym(img, mode, close)
 
     def _seed(self, seed):
