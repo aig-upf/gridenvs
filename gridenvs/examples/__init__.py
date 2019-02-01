@@ -34,10 +34,11 @@ for entrance in ('R', 'L'):
 # =============================================================================
 # PATH KEY-DOOR
 # =============================================================================
-register(id='GE_PathKeyDoor-v0',
-         entry_point='gridenvs.examples.path_key_door:PathKeyDoorEnv',
-         kwargs={"obs_type": "image", 'max_moves': 200},
-         nondeterministic=False)
+for i, die in enumerate((False, True)):
+    register(id='GE_PathKeyDoor-v%i'%i,
+            entry_point='gridenvs.examples.path_key_door:PathKeyDoorEnv',
+            kwargs={"die": die, "obs_type": "image", 'max_moves': 200},
+            nondeterministic=False)
 
 # =============================================================================
 # NAVIGATE TO BEACON
