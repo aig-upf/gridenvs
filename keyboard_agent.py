@@ -20,5 +20,5 @@ if __name__ == "__main__":
     import sys
     import gridenvs.examples  # load example gridworld environments
 
-    env_name = 'GE_MazeKeyDoor-v4' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line
+    env_name = 'GE_MazeOptions-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line
     run_env(env_name)
