@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.gridworld import GridEnv
-from gridenvs.gridworld_map import GridWorld, GridObject
+from gridenvs.env import GridEnv
+from gridenvs.world import GridWorld, GridObject
 from gridenvs.utils import Direction, Point
 import numpy as np
 

@@ -7,9 +7,9 @@ Created on Mon Dec  4 16:21:44 2017
 """
 
 import numpy as np
-from gridenvs.hero_gridworld import HeroEnv
+from gridenvs.hero import HeroEnv
 from gridenvs.utils import Direction, Color, Point
-from gridenvs.gridworld_map import GridWorld, GridObject
+from gridenvs.world import GridWorld, GridObject
 
 class FreewayEnv(HeroEnv):
     ACTION_MAP = [None, Direction.N, Direction.S]

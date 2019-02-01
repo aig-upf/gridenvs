@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import hero_env_from_strmap
+from gridenvs.hero import hero_env_from_strmap
 from gridenvs.utils import Color, Direction
 
 def path_key_door_env(die, **kwargs):

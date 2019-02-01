@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from gridenvs.utils import Color
-from gridenvs.hero_gridworld import hero_env_from_strmap
+from gridenvs.hero import hero_env_from_strmap
 import numpy as np
 
 def key_door_env(map, key_reward, kwargs):

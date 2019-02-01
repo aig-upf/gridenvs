@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import HeroEnv
-from gridenvs.gridworld_map import GridWorld, GridObject
+from gridenvs.hero import HeroEnv
+from gridenvs.world import GridWorld, GridObject
 from gridenvs.utils import Color, Direction
 
 """

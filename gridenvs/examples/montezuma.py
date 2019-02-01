@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import HeroEnv, create_world_from_string_map
+from gridenvs.hero import HeroEnv, create_world_from_string_map
 from gridenvs.utils import Direction, Color
 from copy import deepcopy
 
