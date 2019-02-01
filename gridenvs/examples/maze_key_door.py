@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from gridenvs.utils import Color
-from gridenvs.hero import hero_env_from_strmap
+from gridenvs.hero import get_StrHeroEnv
 import numpy as np
 
 def key_door_env(map, key_reward, kwargs):
@@ -14,10 +14,10 @@ def key_door_env(map, key_reward, kwargs):
 
     colors = {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
 
-    return hero_env_from_strmap(str_map=map,
-                                colors=colors,
-                                hero_mark='H',
-                                state_map=state_dict)(**kwargs)
+    return get_StrHeroEnv(str_map=map,
+                          colors=colors,
+                          hero_mark='H',
+                          state_map=state_dict)(**kwargs)
 
 def key_door_walls(level = 2, key_reward = False, **kwargs):
     assert level in range(5)

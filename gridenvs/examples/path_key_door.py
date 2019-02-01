@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero import hero_env_from_strmap
+from gridenvs.hero import get_StrHeroEnv
 from gridenvs.utils import Color, Direction
 
 def path_key_door_env(die, **kwargs):
@@ -25,9 +25,9 @@ def path_key_door_env(die, **kwargs):
            ".........."]
     action_map = [Direction.W, Direction.E]
 
-    return hero_env_from_strmap(str_map=map,
-                                colors=colors,
-                                hero_mark='H',
-                                state_map=state_map,
-                                action_map=action_map,
-                                blocks=blocks)(**kwargs)
+    return get_StrHeroEnv(str_map=map,
+                          colors=colors,
+                          hero_mark='H',
+                          state_map=state_map,
+                          action_map=action_map,
+                          blocks=blocks)(**kwargs)

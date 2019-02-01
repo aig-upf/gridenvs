@@ -131,9 +131,13 @@ def create_world_from_string_map(str_map, colors, hero_mark):
     assert hero is not None, "Hero could not be loaded. Hero mark not in string map?"
     return hero, world
 
-def hero_env_from_strmap(str_map, colors, hero_mark, state_map=None, action_map=None, blocks=None):
+def get_StrHeroEnv(str_map, colors, hero_mark, state_map=None, action_map=None, blocks=None, cls=HeroEnv):
+    """
+    Will define functions create_world and reset_world so that the string map is read only once
+    """
     from copy import deepcopy
-    class StrHeroEnv(HeroEnv):
+    assert issubclass(cls, HeroEnv)
+    class StrHeroEnv(cls):
         if state_map: STATE_MAP = state_map
         if blocks: BLOCKS = blocks
         if action_map: ACTION_MAP = action_map
