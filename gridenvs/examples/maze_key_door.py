@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import StrMapHeroGridEnv
+from gridenvs.hero_gridworld import StrMapHeroEnv
 import numpy as np
 
 def key_door_env(init_map, key_reward, kwargs):
@@ -13,7 +13,7 @@ def key_door_env(init_map, key_reward, kwargs):
     state_dict[0,'K'] = (1, kr, False, lambda w,c: w.remove_object(c))
         
     from gridenvs.utils import Color
-    class KeyDoorEnv(StrMapHeroGridEnv):
+    class KeyDoorEnv(StrMapHeroEnv):
         MAP = init_map
         STATE_MAP = state_dict
         MAP_DESC = {

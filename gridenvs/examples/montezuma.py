@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import StrMapHeroGridEnv
+from gridenvs.hero_gridworld import StrMapHeroEnv
 from gridenvs.utils import Direction, Color
 
-class MontezumaEnv(StrMapHeroGridEnv):
+class MontezumaEnv(StrMapHeroEnv):
     MAP = [
         "..................................",
         ".................RH...............",

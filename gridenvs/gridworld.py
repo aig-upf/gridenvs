@@ -10,10 +10,10 @@ try:
     import cv2
     resize = lambda a, size: cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
 except ImportError:
-    import PIL
+    from PIL import Image
     resize = lambda a, size: np.array(Image.fromarray(a).resize(size, Image.NEAREST))
 
-class GridworldEnv(gym.Env):
+class GridEnv(gym.Env):
     """
         This class should not be instantiated
         Models a game based on colored squares/rectangles in a 2D space

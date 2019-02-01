@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import StrMapHeroGridEnv
+from gridenvs.hero_gridworld import StrMapHeroEnv
 from gridenvs.utils import Color, Direction
 
-class PathKeyDoorEnv(StrMapHeroGridEnv):
+class PathKeyDoorEnv(StrMapHeroEnv):
 
     STATE_MAP = {(0, 'K'): (1, 0.0, False, lambda w,c: w.remove_object(c)), #getting the key, state: 0->1
                  (1, 'D'): (1, 1.0, True, None)} #reaching the goal
@@ -35,4 +35,4 @@ class PathKeyDoorEnv(StrMapHeroGridEnv):
         if die:
             self.STATE_MAP.update({(0, 'W'): (0, -1.0, True, None), #hitting a wall at state 0
                                    (1, 'W'): (1, -1.0, True, None)}) #hitting a wall at state 1
-        StrMapHeroGridEnv.__init__(self, *args, **kwargs)
+        StrMapHeroEnv.__init__(self, *args, **kwargs)

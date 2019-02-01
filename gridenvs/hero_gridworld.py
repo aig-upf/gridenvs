@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.gridworld import GridworldEnv
-from gridenvs.gridworld_map import GridworldMap, GameObject
+from gridenvs.gridworld import GridEnv
+from gridenvs.gridworld_map import GridWorld, GridObject
 from gridenvs.utils import Direction, Point
 import numpy as np
 from copy import deepcopy
 
-class HeroGridEnv(GridworldEnv):
+class HeroEnv(GridEnv):
     """
     Abstract class for environments with a hero that can be moved around the grid
     """
@@ -19,7 +19,7 @@ class HeroGridEnv(GridworldEnv):
         self.game_state = {'done': True}
         self.max_moves = max_moves
         assert self.max_moves is None or self.max_moves > 0
-        GridworldEnv.__init__(self, len(self.ACTION_MAP), obs_type=obs_type)
+        GridEnv.__init__(self, len(self.ACTION_MAP), obs_type=obs_type)
 
     def _clone(self):
         return (self.world, self.game_state)
@@ -109,7 +109,7 @@ class HeroGridEnv(GridworldEnv):
         raise NotImplementedError
 
 
-class StrMapHeroGridEnv(HeroGridEnv):
+class StrMapHeroEnv(HeroEnv):
     MAP = None                  # String array representation of the world
     MAP_DESC = {                # You are able to redefine just a part of this map
         'COLORS': dict(),       # Object name -> color
@@ -117,8 +117,8 @@ class StrMapHeroGridEnv(HeroGridEnv):
     }
 
     def __init__(self, max_moves=None, obs_type="image"):
-        self.MAP_DESC = {**StrMapHeroGridEnv.MAP_DESC, **self.MAP_DESC}  # Complete not given parameters
-        HeroGridEnv.__init__(self, max_moves=max_moves, obs_type=obs_type)
+        self.MAP_DESC = {**StrMapHeroEnv.MAP_DESC, **self.MAP_DESC}  # Complete not given parameters
+        HeroEnv.__init__(self, max_moves=max_moves, obs_type=obs_type)
 
     def reset_world(self):
         self.world = deepcopy(self.fresh_world)
@@ -128,7 +128,7 @@ class StrMapHeroGridEnv(HeroGridEnv):
 
     def create_world(self):
         assert self.MAP is not None
-        self.world = GridworldMap((len(self.MAP[0]), len(self.MAP)))
+        self.world = GridWorld((len(self.MAP[0]), len(self.MAP)))
 
         hero_mark = self.MAP_DESC['HERO_MARK']
         hero = None
@@ -142,7 +142,7 @@ class StrMapHeroGridEnv(HeroGridEnv):
                     assert obj_name in self.MAP_DESC["COLORS"], "Please define a color for object %s"%obj_name
                     color = self.MAP_DESC["COLORS"][obj_name]
 
-                    o = GameObject(name=point, pos=(x, y), rgb=color)
+                    o = GridObject(name=point, pos=(x, y), rgb=color)
                     if point == hero_mark:
                         o.render_preference = 1
                         hero = o

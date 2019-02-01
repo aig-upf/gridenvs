@@ -7,11 +7,11 @@ Created on Mon Dec  4 16:21:44 2017
 """
 
 import numpy as np
-from gridenvs.hero_gridworld import HeroGridEnv
+from gridenvs.hero_gridworld import HeroEnv
 from gridenvs.utils import Direction, Color, Point
-from gridenvs.gridworld_map import GridworldMap, GameObject
+from gridenvs.gridworld_map import GridWorld, GridObject
 
-class FreewayEnv(HeroGridEnv):
+class FreewayEnv(HeroEnv):
     ACTION_MAP = [None, Direction.N, Direction.S]
 
     def __init__(self, size, obs_type= "image", avg_cars = 0.2, episode_end= "moves"):
@@ -32,12 +32,12 @@ class FreewayEnv(HeroGridEnv):
         self.game_state["hero"].pos = Point(int(self.size_x / 2), self.size_y - 1)
 
     def reset_world(self):
-        self.world = GridworldMap((self.size_x, self.size_y))
-        self.game_state["hero"] = GameObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Color.green) #frog
+        self.world = GridWorld((self.size_x, self.size_y))
+        self.game_state["hero"] = GridObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Color.green) #frog
         self.world.add_object(self.game_state["hero"])
 
         for i in range(self.size_x):
-            self.world.add_object(GameObject('G', (i, 0), rgb=Color.blue)) #goal
+            self.world.add_object(GridObject('G', (i, 0), rgb=Color.blue)) #goal
 
         self.game_state["step_next_car"] = [None]*(self.size_y - 2)
         for i in range(self.size_y - 2):
@@ -46,7 +46,7 @@ class FreewayEnv(HeroGridEnv):
             while True:
                 current_car_pos += self.get_relative_time() + 1
                 if current_car_pos < self.size_x:
-                    self.world.add_object(GameObject('C', (current_car_pos, i + 1), rgb=Color.red))
+                    self.world.add_object(GridObject('C', (current_car_pos, i + 1), rgb=Color.red))
                 else:
                     break
             #get step at which a new car will be generated, for each row i
@@ -69,7 +69,7 @@ class FreewayEnv(HeroGridEnv):
         # Add new cars
         for i in range(self.size_y - 2):
             if self.game_state["step_next_car"][i] == self.game_state["moves"]:
-                self.world.add_object(GameObject('C', (0, i + 1), rgb=Color.red))
+                self.world.add_object(GridObject('C', (0, i + 1), rgb=Color.red))
                 self.game_state["step_next_car"][i] = self.get_relative_time() + self.game_state["moves"] + 1
 
     def get_relative_time(self):
