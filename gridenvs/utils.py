@@ -44,7 +44,7 @@ class Point:
 
     def __floordiv__(self, p):
         x, y = self._get_xy_or_num(p)
-        return Point(self.x/x, self.y/y)
+        return Point(self.x // x, self.y // y)
 
     def __mod__(self, p):
         x, y = self._get_xy_or_num(p)
