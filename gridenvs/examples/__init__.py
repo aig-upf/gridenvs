@@ -47,3 +47,12 @@ register(id='GE_MoveToBeacon-v0',
          entry_point='gridenvs.examples.beacon:MoveToBeaconEnv',
          kwargs={"obs_type": "image", 'max_moves': 200},
          nondeterministic=False)
+
+# =============================================================================
+# NAVIGATE TO BEACON 1D
+# =============================================================================
+for i in range(9):
+    register(id='GE_Beacon1D-v%i' % i,
+             entry_point='gridenvs.examples.beacon1D:beacon_1D',
+             kwargs={"obs_type": "image", "level": i, 'max_moves': 200},
+             nondeterministic=False)
