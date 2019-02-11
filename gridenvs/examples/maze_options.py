@@ -138,6 +138,7 @@ def key_door_walls(key_reward = False, **kwargs):
                 "W.............W................W",
                 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
     """
+    
     init_map = ["WWWWWWWW",
                 "W..H...W",
                 "WD.....W",
@@ -147,7 +148,7 @@ def key_door_walls(key_reward = False, **kwargs):
                 "W...K..W",
                 "WWWWWWWW"]
    
-    """
+    
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
     init_map=["".join(row) for row in init_map]
