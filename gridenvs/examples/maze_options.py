@@ -26,18 +26,19 @@ def key_door_env(init_map, key_reward, kwargs):
                           cls=ZonesEnv)(**kwargs)
 
 def key_door_walls(key_reward = False, **kwargs):
-    """
-    init_map = ["WWWWWWWW",
+    maps = []
+    
+    maps.append(["WWWWWWWW",
                 "WD....KW",
                 "W.W....W",
                 "W.W..WWW",
                 "W.W....W",
                 "W.WWW..W",
                 "WH.....W",
-                "WWWWWWWW"]
-    """
-    """
-    init_map = ["WWWWWWWWWWWWWWWW",
+                "WWWWWWWW"])
+    
+    
+    maps.append(["WWWWWWWWWWWWWWWW",
                 "WWWWWWWWWWWWWWWW",
                 "WW............WW",
                 "WW.......W....WW",
@@ -52,10 +53,9 @@ def key_door_walls(key_reward = False, **kwargs):
                 "WW..WWWWWW.K..WW",
                 "WW..W.........WW",
                 "WW.....WW.....WW",
-                "WWWWWWWWWWWWWWWW"]
-    """
-    
-    init_map = ["WWWWWWWWWWWWWWWW",
+                "WWWWWWWWWWWWWWWW"])
+
+    maps.append(["WWWWWWWWWWWWWWWW",
                 "WWWWWWWWWWWWWWWW",
                 "WW.....W......WW",
                 "WW.....W......WW",
@@ -70,9 +70,10 @@ def key_door_walls(key_reward = False, **kwargs):
                 "WW.........K..WW",
                 "WW............WW",
                 "WW.....W......WW",
-                "WWWWWWWWWWWWWWWW"]
-    """
-    init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+                "WWWWWWWWWWWWWWWW"])
+    
+    
+    maps.append(["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
                 "W......W......W........W.......W",
                 "W......W......W........W.......W",
                 "W......W......W........W.......W",
@@ -102,10 +103,10 @@ def key_door_walls(key_reward = False, **kwargs):
                 "W.............W.........K......W",
                 "W.............W................W",
                 "W.............W................W",
-                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
-    """
-    """
-    init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"])
+    
+    
+    maps.append(["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
                 "W......W......W........W.......W",
                 "W......W......W........W.......W",
                 "W......W......W........W.......W",
@@ -136,19 +137,19 @@ def key_door_walls(key_reward = False, **kwargs):
                 "W.............W.........K......W",
                 "W.............W................W",
                 "W.............W................W",
-                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
-    """
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"])
     
-    init_map = ["WWWWWWWW",
+    
+    maps.append(["WWWWWWWW",
                 "W..H...W",
                 "WD.....W",
                 "W......W",
                 "W......W",
                 "W......W",
                 "W...K..W",
-                "WWWWWWWW"]
-   
+                "WWWWWWWW"])
     
+    init_map = maps[4]
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
     init_map=["".join(row) for row in init_map]

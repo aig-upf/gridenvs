@@ -62,10 +62,10 @@ for i in range(9):
 
 register(id='GE_MazeOptions-v0',
              entry_point='gridenvs.examples.maze_options:key_door_walls',
-             kwargs={"key_reward": False},
+             kwargs={},
              nondeterministic=False)
 
 register(id='GE_MazeOptions-v1',
              entry_point='gridenvs.examples.maze_options:key_door_walls',
-             kwargs={"key_reward": False},
+             kwargs={"zone_size_x" : 4, "zone_size_y" : 4, "blurred" : True},
              nondeterministic=False)
