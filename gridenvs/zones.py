@@ -3,7 +3,7 @@ from gridenvs.utils import Point
 import cv2
 
 class ZonesEnv(HeroEnv):
-    def __init__(self, zone_size_x=1, zone_size_y=1, blurred=False, number_gray_colors=0):
+    def __init__(self, zone_size_x, zone_size_y, blurred, number_gray_colors=0):
         HeroEnv.__init__(self, max_moves=None, obs_type="image")
         # Is the world blurred ?
         self.blurred = blurred
@@ -39,25 +39,28 @@ class ZonesEnv(HeroEnv):
         # a is a matrix which each entry is an array of 3 integers (RGB)
         # it is just the translation in terms of color of the grid writen in examples.
         grid_colors = grid_state.render()
-        # a = self.average_colors(a)
-        if (len(grid_colors[0]) % self.zone_size.x == 0) and (len(grid_colors) % self.zone_size.y == 0):
-            size_x_image_blurred = int(len(grid_colors[0]) // self.zone_size.x)
-            size_y_image_blurred = int(len(grid_colors) // self.zone_size.y)
-            image_blurred = cv2.resize(grid_colors, (size_x_image_blurred, size_y_image_blurred),
-                                       interpolation=cv2.INTER_AREA)
-            # gray scale ?
-            if self.number_gray_colors:
-                for j in range(size_x_image_blurred):
-                    for i in range(size_y_image_blurred):
-                        rgb = image_blurred[i][j]
-                        gray_level = (255 * 3) // self.number_gray_colors
-                        sum_rgb = (sum(rgb) // gray_level) * gray_level
-                        image_blurred[i][j] = [sum_rgb] * 3
-
-            image_blurred_resized = cv2.resize(image_blurred, size, interpolation=cv2.INTER_NEAREST)
-            return image_blurred_resized
+        if not(self.blurred):
+            return grid_colors
+        
         else:
-            raise Exception("The gridworld can not be fragmented into zones")
+            if (len(grid_colors[0]) % self.zone_size.x == 0) and (len(grid_colors) % self.zone_size.y == 0):
+                size_x_image_blurred = int(len(grid_colors[0]) // self.zone_size.x)
+                size_y_image_blurred = int(len(grid_colors) // self.zone_size.y)
+                image_blurred = cv2.resize(grid_colors, (size_x_image_blurred, size_y_image_blurred),
+                                           interpolation=cv2.INTER_AREA)
+                # gray scale ?
+                if self.number_gray_colors:
+                    for j in range(size_x_image_blurred):
+                        for i in range(size_y_image_blurred):
+                            rgb = image_blurred[i][j]
+                            gray_level = (255 * 3) // self.number_gray_colors
+                            sum_rgb = (sum(rgb) // gray_level) * gray_level
+                            image_blurred[i][j] = [sum_rgb] * 3
+
+                image_blurred_resized = cv2.resize(image_blurred, size, interpolation=cv2.INTER_NEAREST)
+                return image_blurred_resized
+            else:
+                raise Exception("The gridworld can not be fragmented into zones")
 
     def update_world(self):
         reward, end_episode, info = HeroEnv.update_world(self)
