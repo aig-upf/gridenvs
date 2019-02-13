@@ -109,6 +109,10 @@ class HeroEnv(GridEnv):
         """
         raise NotImplementedError
 
+    def _step(self, action):
+        # here action is now an integer
+        cardinal = Direction.cardinal()
+        super(GridEnv, self)._step(cardinal[action])
 
 def create_world_from_string_map(str_map, colors, hero_mark):
     world = GridWorld((len(str_map[0]), len(str_map)))
