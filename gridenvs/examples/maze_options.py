@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gridenvs.hero import get_StrHeroEnv
+from gridenvs.utils import Direction
 import numpy as np
 
 def key_door_env(init_map, key_reward, kwargs):
@@ -21,6 +22,7 @@ def key_door_env(init_map, key_reward, kwargs):
     return get_StrHeroEnv(str_map=init_map,
                           colors=colors,
                           hero_mark='H',
+                          action_map = Direction.cardinal(),
                           state_map=state_dict)(**kwargs)
 
 def key_door_walls(key_reward = False, **kwargs):
