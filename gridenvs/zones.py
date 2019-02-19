@@ -3,7 +3,7 @@ from gridenvs.utils import Point
 import cv2
 
 class ZonesEnv(HeroEnv):
-    def __init__(self, zone_size_x, zone_size_y, blurred, number_gray_colors=0):
+    def __init__(self, zone_size_x, zone_size_y, blurred, number_gray_colors = 0):
         HeroEnv.__init__(self, max_moves=None, obs_type="image")
         # Is the world blurred ?
         self.blurred = blurred
@@ -14,7 +14,6 @@ class ZonesEnv(HeroEnv):
         # The zone is a region of the state space. For the moment we take squares of size zone_size.
         # The location of the zones are given by a Point, which contains its coordinates.
         self.update_zone(self.game_state['hero'].pos)
-
 
     def set_zone_size(self, x, y):
         self.zone_size = Point(x, y)
@@ -40,6 +39,7 @@ class ZonesEnv(HeroEnv):
         # it is just the translation in terms of color of the grid writen in examples.
         grid_colors = grid_state.render()
         if not(self.blurred):
+            grid_colors = cv2.resize(grid_colors, size, interpolation=cv2.INTER_NEAREST)
             return grid_colors
         
         else:
