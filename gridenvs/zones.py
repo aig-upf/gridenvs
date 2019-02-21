@@ -64,9 +64,9 @@ class ZonesEnv(HeroEnv):
 
     def update_world(self):
         reward, end_episode, info = HeroEnv.update_world(self)
+        self.update_zone(self.game_state['hero'].pos)
         info.update({'zone': self.game_state['zone']})
         info.update({'position': self.game_state['hero'].pos})
-        self.update_zone(self.game_state['hero'].pos)
         return reward, end_episode, info
 
     def update_zone(self, position):

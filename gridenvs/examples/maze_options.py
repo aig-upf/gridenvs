@@ -141,12 +141,12 @@ def key_door_walls(key_reward = False, **kwargs):
     
     
     maps.append(["WWWWWWWW",
-                "W..H...W",
                 "WD.....W",
                 "W......W",
                 "W......W",
                 "W......W",
-                "W...K..W",
+                "W......W",
+                "WH....KW",
                 "WWWWWWWW"])
     
     init_map = maps[-1]
