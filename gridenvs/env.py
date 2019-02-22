@@ -33,7 +33,7 @@ class GridEnv(gym.Env):
             raise NotImplementedError("Bad observation type.")
 
         self.action_space = Discrete(n_actions)
-        self.observation_space = Box(0, 255, shape=self.pixel_size+(3,))
+        self.observation_space = Box(0, 255, shape=self.pixel_size+(3,), dtype=np.uint8)
         #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
 
@@ -46,13 +46,13 @@ class GridEnv(gym.Env):
 
     def render_env(self, size, grid_state):
         a = grid_state.render()
-        a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
+        a = resize(a, size)
         return a
 
     def update_environment(self, action):
         raise NotImplementedError()
 
-    def _step(self, action):
+    def step(self, action):
         update_info = self.update_environment(action)
         obs = self.generate_observation(self.world)
         return (obs, *update_info)
@@ -76,7 +76,7 @@ class GridEnv(gym.Env):
         assert self.world.grid_size == internal_state.grid_size
         self.world = internal_state
 
-    def _reset(self):
+    def reset(self):
         raise Exception ("Child class should implement this.")
 
     def render_gym(self, img, mode='human', close=False):

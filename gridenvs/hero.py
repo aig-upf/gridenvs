@@ -27,7 +27,7 @@ class HeroEnv(GridEnv):
         self.world = internal_state[0]
         self.game_state = internal_state[1]
 
-    def _reset(self):
+    def reset(self):
         self.game_state['hero'] = self.reset_world()
         assert self.game_state['hero'] is not None, "Reset world should return hero object."
         self.game_state['state_id'] = 0
