@@ -10,7 +10,7 @@ class ZonesEnv(HeroEnv):
         self.number_gray_colors = number_gray_colors
         # The grid is cut into several zones of size zone_size_x X zone_size_y
         self.set_zone_size(zone_size_x, zone_size_y)
-        HeroEnv._reset(self)
+        HeroEnv.reset(self)
         # The zone is a region of the state space. For the moment we take squares of size zone_size.
         # The location of the zones are given by a Point, which contains its coordinates.
         self.update_zone(self.game_state['hero'].pos)
