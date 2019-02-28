@@ -12,13 +12,14 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
     """
     to be used with class ZonesEnv
     """
-    def __init__(self, env, zone_size_x, zone_size_y, blurred, gray_scale = False, cut_off = True):
+    def __init__(self, env, zone_size_x, zone_size_y, blurred, number_gray_colors, gray_scale = False, cut_off = True):
         super(gym.ObservationWrapper, self).__init__(env)
         self.zone_size_x = zone_size_x
         self.zone_size_y = zone_size_y
         self.blurred = blurred
         self.gray_scale = gray_scale
         self.cut_off = cut_off
+        self.number_gray_colors = number_gray_colors
         
     def render(self, size = (512, 512), mode = 'human', close = False, blurred_render = False, gray_scale = False):
         if hasattr(self.env.__class__, 'render_scaled'): # we call render_scaled function from gridenvs
@@ -84,7 +85,7 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
         for i in range(len(image)):
             for j in range(len(image[0])):
                 rgb = image[i][j]
-                gray_level = (255 * 3) // NUMBER_GRAY_COLORS
+                gray_level = (255 * 3) // self.number_gray_colors
                 sum_rgb = (sum(rgb) // gray_level) * gray_level
                 image[i][j] = [sum_rgb] * 3
                 
