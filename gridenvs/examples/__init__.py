@@ -67,5 +67,5 @@ register(id='GE_MazeOptions-v0',
 
 register(id='GE_MazeOptions-v1',
              entry_point='gridenvs.examples.maze_options:key_door_walls',
-             kwargs={zone_size_x : 2 , zone_size_y : 2, blurred = True},
+             kwargs={'zone_size_x' : 2 , 'zone_size_y' : 2, 'blurred' : True},
              nondeterministic=False)
