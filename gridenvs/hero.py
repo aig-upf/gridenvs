@@ -92,6 +92,7 @@ class HeroEnv(GridEnv):
         info = {
             'state_id': self.game_state['state_id']
         }
+        info.update({'position': self.game_state['hero'].pos}) # This position information should only be used by the QAgent
         return reward, end_episode, info
 
     def create_world(self):
@@ -107,7 +108,6 @@ class HeroEnv(GridEnv):
         :return: the hero (GameObject).
         """
         raise NotImplementedError
-
 
 def create_world_from_string_map(str_map, colors, hero_mark):
     world = GridWorld((len(str_map[0]), len(str_map)))

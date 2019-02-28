@@ -33,7 +33,6 @@ class ZonesEnv(HeroEnv):
     def render_env(self, size, grid_state):
         """
         here we are making an average of the colors in the grid
-        TODO : make sure that if zone_size_x = zone_size_y = 1 then the environement is not blurred
         """
         # a is a matrix which each entry is an array of 3 integers (RGB)
         # it is just the translation in terms of color of the grid writen in examples.

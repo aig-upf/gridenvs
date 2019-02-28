@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gridenvs.hero import get_StrHeroEnv
-from gridenvs.zones import ZonesEnv
+from gridenvs.utils import Direction
 import numpy as np
 
 def key_door_env(init_map, key_reward, kwargs):
@@ -12,7 +12,7 @@ def key_door_env(init_map, key_reward, kwargs):
     # {(state, collision): (new_state, reward, end,?)}
     state_dict = {(1, 'D'): (2, 100.0, True, None)}
     for s in [0,1]: #possible states
-        state_dict[(s, 'W')] = (0, - 100, True, None)
+        state_dict[(s, 'W')] = (0, 0, True, None)
 
     state_dict[0,'K'] = (1, 100.0, False, lambda w,c: w.remove_object(c))
 
@@ -22,8 +22,9 @@ def key_door_env(init_map, key_reward, kwargs):
     return get_StrHeroEnv(str_map=init_map,
                           colors=colors,
                           hero_mark='H',
+                          action_map = Direction.cardinal(),
                           state_map=state_dict,
-                          cls=ZonesEnv)(**kwargs)
+                          cls = ZonesEnv)(**kwargs)
 
 def key_door_walls(key_reward = False, **kwargs):
     maps = []
