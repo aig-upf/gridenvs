@@ -3,6 +3,7 @@
 
 from gridenvs.hero import get_StrHeroEnv
 from gridenvs.utils import Direction
+from gridenvs.zones import ZonesEnv
 import numpy as np
 
 def key_door_env(init_map, key_reward, kwargs):
