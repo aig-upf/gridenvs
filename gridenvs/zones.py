@@ -3,10 +3,10 @@ from gridenvs.utils import Point
 import cv2
 
 class ZonesEnv(HeroEnv):
-    def __init__(self, zone_size_x, zone_size_y, blurred, number_gray_colors = 0):
+    def __init__(self, zone_size_x, zone_size_y, blurred_render, number_gray_colors = 0):
         HeroEnv.__init__(self, max_moves=None, obs_type="image")
         # Is the world blurred ?
-        self.blurred = blurred
+        self.blurred_render = blurred_render
         self.number_gray_colors = number_gray_colors
         # The grid is cut into several zones of size zone_size_x X zone_size_y
         self.set_zone_size(zone_size_x, zone_size_y)
@@ -37,7 +37,7 @@ class ZonesEnv(HeroEnv):
         # a is a matrix which each entry is an array of 3 integers (RGB)
         # it is just the translation in terms of color of the grid writen in examples.
         grid_colors = grid_state.render()
-        if not(self.blurred):
+        if not(self.blurred_render):
             grid_colors = cv2.resize(grid_colors, size, interpolation=cv2.INTER_NEAREST)
             return grid_colors
         

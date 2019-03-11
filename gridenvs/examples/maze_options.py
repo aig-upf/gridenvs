@@ -139,8 +139,8 @@ def key_door_walls(key_reward = False, **kwargs):
                 "W.............W.........K......W",
                 "W.............W................W",
                 "W.............W................W",
-                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"])
-    
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]) # K is in zone (5,3)
+
     
     maps.append(["WWWWWWWW",
                 "WD.....W",
@@ -151,8 +151,10 @@ def key_door_walls(key_reward = False, **kwargs):
                 "WH....KW",
                 "WWWWWWWW"])
     
-    init_map = maps[-1]
+    init_map = maps[-2]
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, kwargs)
+
+

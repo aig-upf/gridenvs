@@ -12,7 +12,7 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
     """
     to be used with class ZonesEnv
     """
-    def __init__(self, env, zone_size_x, zone_size_y, blurred, number_gray_colors, gray_scale = False, cut_off = True):
+    def __init__(self, env, zone_size_x, zone_size_y, blurred, number_gray_colors, gray_scale = False, cut_off = False):
         super(gym.ObservationWrapper, self).__init__(env)
         self.zone_size_x = zone_size_x
         self.zone_size_y = zone_size_y
