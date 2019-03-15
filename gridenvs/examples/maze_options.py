@@ -13,7 +13,7 @@ def key_door_env(init_map, key_reward, kwargs):
     # {(state, collision): (new_state, reward, end,?)}
     state_dict = {(1, 'D'): (2, 100.0, True, None)}
     for s in [0,1]: #possible states
-        state_dict[(s, 'W')] = (0, -100, True, None)
+        state_dict[(s, 'W')] = (0, -10, True, None)
 
     state_dict[0,'K'] = (1, 100.0, False, lambda w,c: w.remove_object(c))
 
@@ -118,7 +118,7 @@ def key_door_walls(key_reward = False, **kwargs):
                 "WWW..WWWW...WWWWWWWWWWWW......WW",
                 "W.............W................W",
                 "W.............W................W",
-                "W.............W.......D........W",
+                "W.............W.......K........W",
                 "W.............W................W",
                 "W.............W................W",
                 "W.............W................W",
@@ -136,8 +136,8 @@ def key_door_walls(key_reward = False, **kwargs):
                 "W.............W................W",
                 "W.............W................W",
                 "W.............W................W",
-                "W.............W.........K......W",
                 "W.............W................W",
+                "W...D.........W................W",
                 "W.............W................W",
                 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]) # K is in zone (5,3)
 
@@ -151,7 +151,7 @@ def key_door_walls(key_reward = False, **kwargs):
                 "WH....KW",
                 "WWWWWWWW"])
     
-    init_map = maps[-2]
+    init_map = maps[3]
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
     init_map=["".join(row) for row in init_map]

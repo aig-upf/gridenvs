@@ -36,9 +36,10 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
                 
             if gray_scale:
                 img = self.make_gray_scale(img)
-                
+
+            img = self.make_downsampled_image(img, 5, 7) 
             img_resized = cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
-                
+            
             if mode == 'rgb_array':
                 return img
             
@@ -50,20 +51,34 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
                 self.env.env.viewer.imshow(img_resized)
                 return self.env.env.viewer.isopen
 
-    def make_downsampled_image(self, image):
-        len_y = len(image) # with MontezumaRevenge-v4 : 160
-        len_x = len(image[0]) # with MontezumaRevenge-v4 : 210
-        if (len_x % self.zone_size_x == 0) and (len_y % self.zone_size_y == 0):
-            downsampled_size = (len_x // self.zone_size_x , len_y // self.zone_size_y)
-            img_blurred = cv2.resize(image, downsampled_size, interpolation=cv2.INTER_AREA) # vector of size "downsampled_size"
-            return img_blurred
-        
+    def make_downsampled_image(self, image, factor_x = None, factor_y = None):
+        if factor_x == None and factor_y == None:
+            len_y = len(image) # with MontezumaRevenge-v4 : 160
+            len_x = len(image[0]) # with MontezumaRevenge-v4 : 210
+            if (len_x % self.zone_size_x == 0) and (len_y % self.zone_size_y == 0):
+                downsampled_size = (len_x // self.zone_size_x , len_y // self.zone_size_y)
+                img_blurred = cv2.resize(image, downsampled_size, interpolation=cv2.INTER_AREA) # vector of size "downsampled_size"
+                return img_blurred
+
+            else:
+                raise Exception("The gridworld " + str(len_x) + "x" + str(len_y) +  " can not be fragmented into zones " + str(self.zone_size_x) + "x" + str(self.zone_size_y))
+
         else:
-            raise Exception("The gridworld " + str(len_x) + "x" + str(len_y) +  " can not be fragmented into zones " + str(self.zone_size_x) + "x" + str(self.zone_size_y))
-            
+            len_y = len(image) # with MontezumaRevenge-v4 : 160
+            len_x = len(image[0]) # with MontezumaRevenge-v4 : 210
+            if (len_x % factor_x == 0) and (len_y % factor_y == 0):
+                downsampled_size = (len_x // factor_x , len_y // factor_y)
+                img_blurred = cv2.resize(image, downsampled_size, interpolation=cv2.INTER_AREA) # vector of size "downsampled_size"
+                return img_blurred
+
+            else:
+                raise Exception("The gridworld " + str(len_x) + "x" + str(len_y) +  " can not be fragmented into zones " + str(factor_x) + "x" + str(factor_y))
+
+        
     def observation(self, observation):
         #instead of returning a nested array, returns a *blurred*, *nested* *tuple* : img_blurred_tuple. Returns also the hashed obersvation.
-        img = observation.copy()
+        #img = observation.copy()
+        img = observation
         if self.cut_off:
             #cut-off of the image
             img = img[50:180] #size: 130
@@ -75,11 +90,16 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
 
             if self.gray_scale:
                 img = self.make_gray_scale(img)
-            
+
+        img_blurred_more = img.copy()
+        img_blurred_more = self.make_downsampled_image(img_blurred_more, 5, 7) 
+
         # transform the observation in tuple
         img_tuple = tuple(tuple(tuple(color) for color in lig) for lig in img)
-        observation_tuple = tuple(tuple(tuple(color) for color in lig) for lig in observation)
-        return hash(observation_tuple), hash(img_tuple)
+        img_blurred_more_tuple = tuple(tuple(tuple(color) for color in lig) for lig in img_blurred_more)
+        # observation_tuple = tuple(tuple(tuple(color) for color in lig) for lig in observation)
+        
+        return {"state" : img_tuple, "blurred_state" : img_blurred_more_tuple}
 
     def make_gray_scale(self, image):
         for i in range(len(image)):
@@ -88,6 +108,6 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
                 gray_level = (255 * 3) // self.number_gray_colors
                 sum_rgb = (sum(rgb) // gray_level) * gray_level
                 image[i][j] = [sum_rgb] * 3
-                
+
         return image
 
