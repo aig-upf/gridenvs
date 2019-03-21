@@ -9,18 +9,19 @@ import gridenvs.examples  # load example gridworld environments
 from gym.envs.classic_control import rendering
 
 class ObservationZoneWrapper(gym.ObservationWrapper):
-    def __init__(self, env, zone_size_x, zone_size_y, zone_size_master_x, zone_size_master_y, blurred, number_gray_colors, gray_scale = False, cut_off = False):
+    def __init__(self, env, zone_size_option_x, zone_size_option_y, zone_size_agent_x, zone_size_agent_y, blurred, thresh_binary_option, thresh_binary_agent, gray_scale = False, cut_off = False):
         super(gym.ObservationWrapper, self).__init__(env)
-        self.zone_size_x = zone_size_x
-        self.zone_size_y = zone_size_y
-        self.zone_size_master_x = zone_size_master_x
-        self.zone_size_master_y = zone_size_master_y
+        self.zone_size_option_x = zone_size_option_x
+        self.zone_size_option_y = zone_size_option_y
+        self.zone_size_agent_x = zone_size_agent_x
+        self.zone_size_agent_y = zone_size_agent_y
         self.blurred = blurred
         self.gray_scale = gray_scale
         self.cut_off = cut_off
-        self.number_gray_colors = number_gray_colors
+        self.thresh_binary_option = thresh_binary_option
+        self.thresh_binary_agent = thresh_binary_agent
         
-    def render(self, size = (512, 512), mode = 'human', close = False, blurred_render = False, gray_scale_render = False):
+    def render(self, size = (512, 512), mode = 'human', agent = True, close = False, blurred_render = False, gray_scale_render = False):
         if hasattr(self.env.__class__, 'render_scaled'): # we call render_scaled function from gridenvs
             return self.env.render_scaled(size, mode, close)
          
@@ -31,13 +32,17 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
                 img = img[50:180] #size: 130
                 
             if blurred_render:
-                img = self.make_downsampled_image(img, self.zone_size_x, self.zone_size_y)
-                img = self.make_downsampled_image(img, self.zone_size_master_x, self.zone_size_master_y)
+                if agent:
+                    img = self.make_downsampled_image(img, self.zone_size_agent_x, self.zone_size_agent_y)
+                else:
+                    img = self.make_downsampled_image(img, self.zone_size_option_x, self.zone_size_option_y)
 
             if gray_scale_render:
-                img = self.make_gray_scale(img)
+                if agent:
+                    img = self.make_gray_scale(img, self.thresh_binary_agent)
+                else:
+                    img = self.make_gray_scale(img, self.thresh_binary_option)
 
-            img = np.array([[[color]*3 for color in lig] for lig in img])
             img_resized = cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
             
             if mode == 'rgb_array':
@@ -62,41 +67,38 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
             raise Exception("The gridworld " + str(len_x) + "x" + str(len_y) +  " can not be fragmented into zones " + str(zone_size_x) + "x" + str(zone_size_y))
 
     def observation(self, observation):
-        #instead of returning a nested array, returns a *blurred*, *nested* *tuple* : img_blurred_tuple. Returns also the hashed obersvation.
-        #img = observation.copy()
-        img = observation
+        img_option = observation
+        img_agent = img_option.copy()
         if self.cut_off:
+            raise Exception("not implemented")
             #cut-off of the image
-            img = img[50:180] #size: 130
-            observation = observation[50:180]
+            #img = img[50:180] #size: 130
+            #observation = observation[50:180]
     
-        img = self.make_gray_scale(img)
-        img = self.make_downsampled_image(img, self.zone_size_x, self.zone_size_y)
+        img_option = self.make_downsampled_image(img_option, self.zone_size_option_x, self.zone_size_option_y)
+        img_option = self.make_gray_scale(img_option, self.thresh_binary_option)
+
+        img_agent = self.make_downsampled_image(img_agent, self.zone_size_agent_x, self.zone_size_agent_y)
+        img_agent = self.make_gray_scale(img_agent, self.thresh_binary_agent)
+
+        img_option_tuple = tuple(tuple(tuple(color) for color in lig) for lig in img_option)
+        img_agent_tuple = tuple(tuple(tuple(color) for color in lig) for lig in img_agent)    
         
-        img_blurred_more = img.copy()
-        img_blurred_more = self.make_downsampled_image(img_blurred_more, self.zone_size_master_x, self.zone_size_master_y) 
+        return {"state" : hash(img_option_tuple), "blurred_state" : hash(img_agent_tuple)}
 
-        # transform the observation in tuple
-        img_tuple = tuple(tuple(tuple([color]*3) for color in lig) for lig in img)
-        img_blurred_more_tuple = tuple(tuple(tuple([color]*3) for color in lig) for lig in img_blurred_more)
+    def make_gray_scale(self, image, threshold):
+        img = cv2.medianBlur(image,1)
+        _, img = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+        return img
 
-        #img_tuple = tuple(tuple(lig) for lig in img)
-        #img_blurred_more_tuple = tuple(tuple(lig) for lig in img_blurred_more)
 
-        # observation_tuple = tuple(tuple(tuple(color) for color in lig) for lig in observation)
-        
-        
-        return {"state" : hash(img_tuple), "blurred_state" : hash(img_blurred_more_tuple)}
-
-    def make_gray_scale(self, image):    
-        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        #return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
         #return cv2.medianBlur(image,7)
-        #img = cv2.medianBlur(image,7)    
-        #return cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
         #print(img)
         #return cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
         #return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         # gray_levels = np.linspace(0, 255, self.number_gray_colors)
         # for i in range(len(image)):
         #     for j in range(len(image[0])):
