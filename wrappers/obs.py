@@ -26,7 +26,8 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
             return self.env.render_scaled(size, mode, close)
          
         else: # we scale the image from other environment (like Atari)
-            img = self.env.env.ale.getScreenRGB2()
+            env_unwrapped = self.env.unwrapped
+            img = env_unwrapped.ale.getScreenRGB2()
             if self.cut_off:
                 #cut-off of the image
                 img = img[50:180] #size: 130
@@ -49,11 +50,11 @@ class ObservationZoneWrapper(gym.ObservationWrapper):
                 return img
             
             elif mode == 'human':
-                if self.env.env.viewer is None:
-                    self.env.env.viewer = rendering.SimpleImageViewer()
+                if env_unwrapped.viewer is None:
+                    env_unwrapped.viewer = rendering.SimpleImageViewer()
                     
-                self.env.env.viewer.imshow(img_resized)
-                return self.env.env.viewer.isopen
+                env_unwrapped.viewer.imshow(img_resized)
+                return env_unwrapped.viewer.isopen
 
     def make_downsampled_image(self, image, zone_size_x, zone_size_y):
         len_y = len(image) # with MontezumaRevenge-v4 : 160
