@@ -15,7 +15,7 @@ def key_door_env(init_map, key_reward, **kwargs):
 
     colors = {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
 
-    return get_StrHeroEnv(str_map=map,
+    return get_StrHeroEnv(str_map=init_map,
                           colors=colors,
                           hero_mark='H',
                           state_map=state_dict)(**kwargs)
