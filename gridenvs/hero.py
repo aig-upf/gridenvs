@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.gridworld import GridworldEnv
-from gridenvs.gridworld_map import GridworldMap, GameObject
+from gridenvs.env import GridEnv
+from gridenvs.world import GridWorld, GridObject
 from gridenvs.utils import Direction, Point
 import numpy as np
 
-class HeroGridEnv(GridworldEnv):
+class HeroEnv(GridEnv):
     """
-    Abstract class for environments with a hero that can be moved around the grid
+    Abstract class for environments with a single agent (hero) that can be moved around the grid
     """
     ACTION_MAP = [None, ] + Direction.cardinal() # Default actions: Noop, north, east, south west.
     STATE_MAP = dict()       # Description of the state machine. TODO: describe
@@ -18,7 +18,7 @@ class HeroGridEnv(GridworldEnv):
         self.game_state = {'done': True}
         self.max_moves = max_moves
         assert self.max_moves is None or self.max_moves > 0
-        GridworldEnv.__init__(self, len(self.ACTION_MAP), obs_type=obs_type)
+        GridEnv.__init__(self, len(self.ACTION_MAP), obs_type=obs_type)
 
     def _clone(self):
         return (self.world, self.game_state)
@@ -27,7 +27,7 @@ class HeroGridEnv(GridworldEnv):
         self.world = internal_state[0]
         self.game_state = internal_state[1]
 
-    def _reset(self):
+    def reset(self):
         self.game_state['hero'] = self.reset_world()
         assert self.game_state['hero'] is not None, "Reset world should return hero object."
         self.game_state['state_id'] = 0
@@ -66,7 +66,7 @@ class HeroGridEnv(GridworldEnv):
                 action = self.ACTION_MAP[action]
         else:
             if action not in self.ACTION_MAP:
-                raise Exception("Action %s not in ACTION_MAP." % action)
+                raise Exception("Action %s not in ACTION_MAP. ACTION_MAP: %s" % (action, str(self.ACTION_MAP)))
 
         self.move_hero(action)
         self.game_state['moves'] += 1
@@ -79,6 +79,7 @@ class HeroGridEnv(GridworldEnv):
         collisions = self.world.collisions(self.game_state['hero'])
         for collision in collisions:
             try:
+                # TODO: use neighbors instead of collisions
                 # state, collision_name -> new_state, reward, end_of_episode, collision_fn
                 self.game_state['state_id'], reward, end_episode, state_change_fn = self.STATE_MAP[(self.game_state['state_id'], collision.name)]
                 if state_change_fn: state_change_fn(self.world, collision)
@@ -91,6 +92,7 @@ class HeroGridEnv(GridworldEnv):
         info = {
             'state_id': self.game_state['state_id']
         }
+        info.update({'position': self.game_state['hero'].pos}) # This position information should only be used by the QAgent
         return reward, end_episode, info
 
     def create_world(self):
@@ -107,43 +109,45 @@ class HeroGridEnv(GridworldEnv):
         """
         raise NotImplementedError
 
+def create_world_from_string_map(str_map, colors, hero_mark):
+    world = GridWorld((len(str_map[0]), len(str_map)))
 
-class StrMapHeroGridEnv(HeroGridEnv):
-    MAP = None                  # String array representation of the world
-    MAP_DESC = {                # You are able to redefine just a part of this map
-        'COLORS': dict(),       # Object name -> color
-        'HERO_MARK': 'H',       # Hero object name in the MAP
-    }
+    hero = None
+    for y, string in enumerate(str_map):
+        for x, point in enumerate(string):
+            if point == '.':
+                continue
+            else:
+                obj_name = str_map[y][x]
+                assert obj_name in colors.keys(), "Please define a color for object %s"%obj_name
+                color = colors[obj_name]
 
-    def __init__(self, max_moves=None, obs_type="image"):
-        self.MAP_DESC = {**StrMapHeroGridEnv.MAP_DESC, **self.MAP_DESC}  # Complete not given parameters
-        HeroGridEnv.__init__(self, max_moves=max_moves, obs_type=obs_type)
+                o = GridObject(name=point, pos=(x, y), rgb=color)
+                if point == hero_mark:
+                    o.render_preference = 1
+                    hero = o
+                world.add_object(o)
 
-    def reset_world(self):
-        assert self.MAP is not None
-        self.world = GridworldMap((len(self.MAP[0]), len(self.MAP)))
+    assert hero is not None, "Hero could not be loaded. Hero mark not in string map?"
+    return hero, world
 
-        hero_mark = self.MAP_DESC['HERO_MARK']
-        self.hero = None
-        for y, string in enumerate(self.MAP):
-            for x, point in enumerate(string):
-                if point == '.':
-                    continue
-                else:
-                    obj_name = self.MAP[y][x]
-                    # print((obj_name, start_x, start_y, end_x, end_y))
-                    assert obj_name in self.MAP_DESC["COLORS"], "Please define a color for object %s"%obj_name
-                    color = self.MAP_DESC["COLORS"][obj_name]
+def get_StrHeroEnv(str_map, colors, hero_mark, state_map=None, action_map=None, blocks=None, cls=HeroEnv):
+    """
+    Will define functions create_world and reset_world so that the string map is read only once
+    """
+    from copy import deepcopy
+    assert issubclass(cls, HeroEnv)
+    class StrHeroEnv(cls):
+        if state_map: STATE_MAP = state_map
+        if blocks: BLOCKS = blocks
+        if action_map: ACTION_MAP = action_map
 
-                    o = GameObject(name=point, pos=(x, y), rgb=color)
-                    if point == hero_mark:
-                        o.render_preference = 1
-                        self.hero = o
-                    self.world.add_object(o)
+        def create_world(self):
+            _, self.init_state_world = create_world_from_string_map(str_map, colors, hero_mark)
+            return deepcopy(self.init_state_world)
 
-        assert self.hero is not None, "Hero could not be loaded."
-        return self.hero
-
-    def create_world(self):
-        self.game_state['hero'] = self.reset_world()
-        return self.world
+        def reset_world(self):
+            self.world = deepcopy(self.init_state_world)
+            hero = self.world.get_objects_by_names(hero_mark)[0]
+            return hero
+    return StrHeroEnv

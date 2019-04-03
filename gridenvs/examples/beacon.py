@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import HeroGridEnv
-from gridenvs.gridworld_map import GridworldMap, GameObject
+from gridenvs.hero import HeroEnv
+from gridenvs.world import GridWorld, GridObject
 from gridenvs.utils import Color, Direction, Point
 import numpy as np
 
-class MoveToBeaconEnv(HeroGridEnv):
+class MoveToBeaconEnv(HeroEnv):
     STATE_MAP = {(0, 'B'): (0, 1.0, True, None)}
     ACTION_MAP = Direction.cardinal()
 
@@ -15,15 +15,15 @@ class MoveToBeaconEnv(HeroGridEnv):
         return self.world
 
     def reset_world(self):
-        self.world = GridworldMap((10, 10))
+        self.world = GridWorld((10, 10))
         quadrant_hero = np.random.randint(4)
         quadrant_beacon = np.random.choice(list(set(range(4)) - {quadrant_hero}))
         hero_pos = self.generate_random_position()
         beacon_pos = self.generate_random_position()
         while beacon_pos == hero_pos:
             beacon_pos = self.generate_random_position()
-        hero = self.world.add_object(GameObject('H', hero_pos, Color.green, render_preference=1))
-        beacon = self.world.add_object(GameObject('B', beacon_pos, Color.darkOrange))
+        hero = self.world.add_object(GridObject('H', hero_pos, Color.green, render_preference=1))
+        beacon = self.world.add_object(GridObject('B', beacon_pos, Color.darkOrange))
         return hero
 
     def generate_random_position(self):

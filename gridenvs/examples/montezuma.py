@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gridenvs.hero_gridworld import StrMapHeroGridEnv
+from gridenvs.hero import HeroEnv, create_world_from_string_map
 from gridenvs.utils import Direction, Color
+from copy import deepcopy
 
-class MontezumaEnv(StrMapHeroGridEnv):
+class MontezumaEnv(HeroEnv):
     MAP = [
         "..................................",
         ".................RH...............",
@@ -18,14 +19,12 @@ class MontezumaEnv(StrMapHeroGridEnv):
         "....R......................R......",
         "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
     ]
-    MAP_DESC = {
-        'COLORS': {'F': Color.blue,
-                   'H': Color.yellow,
-                   'G': Color.green,
-                   'R': Color.darkOrange}
-    }
+    HERO_MARK = 'H'
+    COLORS = {'F': Color.blue,
+              'H': Color.yellow,
+              'G': Color.green,
+              'R': Color.darkOrange}
     BLOCKS = {'F'}
-
     STATE_MAP = {(0, 'G'): (0, 1.0, True, None)}
     ACTION_MAP = Direction.all() + [None]
 
@@ -76,3 +75,12 @@ class MontezumaEnv(StrMapHeroGridEnv):
 
         self.last_direction = direction
         return super(MontezumaEnv, self).move_hero(direction)
+
+    def create_world(self):
+        _, self.init_state_world = create_world_from_string_map(self.MAP, self.COLORS, self.HERO_MARK)
+        return deepcopy(self.init_state_world)
+
+    def reset_world(self):
+        self.world = deepcopy(self.init_state_world)
+        hero = self.world.get_objects_by_names(self.HERO_MARK)[0]
+        return hero

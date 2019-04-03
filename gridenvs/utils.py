@@ -44,7 +44,12 @@ class Point:
 
     def __floordiv__(self, p):
         x, y = self._get_xy_or_num(p)
-        return Point(self.x/x, self.y/y)
+        return Point(self.x // x, self.y // y)
+
+    def __mod__(self, p):
+        x, y = self._get_xy_or_num(p)
+        return Point(self.x % x, self.y % y)
+        
 
     def __mul__(self, p):
         x, y = self._get_xy_or_num(p)
@@ -55,7 +60,7 @@ class Point:
 
     def __repr__(self):
         return "".join(["Point(", str(self.x), ",", str(self.y), ")"])
-
+    
 class Direction(Enum):
     #axis at top left, y is inverted
     N = Point(0,-1)
@@ -94,6 +99,10 @@ class Direction(Enum):
     @staticmethod
     def all():
         return list(Direction)
+
+    @staticmethod
+    def left_right():
+        return [Direction.E, Direction.W]
 
     def opposite(self):
         return Direction(-self.value)

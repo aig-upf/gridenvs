@@ -5,9 +5,15 @@ from copy import deepcopy
 import gym
 import numpy as np
 from gym.spaces import Discrete, Box
-import cv2
 
-class GridworldEnv(gym.Env):
+try:
+    import cv2
+    resize = lambda a, size: cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
+except ImportError:
+    from PIL import Image
+    resize = lambda a, size: np.array(Image.fromarray(a).resize(size, Image.NEAREST))
+
+class GridEnv(gym.Env):
     """
         This class should not be instantiated
         Models a game based on colored squares/rectangles in a 2D space
@@ -27,24 +33,26 @@ class GridworldEnv(gym.Env):
             raise NotImplementedError("Bad observation type.")
 
         self.action_space = Discrete(n_actions)
-        self.observation_space = Box(0, 255, shape=self.pixel_size+(3,))
+        self.observation_space = Box(0, 255, shape=self.pixel_size+(3,), dtype=np.uint8)
+        #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
 
     def create_world(self):
+        """
+        Child classes should implement this method.
+        :return: A GridWorld object
+        """
         raise NotImplementedError()
-
-    def get_colors(self):
-        return self.world.get_colors()
 
     def render_env(self, size, grid_state):
         a = grid_state.render()
-        a = cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
+        a = resize(a, size)
         return a
 
     def update_environment(self, action):
         raise NotImplementedError()
 
-    def _step(self, action):
+    def step(self, action):
         update_info = self.update_environment(action)
         obs = self.generate_observation(self.world)
         return (obs, *update_info)
@@ -60,15 +68,15 @@ class GridworldEnv(gym.Env):
         To be overriden by child classes.
         """
         return self.world
-    
+
     def _restore(self, internal_state):
         """
         To be overriden by child classes.
         """
         assert self.world.grid_size == internal_state.grid_size
         self.world = internal_state
-        
-    def _reset(self):
+
+    def reset(self):
         raise Exception ("Child class should implement this.")
 
     def render_gym(self, img, mode='human', close=False):
@@ -97,4 +105,3 @@ class GridworldEnv(gym.Env):
     def _seed(self, seed):
         np.random.seed(seed)
         return seed
-

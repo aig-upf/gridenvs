@@ -19,7 +19,7 @@ check_collision = {
     Direction.SW: lambda obj_bb, other_bb: obj_bb[1].y >= other_bb[0].y and obj_bb[0].x <= other_bb[1].x and obj_bb[1].y < other_bb[1].y and obj_bb[0].x > other_bb[0].x,
 }
 
-class GameObject:
+class GridObject:
     def __init__(self, name, pos, rgb=(255,0,0), render_preference=0):
         """
         :param name:
@@ -52,7 +52,7 @@ class GameObject:
         grid[self.pos.y][self.pos.x] = self.name[0].capitalize()
         return grid
 
-class GameObjectGroup(GameObject):
+class GridObjectGroup(GridObject):
     def __init__(self, name, objects, pos, render_preference=0):
         """
         It takes a list of objects and groups them together. The position of the group object is given by the pos
@@ -110,7 +110,7 @@ def rgb_to_hex(rgb):
 def get_render_ordered_objects(objects):
     return sorted(objects, key=lambda a: a.render_preference)
 
-class GridworldMap:
+class GridWorld:
     def __init__(self, grid_size):
         try:
             size_x, size_y = grid_size
@@ -156,21 +156,23 @@ class GridworldMap:
             res[obj.pos].append(obj)
         return dict(res)
 
-    def get_objects_by_names(name_or_names, objects):
+    def get_objects_by_names(self, name_or_names, objects=None):
         """
         :param names: Single name or list / tuple
         :return:
         """
+        if objects is None:
+            objects = self.objects
         if type(name_or_names) is str:
             name_or_names = (name_or_names,)
         return [o for o in objects if o.name in name_or_names]
 
-    def collisions(self, obj:GameObject, direction=None, objects=None, return_names=False):
+    def collisions(self, obj:GridObject, direction=None, objects=None, return_names=False):
         """
 
         :param obj:
         :param direction: None (check superposition of objects) or Direction
-        :param objects: None (all objects) or iterable of GameObjects or their names (strings)
+        :param objects: None (all objects) or iterable of GridObjects or their names (strings)
         :return: list of objects that are neighbors with obj at the specified direction
         """
         if objects is None:
@@ -188,7 +190,7 @@ class GridworldMap:
             neighbor_objs = list(set([obj.name for obj in neighbor_objs]))
         return neighbor_objs
 
-    def all_collisions(self, obj:GameObject, objects=None, return_names=False):
+    def all_collisions(self, obj:GridObject, objects=None, return_names=False):
         if objects is None:
             objects = self.objects # With all objects
 

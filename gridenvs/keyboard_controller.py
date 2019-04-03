@@ -67,7 +67,7 @@ class KeyboardController:
 
     def key_press(self, key, mod):
         if key==Key.esc: self.human_wants_restart = True
-        if key in self.controls.keys():
+        elif key in self.controls.keys():
             self.human_agent_action = self.controls[key]
         else:
             raise Exception("Key %d not in controls map %s"%(key, str(self.controls)))

@@ -1,27 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-from gridenvs.hero_gridworld import StrMapHeroGridEnv
+from gridenvs.utils import Color
+from gridenvs.hero import get_StrHeroEnv
 import numpy as np
+
 
 def key_door_env(init_map, key_reward, **kwargs):
     state_dict = {(1, 'D'): (1, 1.0, True, None)}
     for s in [0,1]: #possible states
         state_dict[(s, 'W')] = (0, -1.0, True, None)
-    
+
     kr = 1.0 if key_reward else 0.0
     state_dict[0,'K'] = (1, kr, False, lambda w,c: w.remove_object(c))
-        
-    from gridenvs.utils import Color
-    class KeyDoorEnv(StrMapHeroGridEnv):
-        MAP = init_map
-        STATE_MAP = state_dict
-        MAP_DESC = {
-            'COLORS': {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-        }
-        BLOCKS = {}
 
-    return KeyDoorEnv(**kwargs)
+    colors = {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
+
+    return get_StrHeroEnv(str_map=map,
+                          colors=colors,
+                          hero_mark='H',
+                          state_map=state_dict)(**kwargs)
 
 def key_door_walls(level = 2, key_reward = False, **kwargs):
     assert level in range(5)
@@ -46,11 +43,11 @@ def key_door_walls(level = 2, key_reward = False, **kwargs):
     if level >= 4:
         init_map[3, 3:] = 'W' #close entrance
         init_map[3, 6] = '.' #open 1 square in the middle
-        
+
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, **kwargs)
 
-        
+
 def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
     assert entrance in ('R', 'L')
     init_map = ["WWWWWWWWWW",
@@ -71,6 +68,6 @@ def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
     else:
         init_map[4:6, 6] = 'W'
         init_map[5, 5] = 'K'
-    
+
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, **kwargs)
