@@ -4,7 +4,7 @@
 from gridenvs.hero_gridworld import StrMapHeroGridEnv
 import numpy as np
 
-def key_door_env(init_map, key_reward, kwargs):
+def key_door_env(init_map, key_reward, **kwargs):
     state_dict = {(1, 'D'): (1, 1.0, True, None)}
     for s in [0,1]: #possible states
         state_dict[(s, 'W')] = (0, -1.0, True, None)
@@ -48,7 +48,7 @@ def key_door_walls(level = 2, key_reward = False, **kwargs):
         init_map[3, 6] = '.' #open 1 square in the middle
         
     init_map=["".join(row) for row in init_map]
-    return key_door_env(init_map, key_reward, kwargs)
+    return key_door_env(init_map, key_reward, **kwargs)
 
         
 def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
@@ -73,4 +73,4 @@ def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
         init_map[5, 5] = 'K'
     
     init_map=["".join(row) for row in init_map]
-    return key_door_env(init_map, key_reward, kwargs)
+    return key_door_env(init_map, key_reward, **kwargs)
