@@ -27,7 +27,6 @@ def key_door_env(init_map, key_reward, kwargs):
                           state_map=state_dict,
                           cls = ZonesEnv)(**kwargs)
 
-def key_door_walls(key_reward = False, **kwargs):
     maps = []
     
     maps.append(["WWWWWWWW",
@@ -151,7 +150,7 @@ def key_door_walls(key_reward = False, **kwargs):
                 "WH....KW",
                 "WWWWWWWW"])
     
-    init_map = maps[3]
+    init_map = maps[-2]
     init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
 
     init_map=["".join(row) for row in init_map]
