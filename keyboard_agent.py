@@ -47,19 +47,20 @@ class Controls:
     }
 
 class KeyboardController:
-    def __init__(self, env, controls={**Controls.Arrows, **Controls.KeyPad}, frameskip=1, obs_fn=lambda x:None):
+    def __init__(self, env, controls={**Controls.Arrows, **Controls.KeyPad}, render_size=(512, 512), frameskip=1, obs_fn=lambda x:None):
         self.env = env
-        self.obs_fn = obs_fn
         self.controls = controls
+        self.render_size = render_size
+        assert frameskip >= 1
+        self.frameskip = frameskip  # Use previous control decision for these many steps
+        self.obs_fn = obs_fn
         self.action_space = self.env.action_space
         self.env.reset()
-        self.env.render_scaled()
+        self.env.render(render_size)
         self.env.unwrapped.viewer.window.on_key_press = self.key_press
         self.env.unwrapped.viewer.window.on_key_release = self.key_release
         self.human_agent_action = -1
         self.human_wants_restart = False
-        assert frameskip >= 1
-        self.frameskip = frameskip  # Use previous control decision for these many steps
 
     def key_press(self, key, mod):
         if key==Key.esc: self.human_wants_restart = True
@@ -94,25 +95,16 @@ class KeyboardController:
                         print("End of episode", flush=True)
                         break
 
-                self.env.render_scaled()
+                self.env.render(self.render_size)
 
-
-def run_env(env_name, controls={**Controls.Arrows, **Controls.KeyPad}, frameskip=1, obs_fn = lambda x:None):
-    import gym
-    env = gym.make(env_name)
-
-    if not hasattr(env.action_space, 'n'):
-        raise Exception('Keyboard agent only supports discrete action spaces')
-
-    controller = KeyboardController(env, controls=controls, frameskip=frameskip, obs_fn=obs_fn)
-    try:
-        controller.run()
-    finally:
-        env.close()
 
 if __name__ == "__main__":
     import sys
     import gridenvs.examples  # load example gridworld environments
 
     env_name = 'GE_Montezuma-v0' if len(sys.argv)<2 else sys.argv[1] #default environment or input from command line
-    run_env(env_name)
+
+    import gym
+    env = gym.make(env_name)
+    controller = KeyboardController(env)
+    controller.run()

@@ -4,12 +4,6 @@ import gym
 import numpy as np
 from gym.spaces import Discrete, Box
 
-try:
-    import cv2
-    resize = lambda a, size: cv2.resize(a, size, interpolation=cv2.INTER_NEAREST)
-except ImportError:
-    from PIL import Image
-    resize = lambda a, size: np.array(Image.fromarray(a).resize(size, Image.NEAREST))
 
 class GridEnv(gym.Env):
     """
@@ -18,11 +12,9 @@ class GridEnv(gym.Env):
     """
 
     def __init__(self, n_actions, pixel_size):
-        self.viewer = None
         self.pixel_size = pixel_size
         self.action_space = Discrete(n_actions)
         self.observation_space = Box(0, 255, shape=self.pixel_size+(3,), dtype=np.uint8)
-        #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
 
     def get_char_matrix(self):
@@ -47,10 +39,10 @@ class GridEnv(gym.Env):
         return (obs, *update_info)
 
     def clone_state(self):
-        return deepcopy(self._clone()) #It is important to use deepcopy, that's why this wrapper function is needed
+        return deepcopy(self._clone())
 
     def restore_state(self, internal_state):
-        self._restore(deepcopy(internal_state)) #It is important to use deepcopy, that's why this wrapper function is needed
+        self._restore(deepcopy(internal_state))
 
     def _clone(self):
         """
@@ -68,30 +60,25 @@ class GridEnv(gym.Env):
     def reset(self):
         raise Exception ("Child class should implement this.")
 
-    def render_gym(self, img, mode='human', close=False):
-        # Source: https://github.com/openai/gym/blob/master/gym/envs/atari/atari_env.py
-        if close: #TODO: Sometimes the environment is closed just after being created (gym does that?) and raises an exception after calling _render(close=True). Check it out!
-            if hasattr(self, 'viewer') and self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-        if mode == 'rgb_array':
-            return img
-        elif mode == 'human':
-            from gym.envs.classic_control import rendering
-            if self.viewer is None:
-                self.viewer = rendering.SimpleImageViewer()
+    def render(self, size=None):
+        import cv2
+        img = self.generate_observation(self.world)
+        if size: img = cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
+        if len(img.shape) == 2: img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+        try:
             self.viewer.imshow(img)
+        except AttributeError:
+            from gym.envs.classic_control import rendering
+            self.viewer = rendering.SimpleImageViewer()
+            self.viewer.imshow(img)
+        return self.viewer.isopen
 
-    def _render(self, mode='human', close=False):
-        img = self.generate_observation(self.world)
-        self.render_gym(img, mode, close)
+    def __del__(self):
+        try:
+            self.viewer.close()
+        except AttributeError:
+            pass
 
-    def render_scaled(self, size=(512, 512), mode='human', close=False):
-        img = self.generate_observation(self.world)
-        img = resize(img, size)
-        self.render_gym(img, mode, close)
-
-    def _seed(self, seed):
-        np.random.seed(seed)
+    def seed(self, seed):
+        np.random.seed(seed) #TODO: use own random state instead of global one
         return seed
