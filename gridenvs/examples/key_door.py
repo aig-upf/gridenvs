@@ -1,25 +1,22 @@
-from gridenvs.utils import Color
+from gridenvs.utils import Color, Direction
 from gridenvs.hero import get_StrHeroEnv
-import numpy as np
 
 
-def key_door_env(init_map, key_reward, **kwargs):
-    state_dict = {(1, 'D'): (1, 1.0, True, None)}
-    for s in [0,1]: #possible states
-        state_dict[(s, 'W')] = (0, -1.0, True, None)
-
-    kr = 1.0 if key_reward else 0.0
-    state_dict[0,'K'] = (1, kr, False, lambda w,c: w.remove_object(c))
-
-    colors = {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-
+def key_door_env(init_map, key_reward=0.0, door_reward=1.0, wall_reward=-1.0, blocking_walls=False, action_map=None, **kwargs):
+    state_dict = {(0, 'K'): (1, key_reward, False, lambda w, c: w.remove_object(c)),  # pick key
+                  (1, 'D'): (1, door_reward, True, None),  # open door with key
+                  (0, 'W'): (0, wall_reward, True, None),  # wall collision
+                  (1, 'W'): (0, wall_reward, True, None)}
+    colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
     return get_StrHeroEnv(str_map=init_map,
                           colors=colors,
                           hero_mark='H',
-                          state_map=state_dict)(**kwargs)
+                          state_map=state_dict,
+                          action_map=action_map,
+                          blocks={'W'} if blocking_walls else None)(**kwargs)
 
-def key_door_walls(level = 2, key_reward = False, **kwargs):
-    assert level in range(5)
+
+def maze0(**kwargs):
     init_map = ["WWWWWWWWWW",
                 "WD......KW",
                 "W........W",
@@ -30,71 +27,92 @@ def key_door_walls(level = 2, key_reward = False, **kwargs):
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
-
-    if level >= 1:
-        init_map[6, 3:7] = 'W'
-    if level >= 2:
-        init_map[3, 6:] = 'W'
-    if level >= 3:
-        init_map[:4, 3] = 'W'
-    if level >= 4:
-        init_map[3, 3:] = 'W' #close entrance
-        init_map[3, 6] = '.' #open 1 square in the middle
-
-    init_map=["".join(row) for row in init_map]
-    return key_door_env(init_map, key_reward, **kwargs)
+    return key_door_env(init_map, **kwargs)
 
 
-def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
-    assert entrance in ('R', 'L')
+def maze1(**kwargs):
     init_map = ["WWWWWWWWWW",
-                "WD.......W",
+                "WD......KW",
                 "W........W",
-                "W..WWWW..W",
+                "W........W",
                 "W........W",
                 "W........W",
                 "W..WWWW..W",
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    init_map = np.array([list(init_map[i]) for i in range(len(init_map))])
-
-    if entrance == 'R':
-        init_map[4:6, 3] = 'W'
-        init_map[5, 4] = 'K'
-    else:
-        init_map[4:6, 6] = 'W'
-        init_map[5, 5] = 'K'
-
-    init_map=["".join(row) for row in init_map]
-    return key_door_env(init_map, key_reward, **kwargs)
+    return key_door_env(init_map, **kwargs)
 
 
-from gridenvs.hero import get_StrHeroEnv
-from gridenvs.utils import Color, Direction
+def maze2(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "WD......KW",
+                "W........W",
+                "W.....WWWW",
+                "W........W",
+                "W........W",
+                "W..WWWW..W",
+                "W........W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return key_door_env(init_map, **kwargs)
 
-def path_key_door_env(**kwargs):
-    state_map = {(0, 'K'): (1, 0.0, False, lambda w,c: w.remove_object(c)), #getting the key, state: 0->1
-                 (1, 'D'): (1, 1.0, True, None)} #reaching the goal
 
-    colors = {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-    blocks = {'W'}
-    map = ["..........",
-           "..........",
-           "..........",
-           "WWWWWWWWWW",
-           "WDH.....KW",
-           "WWWWWWWWWW",
-           "..........",
-           "..........",
-           "..........",
-           ".........."]
+def maze3(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "WD.W....KW",
+                "W..W.....W",
+                "W..W..WWWW",
+                "W........W",
+                "W........W",
+                "W..WWWW..W",
+                "W........W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return key_door_env(init_map, **kwargs)
+
+
+def mazeR(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "WD.......W",
+                "W........W",
+                "W..WWWW..W",
+                "W..W.....W",
+                "W..WK....W",
+                "W..WWWW..W",
+                "W........W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return key_door_env(init_map, **kwargs)
+
+
+def mazeL(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "WD.......W",
+                "W........W",
+                "W..WWWW..W",
+                "W.....W..W",
+                "W....KW..W",
+                "W..WWWW..W",
+                "W........W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return key_door_env(init_map, **kwargs)
+
+
+def corridor(**kwargs):
+    init_map = ["..........",
+                "..........",
+                "..........",
+                "WWWWWWWWWW",
+                "WDH.....KW",
+                "WWWWWWWWWW",
+                "..........",
+                "..........",
+                "..........",
+                ".........."]
     action_map = [Direction.W, Direction.E]
-
-    return get_StrHeroEnv(str_map=map,
-                          colors=colors,
-                          hero_mark='H',
-                          state_map=state_map,
-                          action_map=action_map,
-                          blocks=blocks)(**kwargs)
+    return key_door_env(init_map,
+                        blocking_walls=True,
+                        action_map=action_map,
+                        **kwargs)

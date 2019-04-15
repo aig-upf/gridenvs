@@ -5,7 +5,7 @@ from gym.envs.registration import register
 # =============================================================================
 register(id='GE_Freeway-v0',
          entry_point='gridenvs.examples.freeway:FreewayEnv',
-         kwargs={'size': 10, "obs_type": "image", "avg_cars": 0.1, "episode_end": "moves"},
+         kwargs={'size': 10, "avg_cars": 0.1, "episode_end": "moves"},
          nondeterministic=False)
 
 # =============================================================================
@@ -13,27 +13,26 @@ register(id='GE_Freeway-v0',
 # =============================================================================
 register(id='GE_Montezuma-v0',
          entry_point='gridenvs.examples.montezuma:MontezumaEnv',
-         # kwargs={"obs_type": "image"},
          nondeterministic=False)
 
 # =============================================================================
 # KEY-DOOR
 # =============================================================================
-for i in range(5):
-    register(id='GE_MazeKeyDoor-v%i' % i,
-             entry_point='gridenvs.examples.key_door:key_door_walls',
-             kwargs={"obs_type": "image", "level": i, "key_reward": False, 'max_moves': 200},
+for i in range(4):
+    register(id='GE_MazeKeyDoor-v%i'%i,
+             entry_point='gridenvs.examples.key_door:maze%i'%i,
+             kwargs={'max_moves': 200},
              nondeterministic=False)
 
-for entrance in ('R', 'L'):
-    register(id='GE_MazeKeyDoor%s-v0' % entrance,
-             entry_point='gridenvs.examples.key_door:key_door_entrance',
-             kwargs={"obs_type": "image", "entrance": entrance, "key_reward": False, 'max_moves': 200},
+for d in ['R', 'L']:
+    register(id='GE_MazeKeyDoor%c-v0'%d,
+             entry_point='gridenvs.examples.key_door:maze%c'%d,
+             kwargs={'max_moves': 200},
              nondeterministic=False)
 
 register(id='GE_PathKeyDoor-v0',
-        entry_point='gridenvs.examples.key_door:path_key_door_env',
-        kwargs={"obs_type": "image", 'max_moves': 200},
+        entry_point='gridenvs.examples.key_door:corridor',
+        kwargs={'max_moves': 200},
         nondeterministic=False)
 
 # =============================================================================
@@ -41,11 +40,11 @@ register(id='GE_PathKeyDoor-v0',
 # =============================================================================
 register(id='GE_MoveToBeacon-v0',
          entry_point='gridenvs.examples.beacon:MoveToBeaconEnv',
-         kwargs={"obs_type": "image", 'max_moves': 200},
+         kwargs={'max_moves': 200},
          nondeterministic=False)
 
 for i in range(9):
     register(id='GE_Beacon1D-v%i' % i,
              entry_point='gridenvs.examples.beacon:beacon_1D',
-             kwargs={"obs_type": "image", "level": i, 'max_moves': 200},
+             kwargs={"level": i, 'max_moves': 200},
              nondeterministic=False)
