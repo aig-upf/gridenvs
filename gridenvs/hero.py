@@ -13,36 +13,29 @@ class HeroEnv(GridEnv):
     BLOCKS = set()           # Names of objects that cannot be trespassed by the hero
 
     def __init__(self, max_moves=None, pixel_size=(84,84)):
-        self.game_state = {'done': True}
+        GridEnv.__init__(self, len(self.ACTION_MAP), pixel_size)
+        self.state['done'] = True
         self.max_moves = max_moves
         assert self.max_moves is None or self.max_moves > 0
-        GridEnv.__init__(self, len(self.ACTION_MAP), pixel_size)
-
-    def _clone(self):
-        return (self.world, self.game_state)
-
-    def _restore(self, internal_state):
-        self.world = internal_state[0]
-        self.game_state = internal_state[1]
 
     def reset(self):
-        self.game_state['hero'] = self.reset_world()
-        assert self.game_state['hero'] is not None, "Reset world should return hero object."
-        self.game_state['state_id'] = 0
-        self.game_state['moves'] = 0
-        self.game_state['done'] = False
-        return self.generate_observation(self.world)
+        self.state['hero'] = self.reset_world()
+        assert self.state['hero'] is not None, "Reset world should return hero object."
+        self.state['state_id'] = 0
+        self.state['moves'] = 0
+        self.state['done'] = False
+        return self.generate_observation(self.state["world"])
 
     def move(self, obj, direction):
         if direction:
             dx, dy = direction.value
             bb = obj.bounding_box
-            if bb[0].x + dx >= 0 and bb[1].x + dx <= self.world.grid_size.x and bb[0].y + dy >= 0 and bb[1].y + dy <= self.world.grid_size.y:
-                others = self.world.collisions(obj, direction)
+            if bb[0].x + dx >= 0 and bb[1].x + dx <= self.state["world"].grid_size.x and bb[0].y + dy >= 0 and bb[1].y + dy <= self.state["world"].grid_size.y:
+                others = self.state["world"].collisions(obj, direction)
                 if dx != 0 and dy != 0:
                     # diagonal move, also check cardinal positions before trying to move diagonally
-                    others.extend(self.world.collisions(obj, Direction(Point(dx, 0))))
-                    others.extend(self.world.collisions(obj, Direction(Point(0, dy)))) #we may have repeated objects
+                    others.extend(self.state["world"].collisions(obj, Direction(Point(dx, 0))))
+                    others.extend(self.state["world"].collisions(obj, Direction(Point(0, dy)))) #we may have repeated objects
 
                 for other in others:
                     if other.name in self.BLOCKS:
@@ -53,10 +46,10 @@ class HeroEnv(GridEnv):
         return True
 
     def move_hero(self, direction):
-        return self.move(self.game_state['hero'], direction)
+        return self.move(self.state['hero'], direction)
 
     def update_environment(self, action):
-        assert not self.game_state['done'], "The environment needs to be reset."
+        assert not self.state['done'], "The environment needs to be reset."
         if np.issubdtype(type(action), np.integer):
             if action >= len(self.ACTION_MAP):
                 raise Exception("Action index %s not in ACTION_MAP." % action)
@@ -67,30 +60,30 @@ class HeroEnv(GridEnv):
                 raise Exception("Action %s not in ACTION_MAP. ACTION_MAP: %s" % (action, str(self.ACTION_MAP)))
 
         self.move_hero(action)
-        self.game_state['moves'] += 1
-        r, self.game_state['done'], info_dict = self.update_world()
-        return r, self.game_state['done'], info_dict
+        self.state['moves'] += 1
+        r, self.state['done'], info_dict = self.update_world()
+        return r, self.state['done'], info_dict
 
     def update_world(self):
         reward = 0.
         end_episode = False
-        collisions = self.world.collisions(self.game_state['hero'])
+        collisions = self.state["world"].collisions(self.state['hero'])
         for collision in collisions:
             try:
                 # TODO: use neighbors instead of collisions
                 # state, collision_name -> new_state, reward, end_of_episode, collision_fn
-                self.game_state['state_id'], reward, end_episode, state_change_fn = self.STATE_MAP[(self.game_state['state_id'], collision.name)]
-                if state_change_fn: state_change_fn(self.world, collision)
+                self.state['state_id'], reward, end_episode, state_change_fn = self.STATE_MAP[(self.state['state_id'], collision.name)]
+                if state_change_fn: state_change_fn(self.state["world"], collision)
             except KeyError:
                 # if the pair (state, collision_name) does not exist -> new_state = state, reward = 0, end_of_episode = False, fn world, collision_obj = lambda:None
                 pass
 
-        if self.max_moves is not None and self.game_state['moves'] >= self.max_moves:
+        if self.max_moves is not None and self.state['moves'] >= self.max_moves:
             end_episode = True
         info = {
-            'state_id': self.game_state['state_id']
+            'state_id': self.state['state_id']
         }
-        info.update({'position': self.game_state['hero'].pos}) # This position information should only be used by the QAgent
+        info.update({'position': self.state['hero'].pos}) # This position information should only be used by the QAgent
         return reward, end_episode, info
 
     def create_world(self):
@@ -145,7 +138,7 @@ def get_StrHeroEnv(str_map, colors, hero_mark, state_map=None, action_map=None, 
             return deepcopy(self.init_state_world)
 
         def reset_world(self):
-            self.world = deepcopy(self.init_state_world)
-            hero = self.world.get_objects_by_names(hero_mark)[0]
+            self.state["world"] = deepcopy(self.init_state_world)
+            hero = self.state["world"].get_objects_by_names(hero_mark)[0]
             return hero
     return StrHeroEnv

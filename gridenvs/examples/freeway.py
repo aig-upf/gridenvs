@@ -22,48 +22,48 @@ class FreewayEnv(HeroEnv):
         super(FreewayEnv, self).__init__(max_moves, obs_type)
 
     def reset_hero(self, env, c):
-        self.game_state["hero"].pos = Point(int(self.size_x / 2), self.size_y - 1)
+        self.state["hero"].pos = Point(int(self.size_x / 2), self.size_y - 1)
 
     def reset_world(self):
-        self.world = GridWorld((self.size_x, self.size_y))
-        self.game_state["hero"] = GridObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Color.green) #frog
-        self.world.add_object(self.game_state["hero"])
+        self.state["world"] = GridWorld((self.size_x, self.size_y))
+        self.state["hero"] = GridObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Color.green) #frog
+        self.state["world"].add_object(self.state["hero"])
 
         for i in range(self.size_x):
-            self.world.add_object(GridObject('G', (i, 0), rgb=Color.blue)) #goal
+            self.state["world"].add_object(GridObject('G', (i, 0), rgb=Color.blue)) #goal
 
-        self.game_state["step_next_car"] = [None]*(self.size_y - 2)
+        self.state["step_next_car"] = [None]*(self.size_y - 2)
         for i in range(self.size_y - 2):
             current_car_pos = 0
             #fill grid with cars
             while True:
                 current_car_pos += self.get_relative_time() + 1
                 if current_car_pos < self.size_x:
-                    self.world.add_object(GridObject('C', (current_car_pos, i + 1), rgb=Color.red))
+                    self.state["world"].add_object(GridObject('C', (current_car_pos, i + 1), rgb=Color.red))
                 else:
                     break
             #get step at which a new car will be generated, for each row i
-            self.game_state["step_next_car"][i] = self.get_relative_time() + 1
+            self.state["step_next_car"][i] = self.get_relative_time() + 1
 
-        return self.game_state["hero"]
+        return self.state["hero"]
 
     def move_cars(self):
         # Move cars
         cars_to_remove = []
-        for o in self.world.objects:
+        for o in self.state["world"].objects:
             if o.name == 'C':
                 if not self.move(o, Direction.E): #if we cannot move, it's because we reached the right edge
                     cars_to_remove.append(o)
 
         # Remove the ones that were getting out of the grid
         for car in cars_to_remove:
-            self.world.objects.remove(car)
+            self.state["world"].objects.remove(car)
 
         # Add new cars
         for i in range(self.size_y - 2):
-            if self.game_state["step_next_car"][i] == self.game_state["moves"]:
-                self.world.add_object(GridObject('C', (0, i + 1), rgb=Color.red))
-                self.game_state["step_next_car"][i] = self.get_relative_time() + self.game_state["moves"] + 1
+            if self.state["step_next_car"][i] == self.state["moves"]:
+                self.state["world"].add_object(GridObject('C', (0, i + 1), rgb=Color.red))
+                self.state["step_next_car"][i] = self.get_relative_time() + self.state["moves"] + 1
 
     def get_relative_time(self):
         """

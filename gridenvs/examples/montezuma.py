@@ -33,14 +33,14 @@ class MontezumaEnv(HeroEnv):
         return super(MontezumaEnv, self)._reset()
 
     def update_world(self):
-        collisions = self.world.all_collisions(self.game_state["hero"], return_names=True)
+        collisions = self.state["world"].all_collisions(self.state["hero"], return_names=True)
         if self.going_to_die and 'F' in collisions[Direction.S] and not 'R' in collisions[None]:
             return 0, True, {}
 
         return super(MontezumaEnv, self).update_world()
 
     def move_hero(self, direction):
-        collisions = self.world.all_collisions(self.game_state["hero"], return_names=True)
+        collisions = self.state["world"].all_collisions(self.state["hero"], return_names=True)
 
         #Are we falling?
         if not 'F' in collisions[Direction.S] and not 'R' in collisions[None]:
@@ -79,6 +79,6 @@ class MontezumaEnv(HeroEnv):
         return deepcopy(self.init_state_world)
 
     def reset_world(self):
-        self.world = deepcopy(self.init_state_world)
-        hero = self.world.get_objects_by_names(self.HERO_MARK)[0]
+        self.state["world"] = deepcopy(self.init_state_world)
+        hero = self.state["world"].get_objects_by_names(self.HERO_MARK)[0]
         return hero
