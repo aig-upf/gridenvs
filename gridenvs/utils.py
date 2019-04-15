@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from enum import Enum
 
@@ -100,21 +98,18 @@ class Direction(Enum):
     def all():
         return list(Direction)
 
-    @staticmethod
-    def left_right():
-        return [Direction.E, Direction.W]
-
     def opposite(self):
         return Direction(-self.value)
 
 class Color:
     # MORE COLORS IN https://web.njit.edu/~kevin/rgb.txt.html
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+    gray = (155, 155, 155)
     red = (255, 0, 0)
     green = (0, 255, 0)
-    yellow = (255, 255, 0)
     blue = (0, 0, 255)
-    white = (155, 155, 155)
+    yellow = (255, 255, 0)
     darkOrange = (255, 140, 0)
-    black = (0, 0, 0)
     blueViolet = (138, 43, 226)
     darkTurquoise = (0, 206, 209)

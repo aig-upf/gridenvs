@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from copy import deepcopy
 import gym
@@ -16,26 +14,19 @@ except ImportError:
 class GridEnv(gym.Env):
     """
         This class should not be instantiated
-        Models a game based on colored squares/rectangles in a 2D space
+        It models a game based on colored squares/rectangles in a 2D space
     """
-    GAME_NAME = "Gridworld environment"
-    metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, n_actions, pixel_size=(84,84), obs_type="image"):
-        self.pixel_size = pixel_size
+    def __init__(self, n_actions, pixel_size):
         self.viewer = None
-
-        if obs_type == "image":
-            self.generate_observation = lambda grid_state: self.render_env(self.pixel_size, grid_state)
-        elif obs_type == "matrix":
-            self.generate_observation = lambda grid_state: grid_state.get_char_matrix().view(np.uint32)
-        else:
-            raise NotImplementedError("Bad observation type.")
-
+        self.pixel_size = pixel_size
         self.action_space = Discrete(n_actions)
         self.observation_space = Box(0, 255, shape=self.pixel_size+(3,), dtype=np.uint8)
         #The world is the grid which directly comes from the matrix representation of init_map (examples of gridenvs)
         self.world = self.create_world()
+
+    def get_char_matrix(self):
+        return self.world.get_char_matrix().view(np.uint32)
 
     def create_world(self):
         """
@@ -44,10 +35,8 @@ class GridEnv(gym.Env):
         """
         raise NotImplementedError()
 
-    def render_env(self, size, grid_state):
-        a = grid_state.render()
-        a = resize(a, size)
-        return a
+    def generate_observation(self, grid_state):
+        return grid_state.render()
 
     def update_environment(self, action):
         raise NotImplementedError()
@@ -99,7 +88,8 @@ class GridEnv(gym.Env):
         self.render_gym(img, mode, close)
 
     def render_scaled(self, size=(512, 512), mode='human', close=False):
-        img = self.render_env(size, self.world)
+        img = self.generate_observation(self.world)
+        img = resize(img, size)
         self.render_gym(img, mode, close)
 
     def _seed(self, seed):

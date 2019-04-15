@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from gridenvs.utils import Color
 from gridenvs.hero import get_StrHeroEnv
 import numpy as np
@@ -71,3 +69,32 @@ def key_door_entrance(entrance = 'R', key_reward = False, **kwargs):
 
     init_map=["".join(row) for row in init_map]
     return key_door_env(init_map, key_reward, **kwargs)
+
+
+from gridenvs.hero import get_StrHeroEnv
+from gridenvs.utils import Color, Direction
+
+def path_key_door_env(**kwargs):
+    state_map = {(0, 'K'): (1, 0.0, False, lambda w,c: w.remove_object(c)), #getting the key, state: 0->1
+                 (1, 'D'): (1, 1.0, True, None)} #reaching the goal
+
+    colors = {'W': Color.white, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
+    blocks = {'W'}
+    map = ["..........",
+           "..........",
+           "..........",
+           "WWWWWWWWWW",
+           "WDH.....KW",
+           "WWWWWWWWWW",
+           "..........",
+           "..........",
+           "..........",
+           ".........."]
+    action_map = [Direction.W, Direction.E]
+
+    return get_StrHeroEnv(str_map=map,
+                          colors=colors,
+                          hero_mark='H',
+                          state_map=state_map,
+                          action_map=action_map,
+                          blocks=blocks)(**kwargs)

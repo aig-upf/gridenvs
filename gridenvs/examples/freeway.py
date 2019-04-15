@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Dec  4 16:21:44 2017
-
-@author: mjunyent
-"""
 
 import numpy as np
 from gridenvs.hero import HeroEnv

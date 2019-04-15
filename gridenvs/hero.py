@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from gridenvs.env import GridEnv
 from gridenvs.world import GridWorld, GridObject
@@ -14,11 +12,11 @@ class HeroEnv(GridEnv):
     STATE_MAP = dict()       # Description of the state machine. TODO: describe
     BLOCKS = set()           # Names of objects that cannot be trespassed by the hero
 
-    def __init__(self, max_moves=None, obs_type="image"):
+    def __init__(self, max_moves=None, pixel_size=(84,84)):
         self.game_state = {'done': True}
         self.max_moves = max_moves
         assert self.max_moves is None or self.max_moves > 0
-        GridEnv.__init__(self, len(self.ACTION_MAP), obs_type=obs_type)
+        GridEnv.__init__(self, len(self.ACTION_MAP), pixel_size)
 
     def _clone(self):
         return (self.world, self.game_state)
