@@ -40,11 +40,5 @@ register(id='GE_PathKeyDoor-v0',
 # =============================================================================
 register(id='GE_MoveToBeacon-v0',
          entry_point='gridenvs.examples.beacon:MoveToBeaconEnv',
-         kwargs={'max_moves': 200},
+         kwargs={'size' : (10,10), 'max_moves': 200},
          nondeterministic=False)
-
-for i in range(9):
-    register(id='GE_Beacon1D-v%i' % i,
-             entry_point='gridenvs.examples.beacon:beacon_1D',
-             kwargs={"level": i, 'max_moves': 200},
-             nondeterministic=False)

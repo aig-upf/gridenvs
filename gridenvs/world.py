@@ -1,9 +1,8 @@
-"""
-    This file captures all the map logic and representation.
-"""
+
 import numpy as np
 from collections import defaultdict
 from gridenvs.utils import Point, Direction
+
 
 check_collision = {
     #direction is taken from the point of reference of the first parameter (e.g. second parameter is South/North/... of first parameter)
@@ -18,6 +17,7 @@ check_collision = {
     Direction.NW: lambda obj_bb, other_bb: obj_bb[0].y <= other_bb[1].y and obj_bb[0].x <= other_bb[1].x and obj_bb[0].y > other_bb[0].y and obj_bb[0].x > other_bb[0].x,
     Direction.SW: lambda obj_bb, other_bb: obj_bb[1].y >= other_bb[0].y and obj_bb[0].x <= other_bb[1].x and obj_bb[1].y < other_bb[1].y and obj_bb[0].x > other_bb[0].x,
 }
+
 
 class GridObject:
     def __init__(self, name, pos, rgb=(255,0,0), render_preference=0):
@@ -52,17 +52,14 @@ class GridObject:
         grid[self.pos.y][self.pos.x] = self.name[0].capitalize()
         return grid
 
+
 class GridObjectGroup(GridObject):
     def __init__(self, name, objects, pos, render_preference=0):
         """
         It takes a list of objects and groups them together. The position of the group object is given by the pos
-        parameter. The positions of all objects of the groupneed to be relative to this position: e.g. if group obj has
+        parameter. The positions of all objects of the group need to be relative to this position: e.g. if group obj has
         position (1,3), an object of this group with position (2,4) will be rendered at grid position (3,7). Render
         preferences of objects of a group will only be taken into account if two objects are at the same position.
-        :param name:
-        :param objects:
-        :param pos:
-        :param render_preference:
         """
         self.pos = Point(pos)
         self.name = name
@@ -104,11 +101,14 @@ class GridObjectGroup(GridObject):
             grid[self.pos.y + obj.pos.y][self.pos.x + obj.pos.x] = obj.name[0].capitalize()
         return grid
 
+
 def rgb_to_hex(rgb):
     return "0x" + hex(rgb[0])[2:].zfill(2) + hex(rgb[1])[2:].zfill(2) + hex(rgb[2])[2:].zfill(2)
 
+
 def get_render_ordered_objects(objects):
     return sorted(objects, key=lambda a: a.render_preference)
+
 
 class GridWorld:
     def __init__(self, grid_size):
@@ -117,7 +117,7 @@ class GridWorld:
         except TypeError:
             size_x = size_y = grid_size
         self.grid_size = Point(size_x, size_y)
-        self.reset()
+        self.objects = []
 
     def get_colors(self):
         grid = np.array([["0x000000"] * self.grid_size.y] * self.grid_size.x)
@@ -138,17 +138,11 @@ class GridWorld:
         return self.__str__()
 
     def add_object(self, game_object):
-        """
-        :return: reference to object
-        """
         self.objects.append(game_object)
         return game_object
 
     def remove_object(self, obj):
         self.objects.remove(obj)
-
-    def reset(self):
-        self.objects = []
 
     def get_objects_by_position(self):
         res = defaultdict(list)
@@ -156,58 +150,14 @@ class GridWorld:
             res[obj.pos].append(obj)
         return dict(res)
 
-    def get_objects_by_names(self, name_or_names, objects=None):
-        """
-        :param names: Single name or list / tuple
-        :return:
-        """
-        if objects is None:
-            objects = self.objects
+    def get_objects_by_names(self, name_or_names):
         if type(name_or_names) is str:
             name_or_names = (name_or_names,)
-        return [o for o in objects if o.name in name_or_names]
+        return [o for o in self.objects if o.name in name_or_names]
 
-    def collisions(self, obj:GridObject, direction=None, objects=None, return_names=False):
-        """
-
-        :param obj:
-        :param direction: None (check superposition of objects) or Direction
-        :param objects: None (all objects) or iterable of GridObjects or their names (strings)
-        :return: list of objects that are neighbors with obj at the specified direction
-        """
-        if objects is None:
-            objects = self.objects # With all objects
-
-        neighbor_objs = []
-        if len(objects) > 0:
-            if type(objects[0]) is str:
-                objects = self.get_objects_by_names(objects, self.objects)
-            for other in objects:
-                if obj.collides_with(other, direction):
-                    neighbor_objs.append(other)
-
-        if return_names:
-            neighbor_objs = list(set([obj.name for obj in neighbor_objs]))
-        return neighbor_objs
-
-    def all_collisions(self, obj:GridObject, objects=None, return_names=False):
-        if objects is None:
-            objects = self.objects # With all objects
-
-        neighbor_objs = dict([(d, []) for d in Direction.all() + [None]])
-        if len(objects) > 0:
-            if type(objects[0]) is str:
-                objects = self.get_objects_by_names(objects, self.objects)
-
-            for direction in Direction.all()+[None]:
-                for other in objects:
-                    if obj.collides_with(other, direction):
-                        neighbor_objs[direction].append(other)
-
-        if return_names:
-            for d in neighbor_objs.keys():
-                neighbor_objs[d] = list(set([obj.name for obj in neighbor_objs[d]]))
-        return neighbor_objs
+    def collision(self, obj:GridObject, direction=None):
+        # if direction is None, it checks superposition of objects
+        return [o for o in self.objects if obj.collides_with(o, direction)]
 
     def render(self):
         grid = np.zeros([self.grid_size.y, self.grid_size.x, 3], dtype=np.uint8)

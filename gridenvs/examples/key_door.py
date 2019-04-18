@@ -1,19 +1,37 @@
 from gridenvs.utils import Color, Direction
-from gridenvs.hero import get_StrHeroEnv
+from gridenvs.hero import HeroEnv, create_world_from_string_map
 
 
-def key_door_env(init_map, key_reward=0.0, door_reward=1.0, wall_reward=-1.0, blocking_walls=False, action_map=None, **kwargs):
-    state_dict = {(0, 'K'): (1, key_reward, False, lambda w, c: w.remove_object(c)),  # pick key
-                  (1, 'D'): (1, door_reward, True, None),  # open door with key
-                  (0, 'W'): (0, wall_reward, True, None),  # wall collision
-                  (1, 'W'): (0, wall_reward, True, None)}
-    colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-    return get_StrHeroEnv(str_map=init_map,
-                          colors=colors,
-                          hero_mark='H',
-                          state_map=state_dict,
-                          action_map=action_map,
-                          blocks={'W'} if blocking_walls else None)(**kwargs)
+class KeyDoorEnv(HeroEnv):
+    def __init__(self, str_map, key_reward=False, blocking_walls=False, **kwargs):
+        self.str_map = str_map
+        self.blocks = {'W'} if blocking_walls else {}
+        self.key_reward = 1.0 if key_reward else 0.0
+        super(KeyDoorEnv, self).__init__(**kwargs)
+
+    def _state(self):
+        colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
+        gridworld, hero = create_world_from_string_map(self.str_map, colors, hero_mark='H')
+        return {"world": gridworld,
+                "hero": hero,
+                "blocks": self.blocks,
+                "has_key" : False}
+
+    def _update(self):
+        collisions = self.state["world"].collision(self.state['hero'], direction=None)  # check superposition of objs
+        if len(collisions) > 0:
+            assert len(collisions) == 1
+            o = collisions[0]
+
+            if o.name == 'W':
+                return -1.0, True, {}
+            elif o.name == 'D' and self.state["has_key"]:
+                return 1.0, True, {}
+            elif o.name == 'K':
+                self.state["has_key"] = True
+                self.state["world"].remove_object(o)
+                return self.key_reward, False, {}
+        return 0.0, False, {}
 
 
 def maze0(**kwargs):
@@ -27,7 +45,7 @@ def maze0(**kwargs):
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    return key_door_env(init_map, **kwargs)
+    return KeyDoorEnv(init_map, **kwargs)
 
 
 def maze1(**kwargs):
@@ -41,7 +59,7 @@ def maze1(**kwargs):
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    return key_door_env(init_map, **kwargs)
+    return KeyDoorEnv(init_map, **kwargs)
 
 
 def maze2(**kwargs):
@@ -55,7 +73,7 @@ def maze2(**kwargs):
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    return key_door_env(init_map, **kwargs)
+    return KeyDoorEnv(init_map, **kwargs)
 
 
 def maze3(**kwargs):
@@ -69,7 +87,7 @@ def maze3(**kwargs):
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    return key_door_env(init_map, **kwargs)
+    return KeyDoorEnv(init_map, **kwargs)
 
 
 def mazeR(**kwargs):
@@ -83,7 +101,7 @@ def mazeR(**kwargs):
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    return key_door_env(init_map, **kwargs)
+    return KeyDoorEnv(init_map, **kwargs)
 
 
 def mazeL(**kwargs):
@@ -97,7 +115,7 @@ def mazeL(**kwargs):
                 "W........W",
                 "WH.......W",
                 "WWWWWWWWWW"]
-    return key_door_env(init_map, **kwargs)
+    return KeyDoorEnv(init_map, **kwargs)
 
 
 def corridor(**kwargs):
@@ -111,8 +129,7 @@ def corridor(**kwargs):
                 "..........",
                 "..........",
                 ".........."]
-    action_map = [Direction.W, Direction.E]
-    return key_door_env(init_map,
-                        blocking_walls=True,
-                        action_map=action_map,
-                        **kwargs)
+    return KeyDoorEnv(init_map,
+                      blocking_walls=True,
+                      actions=[Direction.W, Direction.E],
+                      **kwargs)
