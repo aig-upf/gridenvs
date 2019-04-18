@@ -17,16 +17,16 @@ class GridEnv(gym.Env):
         self.action_space = Discrete(len(actions))
         self.observation_space = Box(0, 255, shape=self.pixel_size+(3,), dtype=np.uint8)
         self.state = self.new_state()
+        self.state["done"] = True
         self.init_state = deepcopy(self.state)
         assert "world" in self.state.keys(), "State should contain a GridWorld object"
-        self._done = True
 
     def seed(self, seed):
         np.random.seed(seed) #TODO: use own random state instead of global one
         return seed
 
     def step(self, action):
-        assert not self._done, "The environment needs to be reset."
+        assert not self.state["done"], "The environment needs to be reset."
 
         if np.issubdtype(type(action), np.integer):
             assert action < len(self.actions), "Action index %i exceeds the number of actions (%i)." % (action, len(self.actions))
@@ -34,9 +34,10 @@ class GridEnv(gym.Env):
         else:
             assert action in self.actions, "Action %s not in actions list. Possible actions: %s" % (action, str(self.actions))
 
-        r, self._done, info = self.update_environment(action)
+        r, done, info = self.update_environment(action)
         self._obs = self.state["world"].render()
-        return (self._obs, r, self._done, info)
+        self.state["done"] = done
+        return (self._obs, r, done, info)
 
     def reset(self):
         if self.reset_to_new_state:
@@ -44,7 +45,7 @@ class GridEnv(gym.Env):
         else:
             self.state = deepcopy(self.init_state)
         self._obs = self.state["world"].render()
-        self._done = False
+        self.state["done"] = False
         return self._obs
 
     def render(self, size=None):

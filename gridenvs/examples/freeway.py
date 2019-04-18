@@ -7,7 +7,7 @@ from gridenvs.world import GridWorld, GridObject
 class FreewayEnv(HeroEnv):
     def __init__(self, size, avg_cars = 0.2, episode_end= "moves", **kwargs):
         assert episode_end in ("moves", "collision")
-        max_moves = None if episode_end == "collision" else 10
+        max_moves = None if episode_end == "collision" else 100
         self.end_episode = episode_end
 
         assert size >= 3  # At least one row for starting point, one for goal and one for cars.
