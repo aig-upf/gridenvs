@@ -1,63 +1,38 @@
-
+import numpy as np
 from enum import Enum
 
-class Point:
-    def __init__(self, x, y=None):
-        if y is None:
-            assert isinstance(x, (tuple, list, Point))
-            self.x, self.y = x
-        else:
-            self.x = x
-            self.y = y
 
-    def __iter__(self):
-        yield self.x
-        yield self.y
+class Point(np.ndarray):
+    def __new__(cls, x, y=None):
+        if y is None:
+            a = np.array(x, dtype=np.int)
+            assert a.shape == (2,), "Create a Point with either two integers or a tuple-like structure of size 2 e.g. (1,2)"
+        else:
+            a = np.array([x, y], dtype=np.int)
+        return super(Point, cls).__new__(cls, shape=(2,), dtype=np.int, buffer=a.data)
 
     def __hash__(self):
-        return tuple.__hash__((self.x, self.y))
+        return hash(tuple(self))
 
-    def __eq__(self, p):
-        return p.x == self.x and p.y == self.y
+    def __eq__(self, other):
+        return np.array_equal(self, other)
 
-    @staticmethod
-    def _get_xy_or_num(p):
-        try:
-            x,y = p
-        except TypeError:
-            x = y = p
-        return x,y
+    @property
+    def x(self):
+        return self[0]
 
-    def __add__(self, p):
-        x,y = self._get_xy_or_num(p)
-        return Point(self.x + x, self.y + y)
+    @x.setter
+    def x(self, value):
+        self[0] = value
 
-    def __sub__(self, p):
-        x, y = self._get_xy_or_num(p)
-        return Point(self.x - x, self.y - y)
+    @property
+    def y(self):
+        return self[1]
 
-    def __truediv__(self, p):
-        x, y = self._get_xy_or_num(p)
-        return Point(self.x/x, self.y/y)
+    @y.setter
+    def y(self, value):
+        self[1] = value
 
-    def __floordiv__(self, p):
-        x, y = self._get_xy_or_num(p)
-        return Point(self.x // x, self.y // y)
-
-    def __mod__(self, p):
-        x, y = self._get_xy_or_num(p)
-        return Point(self.x % x, self.y % y)
-        
-
-    def __mul__(self, p):
-        x, y = self._get_xy_or_num(p)
-        return Point(self.x*x, self.y*y)
-
-    def __neg__(self):
-        return Point(-self.x, -self.y)
-
-    def __repr__(self):
-        return "".join(["Point(", str(self.x), ",", str(self.y), ")"])
     
 class Direction(Enum):
     #axis at top left, y is inverted

@@ -33,7 +33,7 @@ class HeroEnv(GridEnv):
             dx, dy = direction.value
             bb = obj.bounding_box
             if bb[0].x + dx >= 0 and bb[1].x + dx <= self.state["world"].grid_size.x \
-                    and bb[0].y + dy >= 0 and bb[1].y + dy <= self.state["world"].grid_size.y:  # TODO: change to point operations
+                    and bb[0].y + dy >= 0 and bb[1].y + dy <= self.state["world"].grid_size.y:
                 others = self.state["world"].collision(obj, direction)
                 if dx != 0 and dy != 0:
                     # diagonal move, also check cardinal positions before trying to move diagonally

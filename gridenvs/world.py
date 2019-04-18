@@ -7,15 +7,15 @@ from gridenvs.utils import Point, Direction
 check_collision = {
     #direction is taken from the point of reference of the first parameter (e.g. second parameter is South/North/... of first parameter)
     #direction = None checks superposition
-    None: lambda obj_bb, other_bb: obj_bb[0].x < other_bb[1].x and obj_bb[1].x > other_bb[0].x and obj_bb[0].y < other_bb[1].y and obj_bb[1].y > other_bb[0].y,
-    Direction.N: lambda obj_bb, other_bb: obj_bb[0].y == other_bb[1].y and obj_bb[0].x < other_bb[1].x and obj_bb[1].x > other_bb[0].x,
-    Direction.S: lambda obj_bb, other_bb: obj_bb[1].y == other_bb[0].y and obj_bb[0].x < other_bb[1].x and obj_bb[1].x > other_bb[0].x,
-    Direction.E: lambda obj_bb, other_bb: obj_bb[1].x == other_bb[0].x and obj_bb[0].y < other_bb[1].y and obj_bb[1].y > other_bb[0].y,
-    Direction.W: lambda obj_bb, other_bb: obj_bb[0].x == other_bb[1].x and obj_bb[0].y < other_bb[1].y and obj_bb[1].y > other_bb[0].y,
-    Direction.NE: lambda obj_bb, other_bb: obj_bb[0].y <= other_bb[1].y and obj_bb[1].x >= other_bb[0].x and obj_bb[0].y > other_bb[0].y and obj_bb[1].x < other_bb[1].x,
-    Direction.SE: lambda obj_bb, other_bb: obj_bb[1].y >= other_bb[0].y and obj_bb[1].x >= other_bb[0].x and obj_bb[1].y < other_bb[1].y and obj_bb[1].x < other_bb[1].x,
-    Direction.NW: lambda obj_bb, other_bb: obj_bb[0].y <= other_bb[1].y and obj_bb[0].x <= other_bb[1].x and obj_bb[0].y > other_bb[0].y and obj_bb[0].x > other_bb[0].x,
-    Direction.SW: lambda obj_bb, other_bb: obj_bb[1].y >= other_bb[0].y and obj_bb[0].x <= other_bb[1].x and obj_bb[1].y < other_bb[1].y and obj_bb[0].x > other_bb[0].x,
+    None: lambda bb1, bb2: bb1[0].x < bb2[1].x and bb1[1].x > bb2[0].x and bb1[0].y < bb2[1].y and bb1[1].y > bb2[0].y,
+    Direction.N: lambda bb1, bb2: bb1[0].y == bb2[1].y and bb1[0].x < bb2[1].x and bb1[1].x > bb2[0].x,
+    Direction.S: lambda bb1, bb2: bb1[1].y == bb2[0].y and bb1[0].x < bb2[1].x and bb1[1].x > bb2[0].x,
+    Direction.E: lambda bb1, bb2: bb1[1].x == bb2[0].x and bb1[0].y < bb2[1].y and bb1[1].y > bb2[0].y,
+    Direction.W: lambda bb1, bb2: bb1[0].x == bb2[1].x and bb1[0].y < bb2[1].y and bb1[1].y > bb2[0].y,
+    Direction.NE: lambda bb1, bb2: bb1[0].y <= bb2[1].y and bb1[1].x >= bb2[0].x and bb1[0].y > bb2[0].y and bb1[1].x < bb2[1].x,
+    Direction.SE: lambda bb1, bb2: bb1[1].y >= bb2[0].y and bb1[1].x >= bb2[0].x and bb1[1].y < bb2[1].y and bb1[1].x < bb2[1].x,
+    Direction.NW: lambda bb1, bb2: bb1[0].y <= bb2[1].y and bb1[0].x <= bb2[1].x and bb1[0].y > bb2[0].y and bb1[0].x > bb2[0].x,
+    Direction.SW: lambda bb1, bb2: bb1[1].y >= bb2[0].y and bb1[0].x <= bb2[1].x and bb1[1].y < bb2[1].y and bb1[0].x > bb2[0].x,
 }
 
 
