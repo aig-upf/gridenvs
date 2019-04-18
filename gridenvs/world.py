@@ -1,5 +1,6 @@
 
 import numpy as np
+import cv2
 from collections import defaultdict
 from gridenvs.utils import Point, Direction
 
@@ -159,8 +160,9 @@ class GridWorld:
         # if direction is None, it checks superposition of objects
         return [o for o in self.objects if obj.collides_with(o, direction)]
 
-    def render(self):
+    def render(self, size=None):
         grid = np.zeros([self.grid_size.y, self.grid_size.x, 3], dtype=np.uint8)
         for obj in get_render_ordered_objects(self.objects):
             grid = obj.render_rgb(grid)
+        if size: grid = cv2.resize(grid, size, interpolation=cv2.INTER_NEAREST)
         return grid

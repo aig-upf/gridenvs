@@ -35,7 +35,7 @@ class GridEnv(gym.Env):
             assert action in self.actions, "Action %s not in actions list. Possible actions: %s" % (action, str(self.actions))
 
         r, done, info = self.update_environment(action)
-        self._obs = self.state["world"].render()
+        self._obs = self.state["world"].render(size=self.pixel_size)
         self.state["done"] = done
         return (self._obs, r, done, info)
 
@@ -44,7 +44,7 @@ class GridEnv(gym.Env):
             self.state = self.new_state()
         else:
             self.state = deepcopy(self.init_state)
-        self._obs = self.state["world"].render()
+        self._obs = self.state["world"].render(size=self.pixel_size)
         self.state["done"] = False
         return self._obs
 
