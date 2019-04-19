@@ -17,6 +17,8 @@ class HeroEnv(GridEnv):
         state = self._state()
         assert all(k in state.keys() for k in ['world', 'hero'])
         state.update({'moves': 0})
+        if "blocks" in state.keys():
+            assert all(isinstance(b, GridObject) for b in state["blocks"]), "Blocks need to be grid objects"
         return state
 
     def update_environment(self, action):

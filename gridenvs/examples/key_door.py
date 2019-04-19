@@ -5,16 +5,20 @@ from gridenvs.hero import HeroEnv, create_world_from_string_map
 class KeyDoorEnv(HeroEnv):
     def __init__(self, str_map, key_reward=False, blocking_walls=False, **kwargs):
         self.str_map = str_map
-        self.blocks = {'W'} if blocking_walls else {}
+        self.blocking_walls = blocking_walls
         self.key_reward = 1.0 if key_reward else 0.0
         super(KeyDoorEnv, self).__init__(**kwargs)
 
     def _state(self):
         colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
         gridworld, hero = create_world_from_string_map(self.str_map, colors, hero_mark='H')
+        if self.blocking_walls:
+            blocks = gridworld.get_objects_by_names(['W'])
+        else:
+            blocks = []
         return {"world": gridworld,
                 "hero": hero,
-                "blocks": self.blocks,
+                "blocks": blocks,
                 "has_key" : False}
 
     def _update(self):
