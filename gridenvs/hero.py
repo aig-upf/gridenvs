@@ -27,7 +27,7 @@ class HeroEnv(GridEnv):
         self.state['moves'] += 1
         if self.max_moves is not None and self.state['moves'] >= self.max_moves:
             done = True
-        info.update({'position': self.state['hero'].pos})
+        info.update({'position': tuple(self.state['hero'].pos)})
         return r, done, info
 
     def move(self, obj, direction):
