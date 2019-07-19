@@ -50,7 +50,10 @@ class GridEnv(gym.Env):
 
     def render(self, size=None):
         import cv2
-        img = self._obs
+        try:
+            img = self._obs
+        except AttributeError:
+            raise Exception("Error: No buffered image present. Are you calling render() before reset()? Or maybe you overrode the step function?")
         if size: img = cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
         if len(img.shape) == 2: img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
         try:
