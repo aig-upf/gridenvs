@@ -21,7 +21,7 @@ register(id='GE_Montezuma-v0',
 for i in range(4):
     register(id='GE_MazeKeyDoor-v%i'%i,
              entry_point='gridenvs.examples.key_door:maze%i'%i,
-             kwargs={'max_moves': 200},
+             kwargs={'max_moves': 200, 'key_reward': True},
              nondeterministic=False)
 
 for d in ['R', 'L']:
