@@ -35,6 +35,12 @@ register(id='GE_PathKeyDoor-v0',
         kwargs={'max_moves': 200},
         nondeterministic=False)
 
+for i in range(2):
+    register(id='GE_MazeKeyDoorXL-v%i'%i,
+             entry_point='gridenvs.examples.key_door:mazeXL%i'%i,
+             kwargs={'max_moves': 200, 'key_reward': True},
+             nondeterministic=False)
+
 # =============================================================================
 # NAVIGATE TO BEACON
 # =============================================================================
