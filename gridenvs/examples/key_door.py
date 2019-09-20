@@ -139,7 +139,7 @@ def corridor(**kwargs):
                       **kwargs)
 
 
-def mazeXL1(**kwargs):
+def mazeXL0(**kwargs):
     init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
                 "W......W......W........W.......W",
                 "W......W......W........W.......W",
@@ -174,7 +174,7 @@ def mazeXL1(**kwargs):
     return KeyDoorEnv(init_map, **kwargs)
 
 
-def mazeXL2(**kwargs):
+def mazeXL1(**kwargs):
 
     init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
                 "W......W......W........W.......W",
