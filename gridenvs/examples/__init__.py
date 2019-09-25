@@ -38,7 +38,7 @@ register(id='GE_PathKeyDoor-v0',
 for i in range(2):
     register(id='GE_MazeKeyDoorXL-v%i'%i,
              entry_point='gridenvs.examples.key_door:mazeXL%i'%i,
-             kwargs={'max_moves': 200, 'key_reward': True},
+             kwargs={'max_moves': 1500, 'key_reward': True},
              nondeterministic=False)
 
 # =============================================================================
