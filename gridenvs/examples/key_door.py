@@ -3,15 +3,20 @@ from gridenvs.hero import HeroEnv, create_world_from_string_map
 
 
 class KeyDoorEnv(HeroEnv):
-    def __init__(self, str_map, key_reward=False, blocking_walls=False, **kwargs):
+    def __init__(self,
+                 str_map,
+                 colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black},
+                 key_reward=False,
+                 blocking_walls=False,
+                 **kwargs):
         self.str_map = str_map
+        self.colors = colors
         self.blocking_walls = blocking_walls
         self.key_reward = 1.0 if key_reward else 0.0
         super(KeyDoorEnv, self).__init__(**kwargs)
 
     def _state(self):
-        colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-        gridworld, hero = create_world_from_string_map(self.str_map, colors, hero_mark='H')
+        gridworld, hero = create_world_from_string_map(self.str_map, self.colors, hero_mark='H')
         if self.blocking_walls:
             blocks = gridworld.get_objects_by_names(['W'])
         else:
@@ -23,10 +28,7 @@ class KeyDoorEnv(HeroEnv):
 
     def _update(self):
         collisions = self.state["world"].collision(self.state['hero'], direction=None)  # check superposition of objs
-        if len(collisions) > 0:
-            assert len(collisions) == 1
-            o = collisions[0]
-
+        for o in collisions:
             if o.name == 'W':
                 return -1.0, True, {}
             elif o.name == 'D' and self.state["has_key"]:
