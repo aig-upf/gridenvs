@@ -41,13 +41,13 @@ for i in range(2):
              kwargs={'max_moves': 1500, 'key_reward': True},
              nondeterministic=False)
 
-for i in (10,20,30):
+for i in (10,18,30):
     register(id='GE_MazeKeyDoor-v%i'%i,
          entry_point='gridenvs.examples.key_door:maze%ix%i'%(i, i),
          kwargs={'max_moves': 1000, 'key_reward': True},
          nondeterministic=False)
 
-for i in (10,20,30):
+for i in (10,18,30):
     for j in (1,2,3):
         register(id='GE_MazeKeyDoor%ikey%i-v0'%(i, j),
              entry_point='gridenvs.examples.key_door:maze%ix%ikey%i'%(i, i, j),
