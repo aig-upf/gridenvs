@@ -3,15 +3,19 @@ from gridenvs.hero import HeroEnv, create_world_from_string_map
 
 
 class KeyDoorEnv(HeroEnv):
-    def __init__(self, str_map, key_reward=False, blocking_walls=False, **kwargs):
+    color1 = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
+    color2 = {'W': Color.green, 'D': Color.gray, 'K': Color.blue, 'H': Color.red, '.': Color.black}
+    color3 = {'W': Color.blue, 'D': Color.red, 'K': Color.green, 'H': Color.gray, '.': Color.green}
+
+    def __init__(self, str_map, key_reward=False, blocking_walls=False, color = color1, **kwargs):
         self.str_map = str_map
         self.blocking_walls = blocking_walls
         self.key_reward = 1.0 if key_reward else 0.0
+        self.colors = color
         super(KeyDoorEnv, self).__init__(**kwargs)
 
     def _state(self):
-        colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-        gridworld, hero = create_world_from_string_map(self.str_map, colors, hero_mark='H')
+        gridworld, hero = create_world_from_string_map(self.str_map, self.colors, hero_mark='H')
         if self.blocking_walls:
             blocks = gridworld.get_objects_by_names(['W'])
         else:
@@ -263,6 +267,46 @@ def maze10x10key3(**kwargs):
                 "WWWWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
 
+def maze10x10key1color1(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "WD......KW",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color1, **kwargs)
+
+def maze10x10key2color2(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "WD.......W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "WH......KW",
+                "WWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def maze10x10key3color3(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "WD.......W",
+                "W........W",
+                "W........W",
+                "W.....K..W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color3, **kwargs)
+
 def maze18x18(**kwargs):
     init_map = ["WWWWWWWWWWWWWWWWWW",
                 "WD..............KW",
@@ -346,6 +390,69 @@ def maze18x18key3(**kwargs):
                 "WH...............W",
                 "WWWWWWWWWWWWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
+
+def maze18x18key1color1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWWWW",
+                "WD..............KW",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "WH...............W",
+                "WWWWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color1,  **kwargs)
+
+def maze18x18key2color2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWWWW",
+                "WD...............W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "WH..............KW",
+                "WWWWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def maze18x18key3color3(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWWWW",
+                "WD...............W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W...........K....W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "W................W",
+                "WH...............W",
+                "WWWWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color3, **kwargs)
 
 def maze30x30(**kwargs):
     init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
