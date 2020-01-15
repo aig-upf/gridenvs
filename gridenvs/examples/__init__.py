@@ -68,6 +68,13 @@ for i in (10,18,30):
              kwargs={'max_moves': 1000, 'key_reward': True},
              nondeterministic=False)
 
+for i in [10]:
+    for j in (1,2,3):
+        register(id='GE_MazeKeyDoor%ipick_up_objects1color%i-v0'%(i, j),
+             entry_point='gridenvs.examples.key_door:maze%ix%ipick_up_objects1color%i'%(i, i, j),
+             kwargs={'max_moves': 1000, 'key_reward': True},
+             nondeterministic=False)
+
 
 
 # =============================================================================

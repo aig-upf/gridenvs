@@ -7,11 +7,14 @@ class KeyDoorEnv(HeroEnv):
     color2 = {'W': Color.green, 'D': Color.gray, 'K': Color.blue, 'H': Color.red, '.': Color.black}
     color3 = {'W': Color.blue, 'D': Color.red, 'K': Color.green, 'H': Color.gray, '.': Color.green}
 
-    def __init__(self, str_map, key_reward=False, blocking_walls=False, color = color1, **kwargs):
+    def __init__(self, str_map, key_reward=False, blocking_walls=False, color = color1, total_number_of_keys=None, **kwargs):
         self.str_map = str_map
         self.blocking_walls = blocking_walls
         self.key_reward = 1.0 if key_reward else 0.0
         self.colors = color
+        self.total_number_of_keys = total_number_of_keys
+        self.number_of_keys_collected = 0
+        self.collect_keys_env_option = False
         super(KeyDoorEnv, self).__init__(**kwargs)
 
     def _state(self):
@@ -32,13 +35,25 @@ class KeyDoorEnv(HeroEnv):
             o = collisions[0]
 
             if o.name == 'W':
+                self.number_of_keys_collected = 0
                 return -1.0, True, {}
-            elif o.name == 'D' and self.state["has_key"]:
+            elif o.name == 'D' and self.state["has_key"] and self.total_number_of_keys is None:
+                self.number_of_keys_collected = 0
                 return 1.0, True, {}
             elif o.name == 'K':
                 self.state["has_key"] = True
                 self.state["world"].remove_object(o)
-                return self.key_reward, False, {}
+                self.number_of_keys_collected += 1
+
+                if self.total_number_of_keys is not None:
+                    if self.number_of_keys_collected == self.total_number_of_keys:
+                        self.number_of_keys_collected = 0
+                        return self.key_reward, True, {}
+                    else:
+                        return self.key_reward, False, {}
+
+                else:
+                    return self.key_reward, False, {}
         return 0.0, False, {}
 
 
@@ -345,6 +360,45 @@ def maze10x10key3color3(**kwargs):
                 "WH.......W",
                 "WWWWWWWWWW"]
     return KeyDoorEnv(init_map, color = KeyDoorEnv.color3, **kwargs)
+
+def maze10x10pick_up_objects1color1(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "W........W",
+                "W........W",
+                "W.K....K.W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W.K....K.W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color1, total_number_of_keys=4, **kwargs)
+
+def maze10x10pick_up_objects1color2(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "W........W",
+                "W........W",
+                "W.K....K.W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W.K....K.W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, total_number_of_keys=4, **kwargs)
+
+def maze10x10pick_up_objects1color3(**kwargs):
+    init_map = ["WWWWWWWWWW",
+                "W........W",
+                "W........W",
+                "W.K....K.W",
+                "W........W",
+                "W........W",
+                "W........W",
+                "W.K....K.W",
+                "WH.......W",
+                "WWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color3, total_number_of_keys=4, **kwargs)
 
 def maze18x18(**kwargs):
     init_map = ["WWWWWWWWWWWWWWWWWW",
