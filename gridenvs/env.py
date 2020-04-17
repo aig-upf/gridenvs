@@ -2,7 +2,9 @@
 from copy import deepcopy
 import gym
 import numpy as np
+import cv2
 from gym.spaces import Discrete, Box
+
 
 class GridEnv(gym.Env):
     """
@@ -44,18 +46,14 @@ class GridEnv(gym.Env):
             self.state = self.new_state()
         else:
             self.state = deepcopy(self.init_state)
-        self._obs = self.state["world"].render(size=self.pixel_size)
+        obs = self.state["world"].render(size=self.pixel_size)
         self.state["done"] = False
-        return self._obs
+        return obs
 
     def render(self, size=None):
-        import cv2
-        try:
-            img = self._obs
-        except AttributeError:
-            raise Exception("Error: No buffered image present. Are you calling render() before reset()? Or maybe you overrode the step function?")
-        if size: img = cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
-        if len(img.shape) == 2: img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+        if size is None:
+            size = self.pixel_size
+        img = self.state["world"].render(size=size)
         try:
             self.viewer.imshow(img)
         except AttributeError:

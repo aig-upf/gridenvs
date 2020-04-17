@@ -164,5 +164,5 @@ class GridWorld:
         grid = np.zeros([self.grid_size.y, self.grid_size.x, 3], dtype=np.uint8)
         for obj in get_render_ordered_objects(self.objects):
             grid = obj.render_rgb(grid)
-        if size: grid = cv2.resize(grid, size, interpolation=cv2.INTER_NEAREST)
+        if size: grid = cv2.resize(grid, size, interpolation=cv2.INTER_AREA)
         return grid
