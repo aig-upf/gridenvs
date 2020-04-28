@@ -1,8 +1,6 @@
-
 from copy import deepcopy
 import gym
 import numpy as np
-import cv2
 from gym.spaces import Discrete, Box
 
 
@@ -12,40 +10,35 @@ class GridEnv(gym.Env):
         It models a game based on colored squares/rectangles in a 2D space
     """
 
-    def __init__(self, actions, pixel_size=(84,84), reset_to_new_state=False):
+    def __init__(self, actions, pixel_size=(84, 84), fixed_init_state=True):
         self.actions = actions
         self.pixel_size = tuple(pixel_size)
-        self.reset_to_new_state = reset_to_new_state
+        self.fixed_init_state = fixed_init_state
         self.action_space = Discrete(len(actions))
-        self.observation_space = Box(0, 255, shape=self.pixel_size+(3,), dtype=np.uint8)
-        self.state = self.new_state()
+        self.observation_space = Box(0, 255, shape=self.pixel_size + (3,), dtype=np.uint8)
+        self.state = self.get_init_state()  # TODO: remove, only at reset
         self.state["done"] = True
-        self.init_state = deepcopy(self.state)
+        if fixed_init_state:
+            self.init_state = deepcopy(self.state)
         assert "world" in self.state.keys(), "State should contain a GridWorld object"
 
     def seed(self, seed):
-        np.random.seed(seed) #TODO: use own random state instead of global one
+        np.random.seed(seed)  # TODO: use own random state instead of global one
         return seed
 
     def step(self, action):
         assert not self.state["done"], "The environment needs to be reset."
-
-        if np.issubdtype(type(action), np.integer):
-            assert action < len(self.actions), "Action index %i exceeds the number of actions (%i)." % (action, len(self.actions))
-            action = self.actions[action]
-        else:
-            assert action in self.actions, "Action %s not in actions list. Possible actions: %s" % (action, str(self.actions))
-
+        action = self.get_env_action(action)
         r, done, info = self.update_environment(action)
         self._obs = self.state["world"].render(size=self.pixel_size)
         self.state["done"] = done
         return (self._obs, r, done, info)
 
     def reset(self):
-        if self.reset_to_new_state:
-            self.state = self.new_state()
-        else:
+        if self.fixed_init_state:
             self.state = deepcopy(self.init_state)
+        else:
+            self.state = self.get_init_state()
         obs = self.state["world"].render(size=self.pixel_size)
         self.state["done"] = False
         return obs
@@ -69,9 +62,19 @@ class GridEnv(gym.Env):
         self.state = deepcopy(internal_state)
 
     def get_char_matrix(self):
-        return self.state["world"].get_char_matrix().view(np.uint32) # TODO: check
+        return self.state["world"].get_char_matrix().view(np.uint32)  # TODO: check
 
-    def new_state(self):
+    def get_env_action(self, action):
+        if np.issubdtype(type(action), np.integer):
+            assert action < len(self.actions), "Action index %i exceeds the number of actions (%i)." % (
+                action, len(self.actions))
+            action = self.actions[action]
+        else:
+            assert action in self.actions, "Action %s not in actions list. Possible actions: %s" % (
+                action, str(self.actions))
+        return action
+
+    def get_init_state(self):
         """
         To be implemented by child classes. Returns a dictionary with at least the gridworld object.
         """

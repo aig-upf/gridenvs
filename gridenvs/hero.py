@@ -13,7 +13,7 @@ class HeroEnv(GridEnv):
         self.max_moves = max_moves
         assert self.max_moves is None or self.max_moves > 0
 
-    def new_state(self):
+    def get_init_state(self):
         state = self._state()
         assert all(k in state.keys() for k in ['world', 'hero'])
         state.update({'moves': 0})
