@@ -121,13 +121,13 @@ class GridWorld:
         self.objects = []
 
     def get_colors(self):
-        grid = np.array([["0x000000"] * self.grid_size.y] * self.grid_size.x)
+        grid = np.array([["0x000000"] * self.grid_size.x] * self.grid_size.y)
         for obj in self.objects:
             obj.render_rgb_hex(grid)
         return grid
 
     def get_char_matrix(self):
-        grid = np.array([['·'] * self.grid_size.y] * self.grid_size.x)
+        grid = np.array([['·'] * self.grid_size.x] * self.grid_size.y)
         for obj in self.objects:
             obj.render_char(grid)
         return grid
