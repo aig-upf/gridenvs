@@ -10,13 +10,12 @@ class GridEnv(gym.Env):
         It models a game based on colored squares/rectangles in a 2D space
     """
 
-    def __init__(self, actions, max_moves=None, pixel_size=(84, 84), fixed_init_state=True):
-        self.actions = actions
+    def __init__(self, n_actions, max_moves=None, pixel_size=(84, 84), fixed_init_state=True):
         self.max_moves = max_moves
         assert self.max_moves is None or self.max_moves > 0
         self.pixel_size = tuple(pixel_size)
         self.fixed_init_state = fixed_init_state
-        self.action_space = Discrete(len(actions))
+        self.action_space = Discrete(n_actions)
         self.observation_space = Box(0, 255, shape=self.pixel_size + (3,), dtype=np.uint8)
         self.state = self.get_init_state()  # TODO: remove, only at reset
         self.state["done"] = True
@@ -30,7 +29,6 @@ class GridEnv(gym.Env):
 
     def step(self, action):
         assert not self.state["done"], "The environment needs to be reset."
-        action = self.get_env_action(action)
         r, done, info = self.update_environment(action)
         self.state['moves'] += 1
         if self.max_moves is not None and self.state['moves'] >= self.max_moves:
@@ -69,16 +67,6 @@ class GridEnv(gym.Env):
 
     def get_char_matrix(self):
         return self.state["world"].get_char_matrix().view(np.uint32)  # TODO: check
-
-    def get_env_action(self, action):
-        if np.issubdtype(type(action), np.integer):
-            assert action < len(self.actions), "Action index %i exceeds the number of actions (%i)." % (
-                action, len(self.actions))
-            action = self.actions[action]
-        else:
-            assert action in self.actions, "Action %s not in actions list. Possible actions: %s" % (
-                action, str(self.actions))
-        return action
 
     def get_init_state(self):
         """

@@ -1,4 +1,4 @@
-
+import numpy as np
 from gridenvs.env import GridEnv
 from gridenvs.world import GridWorld, GridObject
 from gridenvs.utils import Direction, Point
@@ -9,7 +9,8 @@ class HeroEnv(GridEnv):
     Abstract class for environments with a single agent (hero) that can be moved around the grid
     """
     def __init__(self, actions=[None,]+Direction.cardinal(), max_moves=None, **kwargs):
-        super(HeroEnv, self).__init__(actions=actions, max_moves=max_moves, **kwargs)
+        super(HeroEnv, self).__init__(n_actions=len(actions), max_moves=max_moves, **kwargs)
+        self.actions=actions
 
     def get_init_state(self):
         state = self._state()
@@ -19,6 +20,12 @@ class HeroEnv(GridEnv):
         return state
 
     def update_environment(self, action):
+        if np.issubdtype(type(action), np.integer):
+            assert action < len(self.actions), f"Action index {action} exceeds the number of actions ({len(self.actions)})."
+            action = self.actions[action]
+        else:
+            assert action in self.actions, f"Action {action} not in actions list. Possible actions: {self.actions}"
+
         self.move_hero(action)
         r, done, info = self._update()
         info.update({'position': tuple(self.state['hero'].pos)})
