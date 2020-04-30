@@ -10,8 +10,10 @@ class GridEnv(gym.Env):
         It models a game based on colored squares/rectangles in a 2D space
     """
 
-    def __init__(self, actions, pixel_size=(84, 84), fixed_init_state=True):
+    def __init__(self, actions, max_moves=None, pixel_size=(84, 84), fixed_init_state=True):
         self.actions = actions
+        self.max_moves = max_moves
+        assert self.max_moves is None or self.max_moves > 0
         self.pixel_size = tuple(pixel_size)
         self.fixed_init_state = fixed_init_state
         self.action_space = Discrete(len(actions))
@@ -30,6 +32,9 @@ class GridEnv(gym.Env):
         assert not self.state["done"], "The environment needs to be reset."
         action = self.get_env_action(action)
         r, done, info = self.update_environment(action)
+        self.state['moves'] += 1
+        if self.max_moves is not None and self.state['moves'] >= self.max_moves:
+            done = True
         self._obs = self.state["world"].render(size=self.pixel_size)
         self.state["done"] = done
         return (self._obs, r, done, info)
@@ -39,6 +44,7 @@ class GridEnv(gym.Env):
             self.state = deepcopy(self.init_state)
         else:
             self.state = self.get_init_state()
+        self.state["moves"] = 0
         obs = self.state["world"].render(size=self.pixel_size)
         self.state["done"] = False
         return obs

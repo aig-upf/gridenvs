@@ -9,14 +9,11 @@ class HeroEnv(GridEnv):
     Abstract class for environments with a single agent (hero) that can be moved around the grid
     """
     def __init__(self, actions=[None,]+Direction.cardinal(), max_moves=None, **kwargs):
-        super(HeroEnv, self).__init__(actions, **kwargs)
-        self.max_moves = max_moves
-        assert self.max_moves is None or self.max_moves > 0
+        super(HeroEnv, self).__init__(actions=actions, max_moves=max_moves, **kwargs)
 
     def get_init_state(self):
         state = self._state()
         assert all(k in state.keys() for k in ['world', 'hero'])
-        state.update({'moves': 0})
         if "blocks" in state.keys():
             assert all(isinstance(b, GridObject) for b in state["blocks"]), "Blocks need to be grid objects"
         return state
@@ -24,9 +21,6 @@ class HeroEnv(GridEnv):
     def update_environment(self, action):
         self.move_hero(action)
         r, done, info = self._update()
-        self.state['moves'] += 1
-        if self.max_moves is not None and self.state['moves'] >= self.max_moves:
-            done = True
         info.update({'position': tuple(self.state['hero'].pos)})
         return r, done, info
 
