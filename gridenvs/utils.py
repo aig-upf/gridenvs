@@ -1,5 +1,6 @@
 import numpy as np
 from enum import Enum
+from collections import OrderedDict
 
 
 class Point(np.ndarray):
@@ -76,7 +77,7 @@ class Direction(Enum):
     def opposite(self):
         return Direction(-self.value)
 
-class Color:
+class Colors:
     # MORE COLORS IN https://web.njit.edu/~kevin/rgb.txt.html
     black = (0, 0, 0)
     white = (255, 255, 255)
@@ -88,3 +89,31 @@ class Color:
     darkOrange = (255, 140, 0)
     blueViolet = (138, 43, 226)
     darkTurquoise = (0, 206, 209)
+
+    # Colors from https://en.wikipedia.org/wiki/Help:Distinguishable_colors
+    distinguishable = OrderedDict([("Amethyst", (240, 163, 255)),
+                                   ("Blue", (0, 117, 220)),
+                                   ("Caramel", (153, 63, 0)),
+                                   ("Damson", (76, 0, 92)),
+                                   ("Ebony", (25, 25, 25)),
+                                   ("Forest", (0, 92, 49)),
+                                   ("Green", (43, 206, 72)),
+                                   ("Honeydew", (255, 204, 153)),
+                                   ("Iron", (128, 128, 128)),
+                                   ("Jade", (148, 255, 181)),
+                                   ("Khaki", (143, 124, 0)),
+                                   ("Lime", (157, 204, 0)),
+                                   ("Mallow", (194, 0, 136)),
+                                   ("Navy", (0, 51, 128)),
+                                   ("Orpiment", (255, 164, 5)),
+                                   ("Pink", (255, 168, 187)),
+                                   ("Quagmire", (66, 102, 0)),
+                                   ("Red", (255, 0, 16)),
+                                   ("Sky", (94, 241, 242)),
+                                   ("Turquoise", (0, 153, 143)),
+                                   ("Uranium", (224, 255, 102)),
+                                   ("Violet", (116, 10, 255)),
+                                   ("Wine", (153, 0, 0)),
+                                   ("Xanthin", (255, 255, 128)),
+                                   ("Yellow", (255, 255, 0)),
+                                   ("Zinnia", (255, 80, 5))])

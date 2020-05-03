@@ -1,11 +1,11 @@
-from gridenvs.utils import Color, Direction
+from gridenvs.utils import Colors, Direction
 from gridenvs.hero import HeroEnv, create_world_from_string_map
 
 
 class KeyDoorEnv(HeroEnv):
     def __init__(self,
                  str_map,
-                 colors = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black},
+                 colors = {'W': Colors.gray, 'D': Colors.green, 'K': Colors.red, 'H': Colors.blue, '.': Colors.black},
                  key_reward=False,
                  blocking_walls=False,
                  **kwargs):

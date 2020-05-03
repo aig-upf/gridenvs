@@ -1,6 +1,6 @@
 
 from gridenvs.hero import HeroEnv, create_world_from_string_map
-from gridenvs.utils import Direction, Color
+from gridenvs.utils import Direction, Colors
 
 
 def obj_names(objs):
@@ -25,7 +25,7 @@ class MontezumaEnv(HeroEnv):
         super(MontezumaEnv, self).__init__(actions=actions, **kwargs)
 
     def _state(self):
-        colors = {'F': Color.blue, 'H': Color.yellow, 'G': Color.green, 'R': Color.darkOrange}
+        colors = {'F': Colors.blue, 'H': Colors.yellow, 'G': Colors.green, 'R': Colors.darkOrange}
         gridworld, hero = create_world_from_string_map(self.MAP, colors, 'H')
         blocks = gridworld.get_objects_by_names(['F'])
         return {"world": gridworld,

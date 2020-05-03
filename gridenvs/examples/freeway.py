@@ -1,7 +1,7 @@
 
 import numpy as np
 from gridenvs.hero import HeroEnv
-from gridenvs.utils import Direction, Color, Point
+from gridenvs.utils import Direction, Colors, Point
 from gridenvs.world import GridWorld, GridObject
 
 class FreewayEnv(HeroEnv):
@@ -26,11 +26,11 @@ class FreewayEnv(HeroEnv):
 
     def _state(self):
         world = GridWorld((self.size_x, self.size_y))
-        frog = GridObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Color.green)
+        frog = GridObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Colors.green)
         world.add_object(frog)
 
         for i in range(self.size_x):
-            world.add_object(GridObject('G', (i, 0), rgb=Color.blue)) #goal
+            world.add_object(GridObject('G', (i, 0), rgb=Colors.blue)) #goal
 
         step_next_car = [None]*(self.size_y - 2)
         for i in range(self.size_y - 2):
@@ -39,7 +39,7 @@ class FreewayEnv(HeroEnv):
             while True:
                 current_car_pos += self.get_relative_time() + 1
                 if current_car_pos < self.size_x:
-                    world.add_object(GridObject('C', (current_car_pos, i + 1), rgb=Color.red))
+                    world.add_object(GridObject('C', (current_car_pos, i + 1), rgb=Colors.red))
                 else:
                     break
             #get step at which a new car will be generated, for each row i
@@ -64,7 +64,7 @@ class FreewayEnv(HeroEnv):
         # Add new cars
         for i in range(self.size_y - 2):
             if self.state["step_next_car"][i] == self.state["moves"]:
-                self.state["world"].add_object(GridObject('C', (0, i + 1), rgb=Color.red))
+                self.state["world"].add_object(GridObject('C', (0, i + 1), rgb=Colors.red))
                 self.state["step_next_car"][i] = self.get_relative_time() + self.state["moves"] + 1
 
     def get_relative_time(self):

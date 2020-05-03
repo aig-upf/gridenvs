@@ -1,7 +1,7 @@
 
 from gridenvs.hero import HeroEnv
 from gridenvs.world import GridWorld, GridObject
-from gridenvs.utils import Color, Direction, Point
+from gridenvs.utils import Colors, Direction, Point
 import numpy as np
 
 class MoveToBeaconEnv(HeroEnv):
@@ -15,8 +15,8 @@ class MoveToBeaconEnv(HeroEnv):
         beacon_pos = self.generate_random_position()
         while beacon_pos == hero_pos:
             beacon_pos = self.generate_random_position()
-        hero = world.add_object(GridObject('H', hero_pos, Color.green, render_preference=1))
-        beacon = world.add_object(GridObject('B', beacon_pos, Color.darkOrange))
+        hero = world.add_object(GridObject('H', hero_pos, Colors.green, render_preference=1))
+        beacon = world.add_object(GridObject('B', beacon_pos, Colors.darkOrange))
         return {"world": world,
                 "hero": hero,
                 "beacon": beacon}
