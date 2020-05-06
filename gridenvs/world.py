@@ -2,7 +2,7 @@
 import numpy as np
 import cv2
 from collections import defaultdict
-from gridenvs.utils import Point, Direction
+from gridenvs.utils import Point, Direction, Colors
 
 
 check_collision = {
@@ -46,7 +46,7 @@ class GridObject:
         return grid
 
     def render_rgb_hex(self, grid):
-        grid[self.pos.y][self.pos.x] = rgb_to_hex(self.rgb)
+        grid[self.pos.y][self.pos.x] = Colors.rgb_to_hex(self.rgb)
         return grid
 
     def render_char(self, grid):
@@ -94,17 +94,13 @@ class GridObjectGroup(GridObject):
 
     def render_rgb_hex(self, grid):
         for obj in get_render_ordered_objects(self.objects):
-            grid[self.pos.y + obj.pos.y][self.pos.x + obj.pos.x] = rgb_to_hex(obj.rgb)
+            grid[self.pos.y + obj.pos.y][self.pos.x + obj.pos.x] = Colors.rgb_to_hex(obj.rgb)
         return grid
 
     def render_char(self, grid):
         for obj in get_render_ordered_objects(self.objects):
             grid[self.pos.y + obj.pos.y][self.pos.x + obj.pos.x] = obj.name[0].capitalize()
         return grid
-
-
-def rgb_to_hex(rgb):
-    return "0x" + hex(rgb[0])[2:].zfill(2) + hex(rgb[1])[2:].zfill(2) + hex(rgb[2])[2:].zfill(2)
 
 
 def get_render_ordered_objects(objects):
