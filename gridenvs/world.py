@@ -18,26 +18,9 @@ check_collision = {
     Direction.SW: lambda p1, p2: p1[0]-1 == p2[0] and p1[1]+1 == p2[1],
 }
 
-# from collections import namedtuple
-# GridObject = namedtuple("GridObject", ['name', 'pos', 'rgb', 'render_preference'])
-# GridObject.__new__.__defaults__=((0,0,255), 0)
-
-class GridObject:
-    def __init__(self, name, pos, rgb=(255,0,0), render_preference=0):
-        """
-        :param name:
-        :param pos: (x, y)
-        :param rgb: (r, g, b) 0 to 255
-        :param render_preference: Bigger number will be rendered latter than others
-        """
-        self.pos = pos
-        self.rgb = rgb
-        self.name = name
-        self.render_preference = render_preference
-
-
-def collides_with(obj, other, direction=None):
-    return other is not obj and check_collision[direction](obj.pos, other.pos)
+from collections import namedtuple
+GridObject = namedtuple("GridObject", ['name', 'pos', 'rgb', 'render_preference'])
+GridObject.__new__.__defaults__ = (0,)  # namedtuple can handle defaults from Python 3.7, this is for backwards compatibility
 
 
 def get_render_ordered_objects(objects):
@@ -45,57 +28,43 @@ def get_render_ordered_objects(objects):
 
 
 class GridWorld:
-    def __init__(self, grid_size):
+    def __init__(self, size):
         try:
-            size_x, size_y = grid_size
+            size_x, size_y = size
         except TypeError:
-            size_x = size_y = grid_size
-        self.grid_size = (size_x, size_y)
-        self.objects = []
+            size_x = size_y = size
+        self.size = (size_x, size_y)
 
-    def get_colors(self):
-        grid = np.array([["0x000000"] * self.grid_size[0]] * self.grid_size[1])
-        for obj in self.objects:
+    def get_colors(self, objects):
+        grid = np.array([["0x000000"] * self.size[0]] * self.size[1])
+        for obj in get_render_ordered_objects(objects):
             grid[obj.pos[1]][obj.pos[0]] = Colors.rgb_to_hex(obj.rgb)
         return grid
 
-    def get_char_matrix(self):
-        grid = np.array([['·'] * self.grid_size[0]] * self.grid_size[1])
-        for obj in self.objects:
+    def get_char_matrix(self, objects):
+        grid = np.array([['·'] * self.size[0]] * self.size[1])
+        for obj in get_render_ordered_objects(objects):
             grid[obj.pos[1]][obj.pos[0]] = obj.name[0].capitalize()
         return grid
 
-    def __str__(self):
-        return "\n".join([" ".join(row) for row in self.get_char_matrix()])
-
-    def __repr__(self):
-        return self.__str__()
-
-    def add_object(self, game_object):
-        self.objects.append(game_object)
-        return game_object
-
-    def remove_object(self, obj):
-        self.objects.remove(obj)
-
-    def get_objects_by_position(self):
+    def get_objects_by_position(self, objects):
         res = defaultdict(list)
-        for obj in self.objects:
+        for obj in objects:
             res[obj.pos].append(obj)
         return dict(res)
 
-    def get_objects_by_names(self, name_or_names):
+    def get_objects_by_names(self, objects, name_or_names):
         if type(name_or_names) is str:
             name_or_names = (name_or_names,)
-        return [o for o in self.objects if o.name in name_or_names]
+        return [o for o in objects if o.name in name_or_names]
 
-    def collision(self, obj:GridObject, direction=None):
+    def collision(self, obj, objects, direction=None):
         # if direction is None, it checks superposition of objects
-        return [o for o in self.objects if collides_with(obj, o, direction)]
+        return [o for o in objects if obj is not o and check_collision[direction](obj.pos, o.pos)]
 
-    def render(self, size=None):
-        grid = np.zeros([self.grid_size[1], self.grid_size[0], 3], dtype=np.uint8)
-        for obj in get_render_ordered_objects(self.objects):
+    def render(self, objects, size=None):
+        grid = np.zeros([self.size[1], self.size[0], 3], dtype=np.uint8)
+        for obj in get_render_ordered_objects(objects):
             grid[obj.pos[1]][obj.pos[0]] = obj.rgb
 
         if size: grid = cv2.resize(grid, size, interpolation=cv2.INTER_AREA)

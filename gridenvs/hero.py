@@ -8,15 +8,14 @@ class HeroEnv(GridEnv):
     """
     Abstract class for environments with a single agent (hero) that can be moved around the grid
     """
-    def __init__(self, actions=[None,]+Direction.cardinal(), max_moves=None, **kwargs):
-        super(HeroEnv, self).__init__(n_actions=len(actions), max_moves=max_moves, **kwargs)
-        self.actions=actions
+    def __init__(self, size, actions=[None,]+Direction.cardinal(), block_names=[], max_moves=None, **kwargs):
+        super(HeroEnv, self).__init__(size=size, n_actions=len(actions), max_moves=max_moves, **kwargs)
+        self.actions = actions
+        self.block_names = block_names
 
     def get_init_state(self):
         state = self._state()
-        assert all(k in state.keys() for k in ['world', 'hero'])
-        # if "blocks" in state.keys():
-        #     assert all(isinstance(b, GridObject) for b in state["blocks"]), "Blocks need to be grid objects"
+        assert all(k in state.keys() for k in ['hero', 'other_objects'])
         return state
 
     def update_environment(self, action):
@@ -31,28 +30,28 @@ class HeroEnv(GridEnv):
         info.update({'position': tuple(self.state['hero'].pos)})
         return r, done, info
 
-    def move(self, obj, direction):
-        if direction:
+    def get_objects_to_render(self):
+        return [self.state["hero"]] + self.state["other_objects"]
+
+    def move(self, obj, direction, check_collision_objects):
+        if direction is not None:
             dx, dy = direction.value
-            if obj.pos[0] + dx >= 0 and obj.pos[0] + dx < self.state["world"].grid_size[0] \
-                    and obj.pos[1] + dy >= 0 and obj.pos[1] + dy < self.state["world"].grid_size[1]:
-                others = self.state["world"].collision(obj, direction)
+            if obj.pos[0] + dx >= 0 and obj.pos[0] + dx < self.world.size[0] \
+                    and obj.pos[1] + dy >= 0 and obj.pos[1] + dy < self.world.size[1]:
+                others = self.world.collision(obj, check_collision_objects, direction)
                 if dx != 0 and dy != 0:
                     # diagonal move, also check cardinal positions before trying to move diagonally
-                    others.extend(self.state["world"].collision(obj, Direction((dx, 0))))
-                    others.extend(self.state["world"].collision(obj, Direction((0, dy))))  # we may have repeated objects
+                    others.extend(self.world.collision(obj, check_collision_objects, Direction((dx, 0))))
+                    others.extend(self.world.collision(obj, check_collision_objects, Direction((0, dy))))  # we may have repeated objects
 
-                if "blocks" in self.state.keys():
-                    for other in others:
-                        if other in self.state["blocks"]:
-                            return False
-                obj.pos = (obj.pos[0]+dx, obj.pos[1]+dy)
-            else:
-                return False
-        return True
+                for other in others:
+                    if other.name in self.block_names:
+                        return obj
+                return obj._replace(pos=(obj.pos[0]+dx, obj.pos[1]+dy))
+        return obj
 
     def move_hero(self, direction):
-        return self.move(self.state['hero'], direction)
+        self.state['hero'] = self.move(self.state['hero'], direction, check_collision_objects=self.state["other_objects"])
 
     def _state(self):
         raise NotImplementedError
@@ -62,9 +61,8 @@ class HeroEnv(GridEnv):
 
 
 def create_world_from_string_map(str_map, colors, hero_mark):
-    world = GridWorld((len(str_map[0]), len(str_map)))
-
     hero = None
+    other_objects = []
     for y, string in enumerate(str_map):
         for x, point in enumerate(string):
             if point == '.':
@@ -77,11 +75,13 @@ def create_world_from_string_map(str_map, colors, hero_mark):
                 render_preference = 1 if point == hero_mark else 0
                 o = GridObject(name=point, pos=(x, y), rgb=color, render_preference=render_preference)
                 if point == hero_mark:
+                    assert hero is None
                     hero = o
-                world.add_object(o)
+                else:
+                    other_objects.append(o)
 
     assert hero is not None, "Hero could not be loaded. Hero mark not in string map?"
-    return world, hero
+    return hero, other_objects
 
 
 class StrHeroEnv(HeroEnv):
@@ -90,9 +90,11 @@ class StrHeroEnv(HeroEnv):
         self.colors = colors
         self.hero_mark = hero_mark
         self.block_marks = block_marks
-        super(StrHeroEnv, self).__init__(actions, max_moves, pixel_size)
+        super(StrHeroEnv, self).__init__(size=(len(str_map[0]), len(str_map)),
+                                         actions=actions,
+                                         max_moves=max_moves,
+                                         pixel_size=pixel_size)
 
     def _state(self):
-        gridworld, hero = create_world_from_string_map(self.str_map, self.colors, self.hero_mark)
-        blocks = gridworld.get_objects_by_names(list(self.block_marks))
-        return {"world": gridworld, "hero": hero, "blocks": blocks }
+        hero, other_objects = create_world_from_string_map(self.str_map, self.colors, self.hero_mark)
+        return {"hero": hero, "other_objects": other_objects}

@@ -11,23 +11,18 @@ class KeyDoorEnv(HeroEnv):
                  **kwargs):
         self.str_map = str_map
         self.colors = colors
-        self.blocking_walls = blocking_walls
         self.key_reward = 1.0 if key_reward else 0.0
-        super(KeyDoorEnv, self).__init__(**kwargs)
+        block_names = ['W'] if blocking_walls else []
+        super(KeyDoorEnv, self).__init__(size=(len(str_map[0]), len(str_map)), block_names=block_names, **kwargs)
 
     def _state(self):
-        gridworld, hero = create_world_from_string_map(self.str_map, self.colors, hero_mark='H')
-        if self.blocking_walls:
-            blocks = gridworld.get_objects_by_names(['W'])
-        else:
-            blocks = []
-        return {"world": gridworld,
+        hero, other_objects = create_world_from_string_map(self.str_map, self.colors, hero_mark='H')
+        return {"other_objects": other_objects,
                 "hero": hero,
-                "blocks": blocks,
                 "has_key" : False}
 
     def _update(self):
-        collisions = self.state["world"].collision(self.state['hero'], direction=None)  # check superposition of objs
+        collisions = self.world.collision(self.state['hero'], self.state["other_objects"], direction=None)  # check superposition of objs
         for o in collisions:
             if o.name == 'W':
                 return -1.0, True, {}
@@ -35,7 +30,7 @@ class KeyDoorEnv(HeroEnv):
                 return 1.0, True, {}
             elif o.name == 'K':
                 self.state["has_key"] = True
-                self.state["world"].remove_object(o)
+                self.state["other_objects"].remove(o)
                 return self.key_reward, False, {}
         return 0.0, False, {}
 

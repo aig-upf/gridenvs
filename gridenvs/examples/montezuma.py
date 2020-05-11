@@ -22,46 +22,48 @@ class MontezumaEnv(HeroEnv):
 
     def __init__(self, **kwargs):
         actions = Direction.all()+[None]
-        super(MontezumaEnv, self).__init__(actions=actions, **kwargs)
+        super(MontezumaEnv, self).__init__(size=(len(self.MAP[0]), len(self.MAP)), actions=actions, block_names=['F'], **kwargs)
 
     def _state(self):
         colors = {'F': Colors.blue, 'H': Colors.yellow, 'G': Colors.green, 'R': Colors.darkOrange}
-        gridworld, hero = create_world_from_string_map(self.MAP, colors, 'H')
-        blocks = gridworld.get_objects_by_names(['F'])
-        return {"world": gridworld,
+        hero, other_objects = create_world_from_string_map(self.MAP, colors, 'H')
+        return {"other_objects": other_objects,
                 "hero": hero,
-                "blocks": blocks,
                 "falling_dir" : None,
                 "going_to_die" : False,
                 "last_dir" : None}
 
     def _update(self):
-        superpositions = obj_names(self.state["world"].collision(self.state["hero"], direction=None))
+        superpositions = obj_names(self.world.collision(self.state["hero"], self.state["other_objects"], direction=None))
         if 'G' in superpositions:
             return 1.0, True, {}
         elif self.state["going_to_die"]:
-            collisions_south = obj_names(self.state["world"].collision(self.state["hero"], direction=Direction.S))
+            collisions_south = obj_names(self.world.collision(self.state["hero"], self.state["other_objects"], direction=Direction.S))
             if 'F' in collisions_south and 'R' not in superpositions:
                 return 0, True, {}
         return 0.0, False, {}
 
     def move_hero(self, direction):
-        collisions = {d: obj_names(self.state["world"].collision(self.state["hero"], d)) for d in [None, Direction.S, Direction.SE, Direction.SW]}
+        collisions = {d: obj_names(self.world.collision(self.state["hero"], self.state["other_objects"], d)) for d in [None, Direction.S, Direction.SE, Direction.SW]}
 
         #Are we falling?
         if not 'F' in collisions[Direction.S] and not 'R' in collisions[None]:
             if self.state["falling_dir"]:
                 self.state["going_to_die"] = True
             else:
-                if self.state["last_dir"] in Direction.all_west(): self.state["falling_dir"] = Direction.SW
-                elif self.state["last_dir"] in Direction.all_east(): self.state["falling_dir"] = Direction.SE
-                else: self.state["falling_dir"] = Direction.S
-            res = super(MontezumaEnv, self).move_hero(self.state["falling_dir"])
-            if not res:
+                if self.state["last_dir"] in Direction.all_west():
+                    self.state["falling_dir"] = Direction.SW
+                elif self.state["last_dir"] in Direction.all_east():
+                    self.state["falling_dir"] = Direction.SE
+                else:
+                    self.state["falling_dir"] = Direction.S
+            p = self.state["hero"].pos
+            super(MontezumaEnv, self).move_hero(self.state["falling_dir"])
+            if self.state["hero"].pos == p:  # position did not change
+                assert self.state["hero"].pos is p
                 #couldn't move! probably because of an horizontal collision with floor (colliding with a corner while falling). Try going down:
                 self.state["falling_dir"] = Direction.S
-                res = super(MontezumaEnv, self).move_hero(self.state["falling_dir"])
-                return res
+                super(MontezumaEnv, self).move_hero(self.state["falling_dir"])
         else:
             self.state["falling_dir"] = None
             self.state["going_to_die"] = False
@@ -78,4 +80,4 @@ class MontezumaEnv(HeroEnv):
                 direction = None
 
         self.state["last_dir"] = direction
-        return super(MontezumaEnv, self).move_hero(direction)
+        super(MontezumaEnv, self).move_hero(direction)

@@ -1,7 +1,7 @@
 
 import numpy as np
 from gridenvs.hero import HeroEnv
-from gridenvs.utils import Direction, Colors, Point
+from gridenvs.utils import Direction, Colors
 from gridenvs.world import GridWorld, GridObject
 
 class FreewayEnv(HeroEnv):
@@ -16,21 +16,21 @@ class FreewayEnv(HeroEnv):
         self.size_x = self.size_y = size
         self.mean_relative_time = 1 / avg_cars_per_step  # mean waiting steps before generating a new car, at every row.
 
-        super(FreewayEnv, self).__init__(actions=[None, Direction.N, Direction.S],
+        super(FreewayEnv, self).__init__(size=size,
+                                         actions=[None, Direction.N, Direction.S],
                                          max_moves=max_moves,
-                                         reset_to_new_state=True,
+                                         fixed_init_state=False,
                                          **kwargs)
 
     def reset_frog(self):
-        self.state["hero"].pos = Point(int(self.size_x / 2), self.size_y - 1)
+        self.state["hero"] = self.state["hero"]._replace(pos=(int(self.size_x / 2), self.size_y - 1))
 
     def _state(self):
-        world = GridWorld((self.size_x, self.size_y))
+        other_objects = []
         frog = GridObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Colors.green)
-        world.add_object(frog)
 
         for i in range(self.size_x):
-            world.add_object(GridObject('G', (i, 0), rgb=Colors.blue)) #goal
+            other_objects.append(GridObject('G', (i, 0), rgb=Colors.blue)) #goal
 
         step_next_car = [None]*(self.size_y - 2)
         for i in range(self.size_y - 2):
@@ -39,33 +39,34 @@ class FreewayEnv(HeroEnv):
             while True:
                 current_car_pos += self.get_relative_time() + 1
                 if current_car_pos < self.size_x:
-                    world.add_object(GridObject('C', (current_car_pos, i + 1), rgb=Colors.red))
+                    other_objects.append(GridObject('C', (current_car_pos, i + 1), rgb=Colors.red))
                 else:
                     break
             #get step at which a new car will be generated, for each row i
             step_next_car[i] = self.get_relative_time() + 1
 
-        return {"world": world,
-                "hero": frog,
+        return {"hero": frog,
+                "other_objects": other_objects,
                 "step_next_car": step_next_car}
 
     def move_cars(self):
         # Move cars
-        cars_to_remove = []
-        for o in self.state["world"].objects:
+        new_objs = []
+        for o in self.state["other_objects"]:
             if o.name == 'C':
-                if not self.move(o, Direction.E): #if we cannot move, it's because we reached the right edge
-                    cars_to_remove.append(o)
-
-        # Remove the ones that were getting out of the grid
-        for car in cars_to_remove:
-            self.state["world"].objects.remove(car)
+                if o.pos[0] < self.world.size[0] - 1:  # else we remove the car
+                    new_objs.append(self.move(o, Direction.E, check_collision_objects=[]))
+            else:
+                new_objs.append(o)
 
         # Add new cars
         for i in range(self.size_y - 2):
             if self.state["step_next_car"][i] == self.state["moves"]:
-                self.state["world"].add_object(GridObject('C', (0, i + 1), rgb=Colors.red))
+                new_objs.append(GridObject('C', (0, i + 1), rgb=Colors.red))
                 self.state["step_next_car"][i] = self.get_relative_time() + self.state["moves"] + 1
+
+        self.state["other_objects"] = new_objs
+
 
     def get_relative_time(self):
         """
@@ -80,7 +81,7 @@ class FreewayEnv(HeroEnv):
 
     def _update(self):
         self.move_cars()
-        collisions = self.state["world"].collision(self.state['hero'], direction=None)
+        collisions = self.world.collision(self.state['hero'], self.state["other_objects"], direction=None)
         if len(collisions) > 0:
             assert len(collisions) == 1
             o = collisions[0]
@@ -90,6 +91,3 @@ class FreewayEnv(HeroEnv):
             self.reset_frog()
             return r, self.end_episode == "collision", {}
         return 0.0, False, {}
-
-    def reset_world(self):
-        self.state["world"], self.state["hero"], self.state["step_next_car"] = self.create_world()
