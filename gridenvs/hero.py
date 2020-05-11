@@ -1,7 +1,7 @@
 import numpy as np
 from gridenvs.env import GridEnv
 from gridenvs.world import GridWorld, GridObject
-from gridenvs.utils import Direction, Point
+from gridenvs.utils import Direction
 
 
 class HeroEnv(GridEnv):
@@ -15,8 +15,8 @@ class HeroEnv(GridEnv):
     def get_init_state(self):
         state = self._state()
         assert all(k in state.keys() for k in ['world', 'hero'])
-        if "blocks" in state.keys():
-            assert all(isinstance(b, GridObject) for b in state["blocks"]), "Blocks need to be grid objects"
+        # if "blocks" in state.keys():
+        #     assert all(isinstance(b, GridObject) for b in state["blocks"]), "Blocks need to be grid objects"
         return state
 
     def update_environment(self, action):
@@ -34,20 +34,19 @@ class HeroEnv(GridEnv):
     def move(self, obj, direction):
         if direction:
             dx, dy = direction.value
-            bb = obj.bounding_box
-            if bb[0].x + dx >= 0 and bb[1].x + dx <= self.state["world"].grid_size.x \
-                    and bb[0].y + dy >= 0 and bb[1].y + dy <= self.state["world"].grid_size.y:
+            if obj.pos[0] + dx >= 0 and obj.pos[0] + dx < self.state["world"].grid_size[0] \
+                    and obj.pos[1] + dy >= 0 and obj.pos[1] + dy < self.state["world"].grid_size[1]:
                 others = self.state["world"].collision(obj, direction)
                 if dx != 0 and dy != 0:
                     # diagonal move, also check cardinal positions before trying to move diagonally
-                    others.extend(self.state["world"].collision(obj, Direction(Point(dx, 0))))
-                    others.extend(self.state["world"].collision(obj, Direction(Point(0, dy))))  # we may have repeated objects
+                    others.extend(self.state["world"].collision(obj, Direction((dx, 0))))
+                    others.extend(self.state["world"].collision(obj, Direction((0, dy))))  # we may have repeated objects
 
                 if "blocks" in self.state.keys():
                     for other in others:
                         if other in self.state["blocks"]:
                             return False
-                obj.pos += (dx, dy)
+                obj.pos = (obj.pos[0]+dx, obj.pos[1]+dy)
             else:
                 return False
         return True
@@ -75,9 +74,9 @@ def create_world_from_string_map(str_map, colors, hero_mark):
                 assert obj_name in colors.keys(), "Please define a color for object %s"%obj_name
                 color = colors[obj_name]
 
-                o = GridObject(name=point, pos=(x, y), rgb=color)
+                render_preference = 1 if point == hero_mark else 0
+                o = GridObject(name=point, pos=(x, y), rgb=color, render_preference=render_preference)
                 if point == hero_mark:
-                    o.render_preference = 1
                     hero = o
                 world.add_object(o)
 
