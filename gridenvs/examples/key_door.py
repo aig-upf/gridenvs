@@ -13,26 +13,33 @@ class KeyDoorEnv(HeroEnv):
         self.colors = colors
         self.key_reward = 1.0 if key_reward else 0.0
         block_names = ['W'] if blocking_walls else []
-        super(KeyDoorEnv, self).__init__(size=(len(str_map[0]), len(str_map)), block_names=block_names, **kwargs)
+        super(KeyDoorEnv, self).__init__(size=(len(str_map[0]), len(str_map)),
+                                         block_names=block_names,
+                                         using_immutable_states=True,  # To speed up clone/restore states when planning
+                                         fixed_init_state=True,
+                                         **kwargs)
 
-    def _state(self):
+    def _init_state(self):
         hero, other_objects = create_world_from_string_map(self.str_map, self.colors, hero_mark='H')
-        return {"other_objects": other_objects,
-                "hero": hero,
-                "has_key" : False}
+        return {"hero": hero,
+                "other_objects": other_objects,
+                "has_key": False}
 
-    def _update(self):
-        collisions = self.world.collision(self.state['hero'], self.state["other_objects"], direction=None)  # check superposition of objs
+    def _next_state(self, state, direction):
+        hero = self.move(state['hero'], direction, check_collision_objects=state["other_objects"])
+        new_state = {'hero': hero, 'other_objects': state['other_objects'], 'has_key': state['has_key']}
+        collisions = self.world.collision(hero, state["other_objects"], direction=None)  # check superposition of objs
         for o in collisions:
             if o.name == 'W':
-                return -1.0, True, {}
-            elif o.name == 'D' and self.state["has_key"]:
-                return 1.0, True, {}
+                return new_state, -1.0, True, {}
+            elif o.name == 'D' and state["has_key"]:
+                return new_state, 1.0, True, {}
             elif o.name == 'K':
-                self.state["has_key"] = True
-                self.state["other_objects"].remove(o)
-                return self.key_reward, False, {}
-        return 0.0, False, {}
+                new_state = {'hero': hero,
+                             'has_key': True,
+                             'other_objects': tuple(obj for obj in state["other_objects"] if obj.name != 'K')}
+                return new_state, self.key_reward, False, {}
+        return new_state, 0.0, False, {}
 
 
 def maze0(**kwargs):

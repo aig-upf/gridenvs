@@ -6,7 +6,7 @@ from gridenvs.utils import Direction
 
 class HeroEnv(GridEnv):
     """
-    Abstract class for environments with a single agent (hero) that can be moved around the grid
+    Abstract class for environments with a single agent (hero) that moves around the grid
     """
     def __init__(self, size, actions=[None,]+Direction.cardinal(), block_names=[], max_moves=None, **kwargs):
         super(HeroEnv, self).__init__(size=size, n_actions=len(actions), max_moves=max_moves, **kwargs)
@@ -14,24 +14,23 @@ class HeroEnv(GridEnv):
         self.block_names = block_names
 
     def get_init_state(self):
-        state = self._state()
+        state = self._init_state()
         assert all(k in state.keys() for k in ['hero', 'other_objects'])
         return state
 
-    def update_environment(self, action):
+    def get_next_state(self, state, action):
         if np.issubdtype(type(action), np.integer):
             assert action < len(self.actions), f"Action index {action} exceeds the number of actions ({len(self.actions)})."
             action = self.actions[action]
         else:
             assert action in self.actions, f"Action {action} not in actions list. Possible actions: {self.actions}"
 
-        self.move_hero(action)
-        r, done, info = self._update()
-        info.update({'position': tuple(self.state['hero'].pos)})
-        return r, done, info
+        next_state, r, done, info = self._next_state(state, action)
+        info.update({'position': next_state['hero'].pos})
+        return next_state, r, done, info
 
-    def get_objects_to_render(self):
-        return [self.state["hero"]] + self.state["other_objects"]
+    def get_objects_to_render(self, state):
+        return [state["hero"]] + list(state["other_objects"])
 
     def move(self, obj, direction, check_collision_objects):
         if direction is not None:
@@ -50,13 +49,10 @@ class HeroEnv(GridEnv):
                 return obj._replace(pos=(obj.pos[0]+dx, obj.pos[1]+dy))
         return obj
 
-    def move_hero(self, direction):
-        self.state['hero'] = self.move(self.state['hero'], direction, check_collision_objects=self.state["other_objects"])
-
-    def _state(self):
+    def _init_state(self):
         raise NotImplementedError
 
-    def _update(self):
+    def _next_state(self, state, action):
         raise NotImplementedError
 
 
@@ -81,7 +77,7 @@ def create_world_from_string_map(str_map, colors, hero_mark):
                     other_objects.append(o)
 
     assert hero is not None, "Hero could not be loaded. Hero mark not in string map?"
-    return hero, other_objects
+    return hero, tuple(other_objects)
 
 
 class StrHeroEnv(HeroEnv):
@@ -95,6 +91,10 @@ class StrHeroEnv(HeroEnv):
                                          max_moves=max_moves,
                                          pixel_size=pixel_size)
 
-    def _state(self):
+    def _init_state(self):
         hero, other_objects = create_world_from_string_map(self.str_map, self.colors, self.hero_mark)
         return {"hero": hero, "other_objects": other_objects}
+
+    def _next_state(self, state, action):
+        hero = self.move(state["hero"], action, check_collision_objects=state["other_objects"])
+        return {"hero": hero, "other_objects": state["other_objects"]}
