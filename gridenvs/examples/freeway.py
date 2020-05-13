@@ -5,10 +5,9 @@ from gridenvs.utils import Direction, Colors
 from gridenvs.world import GridWorld, GridObject
 
 class FreewayEnv(HeroEnv):
-    def __init__(self, size, avg_cars = 0.2, episode_end= "moves", **kwargs):
+    def __init__(self, size, avg_cars = 0.2, episode_end="moves", **kwargs):
         assert episode_end in ("moves", "collision")
-        max_moves = None if episode_end == "collision" else 100
-        self.end_episode = episode_end
+        self.end_episode_collision = episode_end == "collision"
 
         assert size >= 3  # At least one row for starting point, one for goal and one for cars.
         avg_cars_per_step = avg_cars
@@ -18,7 +17,7 @@ class FreewayEnv(HeroEnv):
 
         super(FreewayEnv, self).__init__(size=size,
                                          actions=[None, Direction.N, Direction.S],
-                                         max_moves=max_moves,
+                                         max_moves=None if self.end_episode_collision else 100,
                                          using_immutable_states=True,
                                          fixed_init_state=False,
                                          **kwargs)
@@ -48,7 +47,8 @@ class FreewayEnv(HeroEnv):
 
         return {"hero": frog,
                 "other_objects": tuple(other_objects),
-                "step_next_car": tuple(step_next_car)}
+                "step_next_car": tuple(step_next_car),
+                "moves": 0}
 
     def move_cars(self, state):
         # Move cars
@@ -92,10 +92,12 @@ class FreewayEnv(HeroEnv):
             r = -1.0 if o.name == 'C' else 1.0
             next_state = {"hero": self.reset_frog(),
                           "other_objects": other_objects,
-                          "step_next_car": step_next_car}
-            return next_state, r, self.end_episode == "collision", {}
+                          "step_next_car": step_next_car,
+                          "moves": state["moves"] + 1}
+            return next_state, r, self.end_episode_collision, {}
 
         next_state = {"hero": frog,
                       "other_objects": other_objects,
-                      "step_next_car": step_next_car}
+                      "step_next_car": step_next_car,
+                      "moves": state["moves"] + 1}
         return next_state, 0.0, False, {}

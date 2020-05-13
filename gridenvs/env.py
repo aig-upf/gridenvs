@@ -28,34 +28,38 @@ class GridEnv(gym.Env):
 
     def step(self, action):
         assert not self._state["done"], "The environment needs to be reset."
-        next_state, r, done, info = self.get_next_state(self._state, action)
-        next_state['moves'] = self._state["moves"] + 1
-        if self.max_moves is not None and next_state['moves'] >= self.max_moves:
+        next_state, r, done, info = self.get_next_state(self._state["state"], action)
+        moves = self._state["moves"] + 1
+        if self.max_moves is not None and moves >= self.max_moves:
             done = True
         obs = self.world.render(self.get_objects_to_render(next_state), size=self.pixel_size)
-        next_state["done"] = done
-        self._state = next_state
+        self._state = {"state": next_state,
+                       "moves": moves,
+                       "done": done}
         return (obs, r, done, info)
 
     def reset(self):
         if self.fixed_init_state:
             try:
-                self.restore_state(self.init_state)
+                init_state = self.init_state
             except AttributeError:
-                self.init_state = self.get_init_state()
-                self.restore_state(self.init_state)
-        else:
-            self._state = self.get_init_state()
+                init_state = self.init_state = self.get_init_state()
 
-        self._state["moves"] = 0
-        obs = self.world.render(self.get_objects_to_render(self._state), size=self.pixel_size)
-        self._state["done"] = False
+            self.restore_state({"state": init_state,
+                                "moves": 0,
+                                "done": False})
+        else:
+            self._state = {"state": self.get_init_state(),
+                           "moves": 0,
+                           "done": False}
+
+        obs = self.world.render(self.get_objects_to_render(self._state["state"]), size=self.pixel_size)
         return obs
 
     def render(self, size=None):
         if size is None:
             size = self.pixel_size
-        img = self.world.render(self.get_objects_to_render(self._state), size=size)
+        img = self.world.render(self.get_objects_to_render(self._state["state"]), size=size)
         try:
             self.viewer.imshow(img)
         except AttributeError:
@@ -76,7 +80,7 @@ class GridEnv(gym.Env):
             self._state = deepcopy(internal_state)
 
     def get_char_matrix(self):
-        return self.world.get_char_matrix(self.get_objects_to_render(self._state)) #.view(np.uint32)
+        return self.world.get_char_matrix(self.get_objects_to_render(self._state["state"])) #.view(np.uint32)
 
     def get_init_state(self):
         """
