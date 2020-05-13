@@ -13,11 +13,6 @@ class HeroEnv(GridEnv):
         self.actions = actions
         self.block_names = block_names
 
-    def get_init_state(self):
-        state = self._init_state()
-        assert all(k in state.keys() for k in ['hero', 'other_objects'])
-        return state
-
     def get_next_state(self, state, action):
         if np.issubdtype(type(action), np.integer):
             assert action < len(self.actions), f"Action index {action} exceeds the number of actions ({len(self.actions)})."
@@ -30,7 +25,10 @@ class HeroEnv(GridEnv):
         return next_state, r, done, info
 
     def get_objects_to_render(self, state):
-        return [state["hero"]] + list(state["other_objects"])
+        try:
+            return [state["hero"]] + list(state["other_objects"])
+        except KeyError:
+            raise Exception("State should contain at least 'hero' and 'other_objects'.")
 
     def move(self, obj, direction, check_collision_objects):
         if direction is not None:
@@ -48,9 +46,6 @@ class HeroEnv(GridEnv):
                         return obj
                 return obj._replace(pos=(obj.pos[0]+dx, obj.pos[1]+dy))
         return obj
-
-    def _init_state(self):
-        raise NotImplementedError
 
     def _next_state(self, state, action):
         raise NotImplementedError

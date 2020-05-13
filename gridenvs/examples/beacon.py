@@ -11,7 +11,7 @@ class MoveToBeaconEnv(HeroEnv):
                                               fixed_init_state=False,
                                               **kwargs)
 
-    def _init_state(self):
+    def get_init_state(self):
         hero_pos = self.generate_random_position()
         beacon_pos = self.generate_random_position()
         while beacon_pos == hero_pos:

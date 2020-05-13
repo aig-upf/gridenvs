@@ -24,7 +24,7 @@ class MontezumaEnv(HeroEnv):
         actions = Direction.all()+[None]
         super(MontezumaEnv, self).__init__(size=(len(self.MAP[0]), len(self.MAP)), actions=actions, block_names=['F'], **kwargs)
 
-    def _init_state(self):
+    def get_init_state(self):
         colors = {'F': Colors.blue, 'H': Colors.yellow, 'G': Colors.green, 'R': Colors.darkOrange}
         hero, other_objects = create_world_from_string_map(self.MAP, colors, 'H')
         return {"other_objects": other_objects,

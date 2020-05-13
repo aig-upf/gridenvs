@@ -19,7 +19,7 @@ class KeyDoorEnv(HeroEnv):
                                          fixed_init_state=True,
                                          **kwargs)
 
-    def _init_state(self):
+    def get_init_state(self):
         hero, other_objects = create_world_from_string_map(self.str_map, self.colors, hero_mark='H')
         return {"hero": hero,
                 "other_objects": other_objects,

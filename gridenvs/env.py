@@ -20,10 +20,7 @@ class GridEnv(gym.Env):
         self.action_space = Discrete(n_actions)
         self.observation_space = Box(0, 255, shape=self.pixel_size + (3,), dtype=np.uint8)
         self.world = GridWorld(size)
-        self._state = self.get_init_state()  # TODO: remove, only at reset
-        self._state["done"] = True
-        if self.fixed_init_state:
-            self.init_state = self.clone_state()
+        self._state = {"done": True}  # We are forced to reset
 
     def seed(self, seed):
         np.random.seed(seed)  # TODO: use own random state instead of global one, allow seed=None
@@ -35,16 +32,21 @@ class GridEnv(gym.Env):
         next_state['moves'] = self._state["moves"] + 1
         if self.max_moves is not None and next_state['moves'] >= self.max_moves:
             done = True
-        self._obs = self.world.render(self.get_objects_to_render(next_state), size=self.pixel_size)
+        obs = self.world.render(self.get_objects_to_render(next_state), size=self.pixel_size)
         next_state["done"] = done
         self._state = next_state
-        return (self._obs, r, done, info)
+        return (obs, r, done, info)
 
     def reset(self):
         if self.fixed_init_state:
-            self.restore_state(self.init_state)
+            try:
+                self.restore_state(self.init_state)
+            except AttributeError:
+                self.init_state = self.get_init_state()
+                self.restore_state(self.init_state)
         else:
             self._state = self.get_init_state()
+
         self._state["moves"] = 0
         obs = self.world.render(self.get_objects_to_render(self._state), size=self.pixel_size)
         self._state["done"] = False
@@ -74,7 +76,7 @@ class GridEnv(gym.Env):
             self._state = deepcopy(internal_state)
 
     def get_char_matrix(self):
-        return self.world.get_char_matrix(self.get_objects_to_render()) #.view(np.uint32)
+        return self.world.get_char_matrix(self.get_objects_to_render(self._state)) #.view(np.uint32)
 
     def get_init_state(self):
         """

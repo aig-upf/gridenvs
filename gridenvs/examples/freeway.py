@@ -26,7 +26,7 @@ class FreewayEnv(HeroEnv):
     def reset_frog(self):
         return GridObject('F', (int(self.size_x / 2), self.size_y - 1), rgb=Colors.green)
 
-    def _init_state(self):
+    def get_init_state(self):
         other_objects = []
         frog = self.reset_frog()
 
