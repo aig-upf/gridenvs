@@ -7,7 +7,7 @@ Gridenvs is an open-source library that allows to easily create [gym](https://gi
 You can easily create an environment by implementing the following three functions:
 * get_init_state(): returns a dictionary containing the internal state of the environment. The state dict will contain all the necessary information of the game, and has to come with at least two elements: "world" (the GridWorld object) and "hero" (the agent GridObject). 
 * get_next_state(state, action): implements the logic of the environment, and returns a tuple `(state, reward, end_of_episode, info)` just as gym's env.step() function, except for the observation, that is automatically generated from the returned state.
-* get_objects_to_render(state): returns a list of objects to be rendered, in order to generate the observation from the state.
+* get_gridstate(state): returns a tuple consisting of the grid size and a list of objects to be rendered. This is used to generate the observation from the state.
 
 Most environments consist of a single agent that moves in a grid (i.e. action affect a single object). If this is your case, consider inheriting from the [HeroEnv](gridenvs/hero.py) class.
 To easily create a grid map, we provide a function that takes as input a list of strings, such as:

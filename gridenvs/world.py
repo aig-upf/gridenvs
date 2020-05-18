@@ -22,28 +22,24 @@ from collections import namedtuple
 GridObject = namedtuple("GridObject", ['name', 'pos', 'rgb', 'render_preference'])
 GridObject.__new__.__defaults__ = (0,)  # namedtuple can handle defaults from Python 3.7, this is for backwards compatibility
 
-
-def get_render_ordered_objects(objects):
-    return sorted(objects, key=lambda a: a.render_preference)
+GridState = namedtuple("GridState", ['size', 'objects'])
 
 
 class GridWorld:
-    def __init__(self, size):
-        try:
-            size_x, size_y = size
-        except TypeError:
-            size_x = size_y = size
-        self.size = (size_x, size_y)
+    def get_render_ordered_objects(self, objects):
+        return sorted(objects, key=lambda a: a.render_preference)
 
-    def get_colors(self, objects):
-        grid = np.array([["0x000000"] * self.size[0]] * self.size[1])
-        for obj in get_render_ordered_objects(objects):
+    def get_colors(self, grid_state):
+        size, objects = grid_state
+        grid = np.array([["0x000000"] * size[0]] * size[1])
+        for obj in self.get_render_ordered_objects(objects):
             grid[obj.pos[1]][obj.pos[0]] = Colors.rgb_to_hex(obj.rgb)
         return grid
 
-    def get_char_matrix(self, objects):
-        grid = np.array([['·'] * self.size[0]] * self.size[1])
-        for obj in get_render_ordered_objects(objects):
+    def get_char_matrix(self, grid_state):
+        size, objects = grid_state
+        grid = np.array([['·'] * size[0]] * size[1])
+        for obj in self.get_render_ordered_objects(objects):
             grid[obj.pos[1]][obj.pos[0]] = obj.name[0].capitalize()
         return grid
 
@@ -62,9 +58,10 @@ class GridWorld:
         # if direction is None, it checks superposition of objects
         return [o for o in objects if obj is not o and check_collision[direction](obj.pos, o.pos)]
 
-    def render(self, objects, size=None):
-        grid = np.zeros([self.size[1], self.size[0], 3], dtype=np.uint8)
-        for obj in get_render_ordered_objects(objects):
+    def render(self, grid_state, size=None):
+        grid_size, objects = grid_state
+        grid = np.zeros([grid_size[1], grid_size[0], 3], dtype=np.uint8)
+        for obj in self.get_render_ordered_objects(objects):
             grid[obj.pos[1]][obj.pos[0]] = obj.rgb
 
         if size: grid = cv2.resize(grid, size, interpolation=cv2.INTER_AREA)

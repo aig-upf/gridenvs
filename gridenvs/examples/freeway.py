@@ -55,7 +55,7 @@ class FreewayEnv(HeroEnv):
         new_objs = []
         for o in state["other_objects"]:
             if o.name == 'C':
-                if o.pos[0] < self.world.size[0] - 1:  # else we remove the car
+                if o.pos[0] < self.grid_size[0] - 1:  # else we remove the car
                     new_objs.append(self.move(o, Direction.E, check_collision_objects=[]))
             else:
                 new_objs.append(o)

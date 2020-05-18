@@ -1,6 +1,6 @@
 import numpy as np
 from gridenvs.env import GridEnv
-from gridenvs.world import GridWorld, GridObject
+from gridenvs.world import GridState, GridObject
 from gridenvs.utils import Direction
 
 
@@ -9,7 +9,12 @@ class HeroEnv(GridEnv):
     Abstract class for environments with a single agent (hero) that moves around the grid
     """
     def __init__(self, size, actions=[None,]+Direction.cardinal(), block_names=[], max_moves=None, **kwargs):
-        super(HeroEnv, self).__init__(size=size, n_actions=len(actions), max_moves=max_moves, **kwargs)
+        super(HeroEnv, self).__init__(n_actions=len(actions), max_moves=max_moves, **kwargs)
+        try:
+            x,y = size
+        except TypeError:
+            size = size, size
+        self.grid_size = size
         self.actions = actions
         self.block_names = block_names
 
@@ -24,17 +29,17 @@ class HeroEnv(GridEnv):
         info.update({'position': next_state['hero'].pos})
         return next_state, r, done, info
 
-    def get_objects_to_render(self, state):
+    def get_gridstate(self, state):
         try:
-            return [state["hero"]] + list(state["other_objects"])
+            return GridState(size=self.grid_size, objects=[state["hero"]] + list(state["other_objects"]))
         except KeyError:
             raise Exception("State should contain at least 'hero' and 'other_objects'.")
 
     def move(self, obj, direction, check_collision_objects):
         if direction is not None:
             dx, dy = direction.value
-            if obj.pos[0] + dx >= 0 and obj.pos[0] + dx < self.world.size[0] \
-                    and obj.pos[1] + dy >= 0 and obj.pos[1] + dy < self.world.size[1]:
+            if obj.pos[0] + dx >= 0 and obj.pos[0] + dx < self.grid_size[0] \
+                    and obj.pos[1] + dy >= 0 and obj.pos[1] + dy < self.grid_size[1]:
                 others = self.world.collision(obj, check_collision_objects, direction)
                 if dx != 0 and dy != 0:
                     # diagonal move, also check cardinal positions before trying to move diagonally

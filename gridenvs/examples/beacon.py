@@ -32,6 +32,6 @@ class MoveToBeaconEnv(HeroEnv):
         return new_state, 0.0, False, {}
 
     def generate_random_position(self):
-        x = np.random.randint(0, self.world.size[0])
-        y = np.random.randint(0, self.world.size[1])
+        x = np.random.randint(0, self.grid_size[0])
+        y = np.random.randint(0, self.grid_size[1])
         return (x,y)
