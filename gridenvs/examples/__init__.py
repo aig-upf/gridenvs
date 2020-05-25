@@ -38,7 +38,7 @@ register(id='GE_PathKeyDoor-v0',
 for i in range(2):
     register(id='GE_MazeKeyDoorXL-v%i'%i,
              entry_point='gridenvs.examples.key_door:mazeXL%i'%i,
-             kwargs={'max_moves': 1500, 'key_reward': True},
+             kwargs={'max_moves': 10000, 'key_reward': True},
              nondeterministic=False)
 
 for i in (10,18,30):
@@ -54,7 +54,7 @@ for i in (10,18,30):
              kwargs={'max_moves': 1000, 'key_reward': True},
              nondeterministic=False)
 
-for i in (10,18):
+for i in (8,16):
     for j in (1,2,3):
         register(id='GE_MazeKeyDoor%ikeyDoor%i-v0'%(i, j),
              entry_point='gridenvs.examples.key_door:maze%ix%ikeyDoor%i'%(i, i, j),
@@ -72,6 +72,13 @@ for i in [10, 18]:
     for j in (1,2,3):
         register(id='GE_MazeKeyDoor%ipick_up_objects1color%i-v0'%(i, j),
              entry_point='gridenvs.examples.key_door:maze%ix%ipick_up_objects1color%i'%(i, i, j),
+             kwargs={'max_moves': 1000, 'key_reward': True},
+             nondeterministic=False)
+
+for i in [16]:
+    for j in (1,2,3):
+        register(id='GE_MazeFourRoom%ikeyDoor%i-v0'%(i, j),
+             entry_point='gridenvs.examples.key_door:FourRoom%ix%ikeyDoor%i'%(i, i, j),
              kwargs={'max_moves': 1000, 'key_reward': True},
              nondeterministic=False)
 

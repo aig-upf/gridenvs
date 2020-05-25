@@ -159,37 +159,36 @@ def corridor(**kwargs):
 
 
 def mazeXL0(**kwargs):
-    init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-                "W......W......W........W.......W",
-                "W......W......W........W.......W",
-                "W......W......W........W.......W",
-                "W...H..........................W",
-                "W..............................W",
-                "W.............W................W",
-                "W.............W........W.......W",
-                "WWW..WWWW...WWWWWWWWWWWW......WW",
-                "W.............W................W",
-                "W.............W................W",
-                "W.............W.......D........W",
-                "W.............W................W",
-                "W.............W................W",
-                "WWWWWWWWWW...WWWWWWWWWWWWWWWWWWW",
-                "W.................W............W",
-                "W.................W............W",
-                "W..............................W",
-                "W......W.......................W",
-                "W......W.......................W",
-                "W.................W............W",
-                "W.............WWWWWWW...WWWWWWWW",
-                "W......W......W................W",
-                "WWW..WWWWW..WWW................W",
-                "W.............W................W",
-                "W.............W................W",
-                "W.............W................W",
-                "W.............W.........K......W",
-                "W.............W................W",
-                "W.............W................W",
-                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
+    init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+                "W......W......W........W.....W",
+                "W......W......W........W.....W",
+                "W......W......W........W.....W",
+                "W...H........................W",
+                "W............................W",
+                "W.............W..............W",
+                "W.............W........W.....W",
+                "WWW..WWWW...WWWWWWWWWWWW....WW",
+                "W.............W..............W",
+                "W.............W..............W",
+                "W.............W.......D......W",
+                "W.............W..............W",
+                "W.............W..............W",
+                "WWWWWWWWWW...WWWWWWWWWWWWWWWWW",
+                "W.................W..........W",
+                "W.................W..........W",
+                "W............................W",
+                "W......W.....................W",
+                "W......W.....................W",
+                "W.................W..........W",
+                "W.............WWWWWWW...WWWWWW",
+                "W......W......W..............W",
+                "WWW..WWWWW..WWW..............W",
+                "W.............W..............W",
+                "W.............W..............W",
+                "W.............W..............W",
+                "W.............W.........K....W",
+                "W.............W..............W",
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
 
 
@@ -228,6 +227,39 @@ def mazeXL1(**kwargs):
                 "W.............W................W",
                 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
 
+    return KeyDoorEnv(init_map, **kwargs)
+
+def maze8x8keyDoor1(**kwargs):
+    init_map = ["WWWWWWWW",
+                "WD....KW",
+                "W......W",
+                "W......W",
+                "W......W",
+                "W......W",
+                "WH.....W",
+                "WWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def maze8x8keyDoor2(**kwargs):
+    init_map = ["WWWWWWWW",
+                "W.....DW",
+                "W......W",
+                "W......W",
+                "W......W",
+                "W......W",
+                "WH....KW",
+                "WWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def maze8x8keyDoor3(**kwargs):
+    init_map = ["WWWWWWWW",
+                "WK.....W",
+                "W......W",
+                "W......W",
+                "W......W",
+                "W......W",
+                "WH....DW",
+                "WWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
 
 def maze10x10(**kwargs):
@@ -545,6 +577,120 @@ def maze18x18keyDoor3(**kwargs):
                 "W................W",
                 "WH..............DW",
                 "WWWWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def maze16x16keyDoor1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WD............KW",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "WH.............W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def maze16x16keyDoor2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W.............DW",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "WH............KW",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def maze16x16keyDoor3(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WK.............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "W..............W",
+                "WH............DW",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def FourRoom16x16keyDoor1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WD.....WW.....KW",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WWW.WWWWWWWW.WWW",
+                "WWW.WWWWWWWW.WWW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW......W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def FourRoom16x16keyDoor2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W......WW.....DW",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WWW.WWWWWWWW.WWW",
+                "WWW.WWWWWWWW.WWW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW.....KW",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def FourRoom16x16keyDoor3(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WK.....WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WWW.WWWWWWWW.WWW",
+                "WWW.WWWWWWWW.WWW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW.....DW",
+                "WWWWWWWWWWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
 
 def maze18x18key1color1(**kwargs):
