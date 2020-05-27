@@ -75,11 +75,32 @@ for i in [10, 18]:
              kwargs={'max_moves': 1000, 'key_reward': True},
              nondeterministic=False)
 
-for i in [16]:
+for i in [8, 16]:
     for j in (1,2,3):
         register(id='GE_MazeFourRoom%ikeyDoor%i-v0'%(i, j),
              entry_point='gridenvs.examples.key_door:FourRoom%ix%ikeyDoor%i'%(i, i, j),
-             kwargs={'max_moves': 1000, 'key_reward': True},
+             kwargs={'max_moves': 1000, 'key_reward': True, 'blocking_walls':True},
+             nondeterministic=False)
+
+for i in [32]:
+    for j in (1,2,3):
+        register(id='GE_MazeEightRoom%ikeyDoor%i-v0'%(i, j),
+             entry_point='gridenvs.examples.key_door:EightRoom%ix%ikeyDoor%i'%(i, i, j),
+             kwargs={'max_moves': 1000, 'key_reward': True, 'blocking_walls':True},
+             nondeterministic=False)
+
+for i in [16]:
+    for j in (1,2,3):
+        register(id='GE_MazeLava%ikeyDoor%i-v0'%(i, j),
+             entry_point='gridenvs.examples.key_door:Lava%ix%ikeyDoor%i'%(i, i, j),
+             kwargs={'max_moves': 1000, 'key_reward': True, 'blocking_walls':True},
+             nondeterministic=False)
+
+for i in [16]:
+    for j in [2]:
+        register(id='GE_MazeTreasure%ikeyDoor%i-v0'%(i, j),
+             entry_point='gridenvs.examples.key_door:Treasure%ix%ikeyDoor%i'%(i, i, j),
+             kwargs={'max_moves': 1000, 'key_reward': True, 'blocking_walls':True},
              nondeterministic=False)
 
 

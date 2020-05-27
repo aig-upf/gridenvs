@@ -3,8 +3,8 @@ from gridenvs.hero import HeroEnv, create_world_from_string_map
 
 
 class KeyDoorEnv(HeroEnv):
-    color1 = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black}
-    color2 = {'W': Color.green, 'D': Color.gray, 'K': Color.blue, 'H': Color.red, '.': Color.black}
+    color1 = {'W': Color.gray, 'D': Color.green, 'K': Color.yellow, 'H': Color.blue, '.': Color.black, 'L': Color.red}
+    color2 = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black, 'T': Color.yellow}
     color3 = {'W': Color.blue, 'D': Color.red, 'K': Color.green, 'H': Color.gray, '.': Color.green}
 
     def __init__(self, str_map, key_reward=False, blocking_walls=False, color = color1, total_number_of_keys=None, **kwargs):
@@ -36,10 +36,20 @@ class KeyDoorEnv(HeroEnv):
 
             if o.name == 'W':
                 self.number_of_keys_collected = 0
-                return -1.0, True, {}
+                return 0, True, {}
+
+            elif o.name == 'L':
+                self.number_of_keys_collected = 0
+                return 0, True, {}
+
             elif o.name == 'D' and self.state["has_key"] and self.total_number_of_keys is None:
                 self.number_of_keys_collected = 0
+                self.state["world"].remove_object(o)
+                return 1.0, False, {}
+
+            elif o.name == 'T':
                 return 1.0, True, {}
+
             elif o.name == 'K':
                 self.state["has_key"] = True
                 self.state["world"].remove_object(o)
@@ -636,6 +646,39 @@ def maze16x16keyDoor3(**kwargs):
                 "WWWWWWWWWWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
 
+def FourRoom8x8keyDoor1(**kwargs):
+    init_map = ["WWWWWWWW",
+                "WD.WW.KW",
+                "W......W",
+                "W.WWWW.W",
+                "W.WWWW.W",
+                "W......W",
+                "WH.WW..W",
+                "WWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def FourRoom8x8keyDoor2(**kwargs):
+    init_map = ["WWWWWWWW",
+                "W..WW.DW",
+                "W......W",
+                "W.WWWW.W",
+                "W.WWWW.W",
+                "W......W",
+                "WH.WW.KW",
+                "WWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def FourRoom8x8keyDoor3(**kwargs):
+    init_map = ["WWWWWWWW",
+                "WK.WW..W",
+                "W......W",
+                "W.WWWW.W",
+                "W.WWWW.W",
+                "W......W",
+                "WH.WW.DW",
+                "WWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
 def FourRoom16x16keyDoor1(**kwargs):
     init_map = ["WWWWWWWWWWWWWWWW",
                 "WD.....WW.....KW",
@@ -691,6 +734,139 @@ def FourRoom16x16keyDoor3(**kwargs):
                 "W......WW......W",
                 "WH.....WW.....DW",
                 "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def Treasure16x16keyDoor2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W......WWT.....W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW.....KW",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Lava16x16keyDoor1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WD............KW",
+                "W..............W",
+                "W......LL......W",
+                "W......LL......W",
+                "W.....LLLL.....W",
+                "W....LLLLLL....W",
+                "W..LLLLLLLLLL..W",
+                "W..LLLLLLLLLL..W",
+                "W....LLLLLL....W",
+                "W.....LLLL.....W",
+                "W......LL......W",
+                "W......LL......W",
+                "W..............W",
+                "WH.............W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def Lava16x16keyDoor2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W.............DW",
+                "W..............W",
+                "W......LL......W",
+                "W......LL......W",
+                "W.....LLLL.....W",
+                "W....LLLLLL....W",
+                "W..LLLLLLLLLL..W",
+                "W..LLLLLLLLLL..W",
+                "W....LLLLLL....W",
+                "W.....LLLL.....W",
+                "W......LL......W",
+                "W......LL......W",
+                "W..............W",
+                "WH............KW",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def Lava16x16keyDoor3(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WK.............W",
+                "W..............W",
+                "W......LL......W",
+                "W......LL......W",
+                "W.....LLLL.....W",
+                "W....LLLLLL....W",
+                "W..LLLLLLLLLL..W",
+                "W..LLLLLLLLLL..W",
+                "W....LLLLLL....W",
+                "W.....LLLL.....W",
+                "W......LL......W",
+                "W......LL......W",
+                "W..............W",
+                "WH............DW",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def EightRoom32x32keyDoor1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+                "WD.....WW......WW......WW.....KW",
+                "W......WW......WW......WW......W",
+                "W..............................W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "WWW.WWWWWWWW.WWWWWW.WWWWWWWW.WWW",
+                "WWW.WWWWWWWW.WWWWWW.WWWWWWWW.WWW",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W..............................W",
+                "W......WW......WW......WW......W",
+                "WH.....WW......WW......WW......W",
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def EightRoom32x32keyDoor2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+                "W......WW......WW......WW.....DW",
+                "W......WW......WW......WW......W",
+                "W..............................W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "WWW.WWWWWWWW.WWWWWW.WWWWWWWW.WWW",
+                "WWW.WWWWWWWW.WWWWWW.WWWWWWWW.WWW",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W..............................W",
+                "W......WW......WW......WW......W",
+                "WH.....WW......WW......WW.....KW",
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, **kwargs)
+
+def EightRoom32x32keyDoor3(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+                "WK.....WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W..............................W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "WWW.WWWWWWWW.WWWWWW.WWWWWWWW.WWW",
+                "WWW.WWWWWWWW.WWWWWW.WWWWWWWW.WWW",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W......WW......WW......WW......W",
+                "W..............................W",
+                "W......WW......WW......WW......W",
+                "WH.....WW......WW......WW.....DW",
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
 
 def maze18x18key1color1(**kwargs):
