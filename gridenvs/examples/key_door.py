@@ -28,6 +28,15 @@ class KeyDoorEnv(HeroEnv):
                 "blocks": blocks,
                 "has_key" : False}
 
+    def move_hero(self, direction):
+        collisions = self.state["world"].collision(self.state['hero'], direction=direction)
+        if len(collisions) > 0:
+            o = collisions[0]
+            if 'D' == o.name and not self.state["has_key"]:
+                return False
+
+        return self.move(self.state['hero'], direction)
+
     def _update(self):
         collisions = self.state["world"].collision(self.state['hero'], direction=None)  # check superposition of objs
         if len(collisions) > 0:
