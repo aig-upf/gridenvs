@@ -878,6 +878,140 @@ def Treasure16x16keyDoor6(**kwargs):
                 "WWWWWWWWWWWWWWWW"]
     return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
 
+def Treasure16x16key0(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W......WWT.....W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW.....KW",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure16x16key1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WK.....WWT.....W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW......W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure16x16key2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W......WW.....TW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WK.....WW......W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW......W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure16x16key3(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W.....KWW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WWT.....W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW......W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure16x16key4(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "WK.....WWT.....W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW......W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure16x16key5(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W......WW.....TW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "WK.....WW......W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW......W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure16x16key6(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWWW",
+                "W.....KWW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WWT.....W",
+                "WWW.WWWWWWWWWW.W",
+                "WWW.WWWWWWWWWWDW",
+                "W......WW......W",
+                "W......WW......W",
+                "W......WW......W",
+                "W..............W",
+                "W......WW......W",
+                "WH.....WW......W",
+                "WWWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+
 
 def Lava16x16keyDoor1(**kwargs):
     init_map = ["WWWWWWWWWWWWWWWW",
