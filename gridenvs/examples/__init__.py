@@ -106,9 +106,28 @@ for i in [16]:
 for i in [16]:
     for j in [0,1,2,3,4,5,6]:
         register(id='GE_MazeTreasure%ikey%i-v0'%(i, j),
+             entry_point='gridenvs.examples.key_door:Treasure%ix%ikey%i'%(i, i, j),
+             kwargs={'max_moves': 300, 'key_reward': True, 'blocking_walls':True},
+             nondeterministic=False)
+
+for i in [15]:
+    for j in [0,1,2]:
+        register(id='GE_MazeTreasure%ikeyDoor%i-v0'%(i, j),
              entry_point='gridenvs.examples.key_door:Treasure%ix%ikeyDoor%i'%(i, i, j),
              kwargs={'max_moves': 300, 'key_reward': True, 'blocking_walls':True},
              nondeterministic=False)
+
+for i in [15]:
+    for j in [0,1,2]:
+        register(id='GE_MazeTreasure%ikeyDoorLava%i-v0'%(i, j),
+             entry_point='gridenvs.examples.key_door:Treasure%ix%ikeyDoorLava%i'%(i, i, j),
+             kwargs={'max_moves': 300, 'key_reward': True, 'blocking_walls':True},
+             nondeterministic=False)
+
+register(id='GE_MazeTreasure15keyDoorOriginal-v0',
+     entry_point='gridenvs.examples.key_door:Treasure15x15keyDoorOriginal',
+     kwargs={'max_moves': 300, 'key_reward': True, 'blocking_walls':True},
+     nondeterministic=False)
 
 
 

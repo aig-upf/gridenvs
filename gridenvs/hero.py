@@ -2,6 +2,7 @@
 from gridenvs.env import GridEnv
 from gridenvs.world import GridWorld, GridObject
 from gridenvs.utils import Direction, Point
+from copy import deepcopy
 
 
 class HeroEnv(GridEnv):
@@ -20,6 +21,15 @@ class HeroEnv(GridEnv):
         if "blocks" in state.keys():
             assert all(isinstance(b, GridObject) for b in state["blocks"]), "Blocks need to be grid objects"
         return state
+
+    def reset(self):
+        if self.reset_to_new_state:
+            self.state = self.new_state()
+        else:
+            self.state = deepcopy(self.init_state)
+        self._obs = self.state["world"].render(size=self.pixel_size)
+        self.state["done"] = False
+        return self._obs, {'position': tuple(self.state['hero'].pos)}
 
     def update_environment(self, action):
         self.move_hero(action)

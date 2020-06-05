@@ -4,7 +4,7 @@ from gridenvs.hero import HeroEnv, create_world_from_string_map
 
 class KeyDoorEnv(HeroEnv):
     color1 = {'W': Color.gray, 'D': Color.green, 'K': Color.yellow, 'H': Color.blue, '.': Color.black, 'L': Color.red}
-    color2 = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black, 'T': Color.yellow}
+    color2 = {'W': Color.gray, 'D': Color.green, 'K': Color.red, 'H': Color.blue, '.': Color.black, 'T': Color.yellow, 'L': Color.red}
     color3 = {'W': Color.blue, 'D': Color.red, 'K': Color.green, 'H': Color.gray, '.': Color.green}
 
     def __init__(self, str_map, key_reward=False, blocking_walls=False, color = color1, total_number_of_keys=None, **kwargs):
@@ -1285,3 +1285,130 @@ def maze30x30(**kwargs):
                 "WH...........................W",
                 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
     return KeyDoorEnv(init_map, **kwargs)
+
+
+def Treasure15x15keyDoor0(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWW",
+                "WK.....WT.....W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W.WWWWWWWWWWW.W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W.............W",
+                "WH.....W......W",
+                "WWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure15x15keyDoor1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWW",
+                "WK.....WT.....W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W.WWWWWWWWWWWDW",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W.............W",
+                "WH.....W......W",
+                "WWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure15x15keyDoor2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWW",
+                "W.....TW.....KW",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "WDWWWWWWWWWWW.W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W.............W",
+                "W......W.....HW",
+                "WWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure15x15keyDoorOriginal(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWW",
+                "W......WT.....W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W.WWWWWWWWWWWDW",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W......W......W",
+                "W.............W",
+                "WH.....W.....KW",
+                "WWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure15x15keyDoorLava0(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWW",
+                "WK.....LT.....W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W.LLLLLLLLLLL.W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W.............W",
+                "WH.....L......W",
+                "WWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure15x15keyDoorLava1(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWW",
+                "WK.....LT.....W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W.LLLLLLLLLLLDW",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W.............W",
+                "WH.....L......W",
+                "WWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
+
+def Treasure15x15keyDoorLava2(**kwargs):
+    init_map = ["WWWWWWWWWWWWWWW",
+                "W.....TL.....KW",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "WDLLLLLLLLLLL.W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W......L......W",
+                "W.............W",
+                "W......L.....HW",
+                "WWWWWWWWWWWWWWW"]
+    return KeyDoorEnv(init_map, color = KeyDoorEnv.color2, **kwargs)
