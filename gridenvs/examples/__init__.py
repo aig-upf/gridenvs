@@ -40,6 +40,13 @@ for i in [16]:
              kwargs={'max_moves': 300, 'key_reward': True, 'blocking_walls':True},
              nondeterministic=False)
 
+for i in [16]:
+    for j in [0,1,2]:
+        register(id='GE_MazeTreasure8x16keyDoorLava%i-v0'%(j),
+             entry_point='gridenvs.examples.key_door:Treasure8x%ikeyDoorLava%i'%(i, j),
+             kwargs={'max_moves': 300, 'key_reward': True, 'blocking_walls':False},
+             nondeterministic=False)
+
 register(id='GE_MazeTreasure16keyDoorOriginal-v0',
      entry_point='gridenvs.examples.key_door:Treasure16x16keyDoorOriginal',
      kwargs={'max_moves': 300, 'key_reward': True, 'blocking_walls':True},
