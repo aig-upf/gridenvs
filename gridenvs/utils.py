@@ -42,7 +42,7 @@ class Direction(Enum):
         return list(Direction)
 
     def opposite(self):
-        return Direction(-self.value)
+        return Direction((-self.value[0], -self.value[1]))
 
 
 class Colors:
